@@ -40,12 +40,10 @@ namespace Gibbed.Frostbite3.UnpackResources
         {
             bool convertTextures = false;
             bool showHelp = false;
-            bool verbose = false;
 
             var options = new OptionSet()
             {
                 { "convert-textures", "convert textures", v => convertTextures = v != null },
-                { "v|verbose", "be verbose", v => verbose = v != null },
                 { "h|help", "show this message and exit", v => showHelp = v != null },
             };
 
@@ -162,11 +160,18 @@ namespace Gibbed.Frostbite3.UnpackResources
 
                         Console.WriteLine("{0}", resourceInfo.Name);
 
+                        bool wasConverted = false;
                         if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
                         {
-                            UnpackTexture(bundleInfo, resourceInfo, entry, outputPath, catalogLookup, commonBundles);
+                            wasConverted = UnpackTexture(bundleInfo,
+                                                         resourceInfo,
+                                                         entry,
+                                                         outputPath,
+                                                         catalogLookup,
+                                                         commonBundles);
                         }
-                        else
+
+                        if (wasConverted == false)
                         {
                             string extension;
                             if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
@@ -189,7 +194,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
         }
 
-        private static void UnpackTexture(SuperbundleFile.BundleEntry bundleInfo,
+        private static bool UnpackTexture(SuperbundleFile.BundleEntry bundleInfo,
                                           SuperbundleFile.ResourceEntry resourceInfo,
                                           ICatalogEntryInfo entry,
                                           string outputPath,
@@ -208,6 +213,20 @@ namespace Gibbed.Frostbite3.UnpackResources
                 }
             }
 
+            if (textureHeader.Type != TextureType._2d)
+            {
+                return false;
+            }
+
+            if (textureHeader.Unknown00 != 0 ||
+                textureHeader.Unknown04 != 0 ||
+                textureHeader.Unknown10 != 0 ||
+                textureHeader.Unknown14 != 0 ||
+                textureHeader.Unknown1C != 1)
+            {
+                throw new FormatException();
+            }
+
             SHA1 chunkSHA1;
             if (GetChunkSHA1(bundleInfo, commonBundles, textureHeader.ChunkId, out chunkSHA1) == false)
             {
@@ -224,6 +243,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
 
             DDSUtils.WriteFile(textureHeader, dataBytes, outputPath + ".dds");
+            return true;
         }
 
         private static bool GetChunkSHA1(SuperbundleFile.BundleEntry bundleInfo,

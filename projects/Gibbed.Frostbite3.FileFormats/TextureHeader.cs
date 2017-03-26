@@ -31,14 +31,14 @@ namespace Gibbed.Frostbite3.FileFormats
     {
         public uint Unknown00;
         public uint Unknown04;
-        public uint Type;
+        public TextureType Type;
         public TextureFormat Format;
         public uint Unknown10;
         public ushort Unknown14;
         public ushort Width;
         public ushort Height;
         public ushort Depth;
-        public ushort Unknown1C;
+        public ushort Unknown1C; // array size?
         public byte MipCount;
         public byte FirstMipIndex;
         public Guid ChunkId;
@@ -55,7 +55,7 @@ namespace Gibbed.Frostbite3.FileFormats
             TextureHeader instance;
             instance.Unknown00 = input.ReadValueU32(endian);
             instance.Unknown04 = input.ReadValueU32(endian);
-            instance.Type = input.ReadValueU32(endian);
+            instance.Type = (TextureType)input.ReadValueU32(endian);
             instance.Format = (TextureFormat)input.ReadValueU32(endian);
             instance.Unknown10 = input.ReadValueU32(endian);
             instance.Unknown14 = input.ReadValueU16(endian);
