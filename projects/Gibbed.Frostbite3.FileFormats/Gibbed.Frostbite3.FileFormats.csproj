@@ -57,6 +57,7 @@
     <Compile Include="SuperbundleFile.cs" />
     <Compile Include="TextureFormat.cs" />
     <Compile Include="TextureHeader.cs" />
+    <Compile Include="TextureType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gibbed.IO\Gibbed.IO.csproj">
