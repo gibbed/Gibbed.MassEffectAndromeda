@@ -33,5 +33,10 @@ namespace Gibbed.Frostbite3.VfsFormats.Layout
 
         [DbObject.Property("chunks")]
         public List<Guid> Chunks { get; set; }
+
+        public override string ToString()
+        {
+            return this.Name ?? base.ToString();
+        }
     }
 }

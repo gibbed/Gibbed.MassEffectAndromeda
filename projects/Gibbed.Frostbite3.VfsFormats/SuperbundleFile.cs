@@ -21,27 +21,13 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using DbObject = Gibbed.Frostbite3.Common.DbObject;
 
 namespace Gibbed.Frostbite3.VfsFormats
 {
-    public class SuperbundleFile
+    public class SuperbundleFile : DbObjectFile<SuperbundleFile>
     {
         [DbObject.Property("bundles")]
         public List<Superbundle.BundleInfo> Bundles { get; set; }
-
-        public static SuperbundleFile Read(string path)
-        {
-            using (var input = File.OpenRead(path))
-            {
-                return FileLayerHelper.ReadObject(input, Read);
-            }
-        }
-
-        public static SuperbundleFile Read(Stream input)
-        {
-            return new DbObject.Serializer().Deserialize<SuperbundleFile>(input);
-        }
     }
 }

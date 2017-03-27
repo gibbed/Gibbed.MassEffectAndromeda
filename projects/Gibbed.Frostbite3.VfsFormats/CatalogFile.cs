@@ -55,7 +55,7 @@ namespace Gibbed.Frostbite3.VfsFormats
         {
             using (var input = File.OpenRead(path))
             {
-                return FileLayerHelper.ReadObject(input, s => Read(s));
+                return FileLayerHelper.ReadObject(input, Read);
             }
         }
 

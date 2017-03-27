@@ -32,5 +32,10 @@ namespace Gibbed.Frostbite3.VfsFormats.Layout
 
         [DbObject.Property("name")]
         public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return this.Name ?? base.ToString();
+        }
     }
 }

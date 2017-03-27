@@ -34,5 +34,10 @@ namespace Gibbed.Frostbite3.VfsFormats.TableOfContents
 
         [DbObject.Property("size")]
         public long Size { get; set; }
+
+        public override string ToString()
+        {
+            return this.Id ?? base.ToString();
+        }
     }
 }

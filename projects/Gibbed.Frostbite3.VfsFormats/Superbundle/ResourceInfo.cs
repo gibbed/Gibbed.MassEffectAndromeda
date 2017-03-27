@@ -50,5 +50,10 @@ namespace Gibbed.Frostbite3.VfsFormats.Superbundle
 
         [DbObject.Property("idata")]
         public byte[] InlineData { get; set; }
+
+        public override string ToString()
+        {
+            return this.Name ?? base.ToString();
+        }
     }
 }

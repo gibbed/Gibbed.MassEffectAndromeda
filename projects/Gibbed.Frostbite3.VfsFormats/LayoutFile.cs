@@ -21,12 +21,11 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using DbObject = Gibbed.Frostbite3.Common.DbObject;
 
 namespace Gibbed.Frostbite3.VfsFormats
 {
-    public class LayoutFile
+    public class LayoutFile : DbObjectFile<LayoutFile>
     {
         [DbObject.Property("superBundles")]
         public List<Layout.SuperbundleInfo> Superbundles { get; set; }
@@ -39,18 +38,5 @@ namespace Gibbed.Frostbite3.VfsFormats
 
         [DbObject.Property("installManifest")]
         public Layout.InstallManifest InstallManifest { get; set; }
-
-        public static LayoutFile Read(string path)
-        {
-            using (var input = File.OpenRead(path))
-            {
-                return FileLayerHelper.ReadObject(input, s => Read(s));
-            }
-        }
-
-        public static LayoutFile Read(Stream input)
-        {
-            return new DbObject.Serializer().Deserialize<LayoutFile>(input);
-        }
     }
 }

@@ -20,26 +20,24 @@
  *    distribution.
  */
 
-using System.Collections.Generic;
+using System.IO;
 using DbObject = Gibbed.Frostbite3.Common.DbObject;
 
 namespace Gibbed.Frostbite3.VfsFormats
 {
-    public class TableOfContentsFile : DbObjectFile<TableOfContentsFile>
+    public abstract class DbObjectFile<T>
     {
-        [DbObject.Property("bundles")]
-        public List<TableOfContents.BundleInfo> Bundles { get; set; }
+        public static T Read(string path)
+        {
+            using (var input = File.OpenRead(path))
+            {
+                return FileLayerHelper.ReadObject(input, Read);
+            }
+        }
 
-        [DbObject.Property("chunks")]
-        public List<TableOfContents.ChunkInfo> Chunks { get; set; }
-
-        [DbObject.Property("cas")]
-        public bool IsCas { get; set; }
-
-        [DbObject.Property("name")]
-        public string Name { get; set; }
-
-        [DbObject.Property("alwaysEmitSuperbundle")]
-        public bool AlwaysEmitSuperbundle { get; set; }
+        public static T Read(Stream input)
+        {
+            return new DbObject.Serializer().Deserialize<T>(input);
+        }
     }
 }

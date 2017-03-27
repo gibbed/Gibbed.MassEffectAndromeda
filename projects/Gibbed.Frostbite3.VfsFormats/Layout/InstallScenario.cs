@@ -45,5 +45,10 @@ namespace Gibbed.Frostbite3.VfsFormats.Layout
 
         [DbObject.Property("installPackages")]
         public List<InstallPackage> InstallPackages { get; set; }
+
+        public override string ToString()
+        {
+            return this.Name ?? base.ToString();
+        }
     }
 }

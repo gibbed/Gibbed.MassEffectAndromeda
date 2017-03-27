@@ -77,5 +77,10 @@ namespace Gibbed.Frostbite3.VfsFormats.Superbundle
 
         [DbObject.Property("bmm")]
         public List<int> Bmm { get; set; }
+
+        public override string ToString()
+        {
+            return this.Path ?? base.ToString();
+        }
     }
 }
