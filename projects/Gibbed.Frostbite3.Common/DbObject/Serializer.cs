@@ -343,6 +343,11 @@ namespace Gibbed.Frostbite3.Common.DbObject
                     return input.ReadValueS64(Endian.Little);
                 }
 
+                case ValueType.Float64:
+                {
+                    return input.ReadValueF64(Endian.Little);
+                }
+
                 case ValueType.Guid:
                 {
                     return input.ReadValueGuid(Endian.Big);

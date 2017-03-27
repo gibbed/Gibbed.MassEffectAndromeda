@@ -32,6 +32,7 @@ namespace Gibbed.Frostbite3.Common.DbObject
         String = 7,
         Int32 = 8,
         Int64 = 9,
+        Float64 = 12,
         Guid = 15,
         SHA1 = 16,
         Bytes = 19,
