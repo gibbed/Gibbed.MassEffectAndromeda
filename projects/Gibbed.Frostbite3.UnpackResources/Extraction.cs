@@ -22,8 +22,8 @@
 
 using System;
 using System.IO;
-using Gibbed.Frostbite3.FileFormats;
 using Gibbed.IO;
+using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -48,7 +48,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
         }
 
-        public static void Extract(SuperbundleFile.IDataEntry bundleInfo, ICatalogEntryInfo catalogInfo, Stream output)
+        public static void Extract(Superbundle.IDataInfo bundleInfo, ICatalogEntryInfo catalogInfo, Stream output)
         {
             if (bundleInfo == null)
             {

@@ -24,8 +24,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Gibbed.Frostbite3.FileFormats;
+using Gibbed.Frostbite3.Common;
+using Gibbed.Frostbite3.ResourceFormats;
+using Gibbed.Frostbite3.VfsFormats;
 using NDesk.Options;
+using Layout = Gibbed.Frostbite3.VfsFormats.Layout;
+using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -163,12 +167,12 @@ namespace Gibbed.Frostbite3.UnpackResources
                         bool wasConverted = false;
                         if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
                         {
-                            wasConverted = UnpackTexture(bundleInfo,
-                                                         resourceInfo,
-                                                         entry,
-                                                         outputPath,
-                                                         catalogLookup,
-                                                         commonBundles);
+                            wasConverted = ConvertTexture(bundleInfo,
+                                                          resourceInfo,
+                                                          entry,
+                                                          outputPath,
+                                                          catalogLookup,
+                                                          commonBundles);
                         }
 
                         if (wasConverted == false)
@@ -194,12 +198,12 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
         }
 
-        private static bool UnpackTexture(SuperbundleFile.BundleEntry bundleInfo,
-                                          SuperbundleFile.ResourceEntry resourceInfo,
-                                          ICatalogEntryInfo entry,
-                                          string outputPath,
-                                          CatalogLookup catalogLookup,
-                                          List<TableOfContentsFile> commonBundles)
+        private static bool ConvertTexture(Superbundle.BundleInfo bundleInfo,
+                                           Superbundle.ResourceInfo resourceInfo,
+                                           ICatalogEntryInfo entry,
+                                           string outputPath,
+                                           CatalogLookup catalogLookup,
+                                           List<TableOfContentsFile> commonBundles)
         {
             TextureHeader textureHeader;
             using (var temp = new MemoryStream())
@@ -228,16 +232,16 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
 
             SHA1 chunkSHA1;
-            if (GetChunkSHA1(bundleInfo, commonBundles, textureHeader.ChunkId, out chunkSHA1) == false)
+            if (GetChunkSHA1(bundleInfo, commonBundles, textureHeader.DataChunkId, out chunkSHA1) == false)
             {
                 throw new InvalidOperationException();
             }
 
-            var dataEntry = catalogLookup.GetEntry(chunkSHA1, textureHeader.ChunkSize);
+            var dataEntry = catalogLookup.GetEntry(chunkSHA1, textureHeader.TotalSize);
             byte[] dataBytes;
             using (var temp = new MemoryStream())
             {
-                Extraction.Extract(dataEntry, textureHeader.ChunkSize, temp);
+                Extraction.Extract(dataEntry, textureHeader.TotalSize, temp);
                 temp.Position = 0;
                 dataBytes = temp.GetBuffer();
             }
@@ -246,7 +250,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             return true;
         }
 
-        private static bool GetChunkSHA1(SuperbundleFile.BundleEntry bundleInfo,
+        private static bool GetChunkSHA1(Superbundle.BundleInfo bundleInfo,
                                          List<TableOfContentsFile> commonBundles,
                                          Guid chunkId,
                                          out SHA1 chunkSHA1)
@@ -273,16 +277,16 @@ namespace Gibbed.Frostbite3.UnpackResources
             return false;
         }
 
-        private static List<LayoutFile.InstallChunkInfo> GetSuperbundleInstallChunks(LayoutFile layout, string name)
+        private static List<Layout.InstallChunk> GetSuperbundleInstallChunks(LayoutFile layout, string name)
         {
             var rootChunk = layout.InstallManifest.InstallChunks.FirstOrDefault(
                 ici => ici.Superbundles.Select(n => n.ToLowerInvariant()).Contains(name) == true);
-            if (rootChunk == default(LayoutFile.InstallChunkInfo))
+            if (rootChunk == null)
             {
                 return null;
             }
 
-            var chunks = new Dictionary<Guid, LayoutFile.InstallChunkInfo>();
+            var chunks = new Dictionary<Guid, Layout.InstallChunk>();
             chunks.Add(rootChunk.Id, rootChunk);
 
             var queue = new Queue<Guid>();
@@ -302,7 +306,7 @@ namespace Gibbed.Frostbite3.UnpackResources
                 }
 
                 var chunk = layout.InstallManifest.InstallChunks.SingleOrDefault(ici => ici.Id == id);
-                if (chunk == default(LayoutFile.InstallChunkInfo))
+                if (chunk == default(Layout.InstallChunk))
                 {
                     throw new InvalidOperationException();
                 }

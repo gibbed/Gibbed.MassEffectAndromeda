@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Gibbed.Frostbite3.Common.Hashing;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -31,7 +32,7 @@ namespace Gibbed.Frostbite3.UnpackResources
 
         static ResourceTypes()
         {
-            Texture = Hashing.DJB.Compute("texture");
+            Texture = DJB.Compute("texture");
         }
 
         public static Dictionary<int, string> GetExtensions()
@@ -57,7 +58,7 @@ namespace Gibbed.Frostbite3.UnpackResources
                 { "texture", "texture" },
             };
             var extensionsById = extensionsByName.ToDictionary(
-                kv => (int)Hashing.DJB.Compute(kv.Key.ToLowerInvariant()),
+                kv => (int)DJB.Compute(kv.Key.ToLowerInvariant()),
                 kv => kv.Value);
             return extensionsById;
         }

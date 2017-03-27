@@ -27,11 +27,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Gibbed.Frostbite3.Zstd")]
+[assembly: AssemblyTitle("Gibbed.Frostbite3.Common")]
 [assembly: AssemblyDescription("http://gib.me/")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gibbed")]
-[assembly: AssemblyProduct("Gibbed.Frostbite3.Zstd")]
+[assembly: AssemblyProduct("Gibbed.Frostbite3.Common")]
 [assembly: AssemblyCopyright("Copyright © Gibbed 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -44,7 +44,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("94588508-ea09-4e0f-aff0-e9c21b7ab4c8")]
+[assembly: Guid("fa16975b-1dcb-41bd-b928-586848e8c39a")]
 
 // Version information for an assembly consists of the following four values:
 //

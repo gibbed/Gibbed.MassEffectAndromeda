@@ -2,30 +2,27 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C7438253-5A38-4476-A994-A0D4F5790AFF}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{30CF6D81-3346-4439-9F4C-30C6CD535873}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gibbed.Frostbite3.UnpackResources</RootNamespace>
-    <AssemblyName>Gibbed.Frostbite3.UnpackResources</AssemblyName>
+    <RootNamespace>Gibbed.Frostbite3.VfsFormats</RootNamespace>
+    <AssemblyName>Gibbed.Frostbite3.VfsFormats</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -43,40 +40,41 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CatalogLookup.cs" />
-    <Compile Include="DDSHelpers.cs" />
-    <Compile Include="DDSUtils.cs" />
-    <Compile Include="Extraction.cs" />
-    <Compile Include="Helpers.cs" />
-    <Compile Include="ICatalogEntryInfo.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="CatalogFile.cs" />
+    <Compile Include="FileLayerHelper.cs" />
+    <Compile Include="FileLayers\DiceObfuscationLayer.cs" />
+    <Compile Include="FileLayers\DiceSignatureLayer.cs" />
+    <Compile Include="FileLayers\OoaObfuscationLayer.cs" />
+    <Compile Include="LayoutFile.cs" />
+    <Compile Include="Layout\InstallChunk.cs" />
+    <Compile Include="Layout\InstallGroup.cs" />
+    <Compile Include="Layout\InstallManifest.cs" />
+    <Compile Include="Layout\InstallPackage.cs" />
+    <Compile Include="Layout\InstallScenarioConfig.cs" />
+    <Compile Include="Layout\InstallScenario.cs" />
+    <Compile Include="Layout\SuperbundleInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceTypes.cs" />
+    <Compile Include="SuperbundleFile.cs" />
+    <Compile Include="Superbundle\BundleInfo.cs" />
+    <Compile Include="Superbundle\ChunkInfo.cs" />
+    <Compile Include="Superbundle\ChunkMetadata.cs" />
+    <Compile Include="Superbundle\ChunkMetadataValues.cs" />
+    <Compile Include="Superbundle\DbxInfo.cs" />
+    <Compile Include="Superbundle\EbxInfo.cs" />
+    <Compile Include="Superbundle\IDataInfo.cs" />
+    <Compile Include="Superbundle\ResourceInfo.cs" />
+    <Compile Include="TableOfContentsFile.cs" />
+    <Compile Include="TableOfContents\BundleInfo.cs" />
+    <Compile Include="TableOfContents\ChunkInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gibbed.Frostbite3.Common\Gibbed.Frostbite3.Common.csproj">
       <Project>{3DFA8BBE-D842-433C-87F8-C60C9F1EA508}</Project>
       <Name>Gibbed.Frostbite3.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gibbed.Frostbite3.ResourceFormats\Gibbed.Frostbite3.ResourceFormats.csproj">
-      <Project>{6EE69377-2120-4500-97EF-97011781890D}</Project>
-      <Name>Gibbed.Frostbite3.ResourceFormats</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gibbed.Frostbite3.VfsFormats\Gibbed.Frostbite3.VfsFormats.csproj">
-      <Project>{30CF6D81-3346-4439-9F4C-30C6CD535873}</Project>
-      <Name>Gibbed.Frostbite3.VfsFormats</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gibbed.Frostbite3.Zstd\Gibbed.Frostbite3.Zstd.csproj">
-      <Project>{3EDF2B71-ED88-4BDB-B127-34249CAF2EC3}</Project>
-      <Name>Gibbed.Frostbite3.Zstd</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Gibbed.IO\Gibbed.IO.csproj">
       <Project>{047857BA-DAA3-4CA7-AFB8-A1B082B28C6A}</Project>
       <Name>Gibbed.IO</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NDesk.Options\NDesk.Options.csproj">
-      <Project>{C98A6CD6-9422-4B35-8B7A-F520D75534D1}</Project>
-      <Name>NDesk.Options</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

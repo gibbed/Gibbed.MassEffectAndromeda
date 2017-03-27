@@ -21,7 +21,7 @@
  */
 
 using System;
-using Gibbed.Frostbite3.FileFormats;
+using Gibbed.Frostbite3.ResourceFormats;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {

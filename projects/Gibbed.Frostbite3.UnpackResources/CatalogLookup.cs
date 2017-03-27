@@ -23,7 +23,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Gibbed.Frostbite3.FileFormats;
+using Gibbed.Frostbite3.Common;
+using Gibbed.Frostbite3.VfsFormats;
+using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -85,7 +87,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             return true;
         }
 
-        public ICatalogEntryInfo GetEntry(SuperbundleFile.IDataEntry entry)
+        public ICatalogEntryInfo GetEntry(Superbundle.IDataInfo entry)
         {
             List<EntryInfo> infos;
             if (this._EntryInfo.TryGetValue(entry.SHA1.Text, out infos) == false)
@@ -147,12 +149,12 @@ namespace Gibbed.Frostbite3.UnpackResources
 
             public uint CompressedSize
             {
-                get { return this._Entry.CompressedSize; }
+                get { return this._Entry.Size; }
             }
 
             public uint UncompressedSize
             {
-                get { return this._Entry.UncompressedSize; }
+                get { return this._Entry.TailSize; }
             }
         }
 

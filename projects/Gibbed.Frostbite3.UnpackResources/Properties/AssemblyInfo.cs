@@ -28,9 +28,9 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("Gibbed.Frostbite3.UnpackResources")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("http://gib.me/")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Gibbed")]
 [assembly: AssemblyProduct("Gibbed.Frostbite3.UnpackResources")]
 [assembly: AssemblyCopyright("Copyright © Gibbed 2017")]
 [assembly: AssemblyTrademark("")]

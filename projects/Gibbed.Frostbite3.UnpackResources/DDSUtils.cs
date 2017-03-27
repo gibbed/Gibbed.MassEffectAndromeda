@@ -23,7 +23,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Gibbed.Frostbite3.FileFormats;
+using Gibbed.Frostbite3.ResourceFormats;
 using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.UnpackResources
