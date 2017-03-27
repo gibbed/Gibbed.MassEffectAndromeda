@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CatalogFile.cs" />
+    <Compile Include="ChunkManifestFile.cs" />
+    <Compile Include="ChunkManifest\ChunkInfo.cs" />
+    <Compile Include="DbObjectFile.cs" />
     <Compile Include="FileLayerHelper.cs" />
     <Compile Include="FileLayers\DiceObfuscationLayer.cs" />
     <Compile Include="FileLayers\DiceSignatureLayer.cs" />
