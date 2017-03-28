@@ -33,5 +33,10 @@ namespace Gibbed.Frostbite3.VfsFormats.TableOfContents
 
         [DbObject.Property("sha1")]
         public SHA1 SHA1 { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0} => {1}", this.Id, this.SHA1.Text);
+        }
     }
 }
