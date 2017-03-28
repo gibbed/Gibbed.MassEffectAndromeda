@@ -27,13 +27,13 @@ using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
-    internal static class Extraction
+    internal static class ChunkLoading
     {
-        public static void Extract(ICatalogEntryInfo catalogInfo, long uncompressedSize, Stream output)
+        public static void Load(ChunkLookup.IChunkVariantInfo chunkVariantInfo, long uncompressedSize, Stream output)
         {
-            if (catalogInfo == null)
+            if (chunkVariantInfo == null)
             {
-                throw new ArgumentNullException("catalogInfo");
+                throw new ArgumentNullException("chunkVariantInfo");
             }
 
             if (output == null)
@@ -41,23 +41,25 @@ namespace Gibbed.Frostbite3.UnpackResources
                 throw new ArgumentNullException("output");
             }
 
-            using (var input = File.OpenRead(catalogInfo.DataPath))
+            using (var input = File.OpenRead(chunkVariantInfo.DataPath))
             {
-                input.Position = catalogInfo.Offset;
+                input.Position = chunkVariantInfo.Offset;
                 Decompress(input, output, uncompressedSize);
             }
         }
 
-        public static void Extract(Superbundle.IDataInfo bundleInfo, ICatalogEntryInfo catalogInfo, Stream output)
+        public static void Load(Superbundle.IDataInfo bundleInfo,
+                                ChunkLookup.IChunkVariantInfo chunkVariantInfo,
+                                Stream output)
         {
             if (bundleInfo == null)
             {
                 throw new ArgumentNullException("bundleInfo");
             }
 
-            if (catalogInfo == null)
+            if (chunkVariantInfo == null)
             {
-                throw new ArgumentNullException("catalogInfo");
+                throw new ArgumentNullException("chunkVariantInfo");
             }
 
             if (output == null)
@@ -78,8 +80,8 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
             else
             {
-                input = File.OpenRead(catalogInfo.DataPath);
-                input.Position = catalogInfo.Offset;
+                input = File.OpenRead(chunkVariantInfo.DataPath);
+                input.Position = chunkVariantInfo.Offset;
             }
 
             using (input)

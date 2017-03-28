@@ -28,7 +28,6 @@ using Gibbed.Frostbite3.Common;
 using Gibbed.Frostbite3.ResourceFormats;
 using Gibbed.Frostbite3.VfsFormats;
 using NDesk.Options;
-using Layout = Gibbed.Frostbite3.VfsFormats.Layout;
 using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.UnpackResources
@@ -74,141 +73,102 @@ namespace Gibbed.Frostbite3.UnpackResources
                 return;
             }
 
-            string bundlePath, superbundlePath, layoutPath, outputBasePath;
-
-            if (Path.GetExtension(extras[0]) == ".sb")
+            Paths paths;
+            if (Paths.Discover(extras[0], extras.Count > 1 ? extras[1] : null, out paths) == false)
             {
-                superbundlePath = Path.GetFullPath(extras[0]);
-                bundlePath = Path.ChangeExtension(superbundlePath, ".toc");
-                layoutPath = Helpers.FindLayoutPath(superbundlePath);
-                outputBasePath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(superbundlePath, null) + "_unpack";
-            }
-            else
-            {
-                bundlePath = Path.GetFullPath(extras[0]);
-                superbundlePath = Path.ChangeExtension(bundlePath, ".sb");
-                layoutPath = Helpers.FindLayoutPath(bundlePath);
-                outputBasePath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(bundlePath, null) + "_unpack";
-            }
-
-            if (string.IsNullOrEmpty(layoutPath) == true)
-            {
-                Console.WriteLine("Could not find layout file.");
+                Console.WriteLine("Failed to discover data paths.");
                 return;
             }
 
-            var dataPath = Path.GetDirectoryName(layoutPath) ?? "";
-
-            var bundle = TableOfContentsFile.Read(bundlePath);
-            var superbundle = SuperbundleFile.Read(superbundlePath);
-
             var extensionsById = ResourceTypes.GetExtensions();
 
-            if (bundle.IsCas == false)
+            var superbundleName = Path.ChangeExtension(paths.Superbundle.Substring(paths.Data.Length + 1), null);
+            superbundleName = Helpers.FilterName(superbundleName).ToLowerInvariant();
+
+            var layout = LayoutFile.Read(Path.Combine(paths.Data, "layout.toc"));
+
+            var chunkLookup = new ChunkLookup(layout, paths.Data);
+            var superbundle = chunkLookup.AddBundle(superbundleName);
+
+            // add common chunk bundles (chunks*.toc/sb)
+            foreach (var superbundleInfo in layout.Superbundles.Where(
+                sbi => ChunkLookup.IsChunkBundle(sbi.Name) == true))
             {
-                throw new NotImplementedException();
+                if (chunkLookup.AddBundle(superbundleInfo.Name.ToLowerInvariant()) == null)
+                {
+                    Console.WriteLine("Failed to load catalog for '{0}'.", superbundleInfo.Name);
+                }
             }
-            else
+
+            foreach (var bundleInfo in superbundle.Bundles)
             {
-                var commonBundlePaths = Directory.GetFiles(dataPath, "chunks*.toc", SearchOption.AllDirectories);
-                var commonBundles = new List<TableOfContentsFile>();
-                foreach (var commonBundlePath in commonBundlePaths)
+                if (bundleInfo.Resources == null)
                 {
-                    var commonBundle = TableOfContentsFile.Read(commonBundlePath);
-                    commonBundles.Add(commonBundle);
+                    continue;
                 }
 
-                var superbundleName = Path.ChangeExtension(superbundlePath.Substring(dataPath.Length + 1), null);
-                superbundleName = Helpers.FilterName(superbundleName).ToLowerInvariant();
-
-                var layout = LayoutFile.Read(layoutPath);
-                var installChunks = GetSuperbundleInstallChunks(layout, superbundleName);
-                var catalogLookup = new CatalogLookup(dataPath);
-
-                foreach (var installChunk in installChunks)
+                foreach (var resourceInfo in bundleInfo.Resources)
                 {
-                    if (catalogLookup.Add(installChunk.InstallBundle) == false)
+                    var chunkInfo = chunkLookup.GetChunkVariant(resourceInfo);
+                    if (chunkInfo == null)
                     {
-                        Console.WriteLine("Failed to load catalog for '{0}'.", installChunk.Name);
-                    }
-                }
-
-                foreach (var bundleInfo in superbundle.Bundles)
-                {
-                    if (bundleInfo.Resources == null)
-                    {
+                        Console.WriteLine("Could not find catalog entry for '{0}'.", resourceInfo.Name);
                         continue;
                     }
 
-                    foreach (var resourceInfo in bundleInfo.Resources)
+                    if (chunkInfo.Size != resourceInfo.Size)
                     {
-                        var entry = catalogLookup.GetEntry(resourceInfo);
-                        if (entry == null)
+                        throw new InvalidOperationException();
+                    }
+
+                    var outputName = Helpers.FilterPath(resourceInfo.Name);
+                    var outputPath = Path.Combine(paths.Output, outputName + ".dummy");
+                    var outputParentPath = Path.GetDirectoryName(outputPath);
+                    if (string.IsNullOrEmpty(outputParentPath) == false)
+                    {
+                        Directory.CreateDirectory(outputParentPath);
+                    }
+
+                    Console.WriteLine("{0}", resourceInfo.Name);
+
+                    bool wasConverted = false;
+                    if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
+                    {
+                        outputPath = Path.Combine(paths.Output, outputName + ".dds");
+                        wasConverted = ConvertTexture(resourceInfo, chunkInfo, outputPath, chunkLookup);
+                    }
+
+                    if (wasConverted == false)
+                    {
+                        string extension;
+                        if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
                         {
-                            Console.WriteLine("Could not find catalog entry for '{0}'.", resourceInfo.Name);
-                            continue;
+                            extension = "." + extension;
+                        }
+                        else
+                        {
+                            extension = ".#" + resourceInfo.ResourceType.ToString("X8");
                         }
 
-                        if (entry.CompressedSize != resourceInfo.Size)
+                        outputPath = Path.Combine(paths.Output, outputName + extension);
+                        using (var output = File.Create(outputPath))
                         {
-                            throw new FormatException();
-                        }
-
-                        var outputName = Helpers.FilterPath(resourceInfo.Name);
-                        var outputPath = Path.Combine(outputBasePath, outputName + ".dummy");
-                        var outputParentPath = Path.GetDirectoryName(outputPath);
-                        if (string.IsNullOrEmpty(outputParentPath) == false)
-                        {
-                            Directory.CreateDirectory(outputParentPath);
-                        }
-
-                        Console.WriteLine("{0}", resourceInfo.Name);
-
-                        bool wasConverted = false;
-                        if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
-                        {
-                            wasConverted = ConvertTexture(bundleInfo,
-                                                          resourceInfo,
-                                                          entry,
-                                                          outputPath,
-                                                          catalogLookup,
-                                                          commonBundles);
-                        }
-
-                        if (wasConverted == false)
-                        {
-                            string extension;
-                            if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
-                            {
-                                extension = "." + extension;
-                            }
-                            else
-                            {
-                                extension = ".#" + resourceInfo.ResourceType.ToString("X8");
-                            }
-
-                            outputPath = Path.Combine(outputBasePath, outputName + extension);
-                            using (var output = File.Create(outputPath))
-                            {
-                                Extraction.Extract(resourceInfo, entry, output);
-                            }
+                            ChunkLoading.Load(resourceInfo, chunkInfo, output);
                         }
                     }
                 }
             }
         }
 
-        private static bool ConvertTexture(Superbundle.BundleInfo bundleInfo,
-                                           Superbundle.ResourceInfo resourceInfo,
-                                           ICatalogEntryInfo entry,
+        private static bool ConvertTexture(Superbundle.ResourceInfo resourceInfo,
+                                           ChunkLookup.IChunkVariantInfo entry,
                                            string outputPath,
-                                           CatalogLookup catalogLookup,
-                                           List<TableOfContentsFile> commonBundles)
+                                           ChunkLookup chunkLookup)
         {
             TextureHeader textureHeader;
             using (var temp = new MemoryStream())
             {
-                Extraction.Extract(resourceInfo, entry, temp);
+                ChunkLoading.Load(resourceInfo, entry, temp);
                 temp.Position = 0;
                 textureHeader = TextureHeader.Read(temp);
                 if (temp.Position != temp.Length)
@@ -222,104 +182,34 @@ namespace Gibbed.Frostbite3.UnpackResources
                 return false;
             }
 
-            if (textureHeader.Unknown00 != 0 ||
-                textureHeader.Unknown04 != 0 ||
-                textureHeader.Unknown10 != 0 ||
-                textureHeader.Unknown14 != 0 ||
+            if (textureHeader.Unknown10 != 0 ||
+                (textureHeader.Flags != TextureFlags.None &&
+                 textureHeader.Flags != TextureFlags.Unknown0 &&
+                 textureHeader.Flags != (TextureFlags.Unknown0 | TextureFlags.Unknown3) &&
+                 textureHeader.Flags != TextureFlags.Unknown5) ||
                 textureHeader.Unknown1C != 1)
             {
                 throw new FormatException();
             }
 
             SHA1 chunkSHA1;
-            if (GetChunkSHA1(bundleInfo, commonBundles, textureHeader.DataChunkId, out chunkSHA1) == false)
+            long size;
+            if (chunkLookup.GetChunkSHA1(textureHeader.DataChunkId, out chunkSHA1, out size) == false)
             {
                 throw new InvalidOperationException();
             }
 
-            var dataEntry = catalogLookup.GetEntry(chunkSHA1, textureHeader.TotalSize);
+            var dataChunkInfo = chunkLookup.GetChunkVariant(chunkSHA1, size);
             byte[] dataBytes;
             using (var temp = new MemoryStream())
             {
-                Extraction.Extract(dataEntry, textureHeader.TotalSize, temp);
+                ChunkLoading.Load(dataChunkInfo, textureHeader.TotalSize, temp);
                 temp.Position = 0;
                 dataBytes = temp.GetBuffer();
             }
 
-            DDSUtils.WriteFile(textureHeader, dataBytes, outputPath + ".dds");
+            DDSUtils.WriteFile(textureHeader, dataBytes, outputPath);
             return true;
-        }
-
-        private static bool GetChunkSHA1(Superbundle.BundleInfo bundleInfo,
-                                         List<TableOfContentsFile> commonBundles,
-                                         Guid chunkId,
-                                         out SHA1 chunkSHA1)
-        {
-            if (bundleInfo.Chunks != null)
-            {
-                var chunkInfo = bundleInfo.Chunks.FirstOrDefault(ci => ci.Id == chunkId);
-                if (chunkInfo != null)
-                {
-                    chunkSHA1 = chunkInfo.SHA1;
-                    return true;
-                }
-            }
-
-            var commonChunkInfo = commonBundles.SelectMany(cb => cb.Chunks)
-                                               .FirstOrDefault(ci => ci.Id == chunkId);
-            if (commonChunkInfo != null)
-            {
-                chunkSHA1 = commonChunkInfo.SHA1;
-                return true;
-            }
-
-            chunkSHA1 = default(SHA1);
-            return false;
-        }
-
-        private static List<Layout.InstallChunk> GetSuperbundleInstallChunks(LayoutFile layout, string name)
-        {
-            var rootChunk = layout.InstallManifest.InstallChunks.FirstOrDefault(
-                ici => ici.Superbundles.Select(n => n.ToLowerInvariant()).Contains(name) == true);
-            if (rootChunk == null)
-            {
-                return null;
-            }
-
-            var chunks = new Dictionary<Guid, Layout.InstallChunk>();
-            chunks.Add(rootChunk.Id, rootChunk);
-
-            var queue = new Queue<Guid>();
-
-            foreach (var id in rootChunk.RequiredChunks)
-            {
-                queue.Enqueue(id);
-            }
-
-            while (queue.Count > 0)
-            {
-                var id = queue.Dequeue();
-
-                if (chunks.ContainsKey(id) == true)
-                {
-                    continue;
-                }
-
-                var chunk = layout.InstallManifest.InstallChunks.SingleOrDefault(ici => ici.Id == id);
-                if (chunk == default(Layout.InstallChunk))
-                {
-                    throw new InvalidOperationException();
-                }
-
-                chunks.Add(id, chunk);
-
-                foreach (var childId in chunk.RequiredChunks)
-                {
-                    queue.Enqueue(childId);
-                }
-            }
-
-            return chunks.Values.ToList();
         }
     }
 }

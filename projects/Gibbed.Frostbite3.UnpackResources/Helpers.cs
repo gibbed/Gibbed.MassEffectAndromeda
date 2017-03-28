@@ -21,6 +21,7 @@
  */
 
 using System.IO;
+using System.Globalization;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -39,19 +40,9 @@ namespace Gibbed.Frostbite3.UnpackResources
             return path;
         }
 
-        public static string FindLayoutPath(string path)
+        public static int CompareName(string left, string right)
         {
-            var basePath = Path.GetDirectoryName(path);
-            while (string.IsNullOrEmpty(basePath) == false)
-            {
-                var layoutPath = Path.Combine(basePath, "layout.toc");
-                if (File.Exists(layoutPath) == true)
-                {
-                    return layoutPath;
-                }
-                basePath = Path.GetDirectoryName(basePath);
-            }
-            return null;
+            return string.Compare(left, right, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase);
         }
     }
 }
