@@ -25,9 +25,9 @@ using System.IO;
 using Gibbed.IO;
 using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
-namespace Gibbed.Frostbite3.UnpackResources
+namespace Gibbed.Frostbite3.Unpacking
 {
-    internal static class ChunkLoading
+    public static class ChunkLoading
     {
         public static void Load(ChunkLookup.IChunkVariantInfo chunkVariantInfo, long uncompressedSize, Stream output)
         {

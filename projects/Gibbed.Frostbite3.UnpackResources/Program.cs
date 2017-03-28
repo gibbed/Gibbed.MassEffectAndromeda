@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using Gibbed.Frostbite3.Common;
 using Gibbed.Frostbite3.ResourceFormats;
+using Gibbed.Frostbite3.Unpacking;
 using Gibbed.Frostbite3.VfsFormats;
 using NDesk.Options;
 using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;

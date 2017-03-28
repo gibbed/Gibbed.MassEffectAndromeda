@@ -23,9 +23,9 @@
 using System.IO;
 using System.Globalization;
 
-namespace Gibbed.Frostbite3.UnpackResources
+namespace Gibbed.Frostbite3.Unpacking
 {
-    internal class Helpers
+    public class Helpers
     {
         public static string FilterPath(string name)
         {

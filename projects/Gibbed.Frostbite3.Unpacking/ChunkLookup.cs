@@ -29,9 +29,9 @@ using Gibbed.Frostbite3.Common;
 using Gibbed.Frostbite3.VfsFormats;
 using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
-namespace Gibbed.Frostbite3.UnpackResources
+namespace Gibbed.Frostbite3.Unpacking
 {
-    internal class ChunkLookup
+    public class ChunkLookup
     {
         public static readonly Regex ChunkBundleRegex;
 
@@ -224,7 +224,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             return false;
         }
 
-        public IChunkVariantInfo GetChunkVariant(Superbundle.ResourceInfo resourceInfo)
+        public IChunkVariantInfo GetChunkVariant(Superbundle.IDataInfo resourceInfo)
         {
             return this.GetChunkVariant(resourceInfo.SHA1, resourceInfo.Size);
         }
