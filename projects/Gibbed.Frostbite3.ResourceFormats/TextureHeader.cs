@@ -34,7 +34,7 @@ namespace Gibbed.Frostbite3.ResourceFormats
         public TextureType Type;
         public TextureFormat Format;
         public uint Unknown10;
-        public ushort Unknown14;
+        public TextureFlags Flags;
         public ushort Width;
         public ushort Height;
         public ushort Depth;
@@ -58,7 +58,7 @@ namespace Gibbed.Frostbite3.ResourceFormats
             instance.Type = (TextureType)input.ReadValueU32(endian);
             instance.Format = (TextureFormat)input.ReadValueU32(endian);
             instance.Unknown10 = input.ReadValueU32(endian);
-            instance.Unknown14 = input.ReadValueU16(endian);
+            instance.Flags = (TextureFlags)input.ReadValueU16(endian);
             instance.Width = input.ReadValueU16(endian);
             instance.Height = input.ReadValueU16(endian);
             instance.Depth = input.ReadValueU16(endian);
