@@ -30,14 +30,6 @@ namespace Gibbed.Frostbite3.UnpackResources
 {
     public static class DDSUtils
     {
-        public static void WriteFile(TextureHeader header, byte[] data, string path)
-        {
-            using (var output = File.Create(path))
-            {
-                WriteFile(header, data, output);
-            }
-        }
-
         public static void WriteFile(TextureHeader textureHeader, byte[] data, Stream output)
         {
             const Endian endian = Endian.Little;
