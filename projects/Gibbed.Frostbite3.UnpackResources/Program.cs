@@ -28,9 +28,9 @@ using Gibbed.Frostbite3.Common;
 using Gibbed.Frostbite3.ResourceFormats;
 using Gibbed.Frostbite3.Unpacking;
 using Gibbed.Frostbite3.VfsFormats;
+using Gibbed.IO;
 using NDesk.Options;
 using AlphaFS = Alphaleonis.Win32.Filesystem;
-using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -44,11 +44,13 @@ namespace Gibbed.Frostbite3.UnpackResources
         public static void Main(string[] args)
         {
             bool convertTextures = false;
+            bool verbose = false;
             bool showHelp = false;
 
             var options = new OptionSet()
             {
                 { "convert-textures", "convert textures", v => convertTextures = v != null },
+                { "v|verbose", "be verbose", v => verbose = v != null },
                 { "h|help", "show this message and exit", v => showHelp = v != null },
             };
 
@@ -90,6 +92,11 @@ namespace Gibbed.Frostbite3.UnpackResources
             var layout = LayoutFile.Read(Path.Combine(paths.Data, "layout.toc"));
 
             var chunkLookup = new ChunkLookup(layout, paths.Data);
+            var chunkLoader = new ChunkLoader(chunkLookup);
+
+            var initFileSystemPath = Path.Combine(paths.Data, "initfs_Win32");
+            CasEncryptHelper.TryLoad(initFileSystemPath, chunkLoader);
+
             var superbundle = chunkLookup.AddBundle(superbundleName);
 
             // add common chunk bundles (chunks*.toc/sb)
@@ -111,73 +118,76 @@ namespace Gibbed.Frostbite3.UnpackResources
 
                 foreach (var resourceInfo in bundleInfo.Resources)
                 {
-                    var chunkInfo = chunkLookup.GetChunkVariant(resourceInfo);
-                    if (chunkInfo == null)
+                    using (var data = new MemoryStream())
                     {
-                        Console.WriteLine("Could not find catalog entry for '{0}'.", resourceInfo.Name);
-                        continue;
-                    }
-
-                    if (chunkInfo.Size != resourceInfo.Size)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    var outputName = Helpers.FilterPath(resourceInfo.Name);
-                    var outputPath = AlphaFS.Path.Combine(paths.Output, outputName + ".dummy");
-                    var outputParentPath = AlphaFS.Path.GetDirectoryName(outputPath);
-                    if (string.IsNullOrEmpty(outputParentPath) == false)
-                    {
-                        AlphaFS.Directory.CreateDirectory(outputParentPath);
-                    }
-
-                    Console.WriteLine("{0}", resourceInfo.Name);
-
-                    bool wasConverted = false;
-                    if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
-                    {
-                        outputPath = AlphaFS.Path.Combine(paths.Output, outputName + ".dds");
-                        wasConverted = ConvertTexture(resourceInfo, chunkInfo, outputPath, chunkLookup);
-                    }
-
-                    if (wasConverted == false)
-                    {
-                        string extension;
-                        if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
+                        try
                         {
-                            extension = "." + extension;
+                            chunkLoader.Load(resourceInfo, data);
+                            data.Position = 0;
                         }
-                        else
+                        catch (ChunkCryptoKeyMissingException e)
                         {
-                            extension = ".#" + resourceInfo.ResourceType.ToString("X8");
+                            Console.WriteLine("Cannot decrypt '{0}' without crypto key '{1}'.",
+                                              resourceInfo.Name,
+                                              e.KeyId);
+                            continue;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Exception while loading '{0}':", resourceInfo.Name);
+                            Console.WriteLine(e);
+                            continue;
                         }
 
-                        outputPath = AlphaFS.Path.Combine(paths.Output, outputName + extension);
-                        using (var output = AlphaFS.File.Create(outputPath))
+                        var outputName = Helpers.FilterPath(resourceInfo.Name);
+                        var outputPath = AlphaFS.Path.Combine(paths.Output, outputName + ".dummy");
+                        var outputParentPath = AlphaFS.Path.GetDirectoryName(outputPath);
+                        if (string.IsNullOrEmpty(outputParentPath) == false)
                         {
-                            ChunkLoading.Load(resourceInfo, chunkInfo, output);
+                            AlphaFS.Directory.CreateDirectory(outputParentPath);
+                        }
+
+                        if (verbose == true)
+                        {
+                            Console.WriteLine("{0}", resourceInfo.Name);
+                        }
+
+                        bool wasConverted = false;
+                        if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
+                        {
+                            outputPath = AlphaFS.Path.Combine(paths.Output, outputName + ".dds");
+                            wasConverted = ConvertTexture(data, outputPath, chunkLookup, chunkLoader);
+                        }
+
+                        if (wasConverted == false)
+                        {
+                            string extension;
+                            if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
+                            {
+                                extension = "." + extension;
+                            }
+                            else
+                            {
+                                extension = ".#" + resourceInfo.ResourceType.ToString("X8");
+                            }
+
+                            outputPath = AlphaFS.Path.Combine(paths.Output, outputName + extension);
+                            using (var output = AlphaFS.File.Create(outputPath))
+                            {
+                                output.WriteFromStream(data, data.Length);
+                            }
                         }
                     }
                 }
             }
         }
 
-        private static bool ConvertTexture(Superbundle.ResourceInfo resourceInfo,
-                                           ChunkLookup.IChunkVariantInfo entry,
+        private static bool ConvertTexture(MemoryStream data,
                                            string outputPath,
-                                           ChunkLookup chunkLookup)
+                                           ChunkLookup chunkLookup,
+                                           ChunkLoader chunkLoader)
         {
-            TextureHeader textureHeader;
-            using (var temp = new MemoryStream())
-            {
-                ChunkLoading.Load(resourceInfo, entry, temp);
-                temp.Position = 0;
-                textureHeader = TextureHeader.Read(temp);
-                if (temp.Position != temp.Length)
-                {
-                    throw new FormatException();
-                }
-            }
+            var textureHeader = TextureHeader.Read(data);
 
             if (textureHeader.Type != TextureType._2d)
             {
@@ -202,10 +212,15 @@ namespace Gibbed.Frostbite3.UnpackResources
             }
 
             var dataChunkInfo = chunkLookup.GetChunkVariant(chunkSHA1, size);
+            if (dataChunkInfo == null)
+            {
+                throw new InvalidOperationException();
+            }
+
             byte[] dataBytes;
             using (var temp = new MemoryStream())
             {
-                ChunkLoading.Load(dataChunkInfo, textureHeader.TotalSize, temp);
+                chunkLoader.Load(dataChunkInfo, textureHeader.TotalSize, temp);
                 temp.Position = 0;
                 dataBytes = temp.GetBuffer();
             }

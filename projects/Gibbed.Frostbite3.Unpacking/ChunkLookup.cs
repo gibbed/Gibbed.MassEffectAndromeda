@@ -150,16 +150,11 @@ namespace Gibbed.Frostbite3.Unpacking
             }
 
             var catalog = CatalogFile.Read(catalogPath);
-
-            if (catalog.Unknown3s.Count > 0)
-            {
-                Console.WriteLine("'{0}' has unknown3s.", catalogPath);
-            }
-
             var installChunkInfo = new InstallChunkInfo(basePath);
+
             foreach (var entry in catalog.ChunkEntries)
             {
-                var variantInfo = new ChunkVariantInfo(installChunkInfo, entry);
+                var variantInfo = new ChunkVariantInfo(installChunkInfo, entry, null);
 
                 List<ChunkVariantInfo> chunkVariants;
                 if (this._ChunkInfo.TryGetValue(entry.SHA1.Text, out chunkVariants) == false)
@@ -169,6 +164,20 @@ namespace Gibbed.Frostbite3.Unpacking
 
                 chunkVariants.Add(variantInfo);
             }
+
+            foreach (var entry in catalog.EncryptedChunkEntries)
+            {
+                var variantInfo = new ChunkVariantInfo(installChunkInfo, entry.Chunk, entry.CryptoInfo);
+
+                List<ChunkVariantInfo> chunkVariants;
+                if (this._ChunkInfo.TryGetValue(entry.Chunk.SHA1.Text, out chunkVariants) == false)
+                {
+                    chunkVariants = this._ChunkInfo[entry.Chunk.SHA1.Text] = new List<ChunkVariantInfo>();
+                }
+
+                chunkVariants.Add(variantInfo);
+            }
+
             this._InstallChunkInfo.Add(installChunk.Id, installChunkInfo);
             return true;
         }
@@ -255,17 +264,22 @@ namespace Gibbed.Frostbite3.Unpacking
             uint Offset { get; }
             uint Size { get; }
             uint TailSize { get; }
+            CatalogFile.CryptoInfo? CryptoInfo { get; }
         }
 
         private struct ChunkVariantInfo : IChunkVariantInfo
         {
-            private InstallChunkInfo _InstallChunkInfo;
-            private CatalogFile.ChunkEntry _Entry;
+            private readonly InstallChunkInfo _InstallChunkInfo;
+            private readonly CatalogFile.ChunkEntry _Entry;
+            private readonly CatalogFile.CryptoInfo? _CryptoInfo;
 
-            public ChunkVariantInfo(InstallChunkInfo installChunkInfo, CatalogFile.ChunkEntry entry)
+            public ChunkVariantInfo(InstallChunkInfo installChunkInfo,
+                                    CatalogFile.ChunkEntry entry,
+                                    CatalogFile.CryptoInfo? cryptoInfo)
             {
                 this._InstallChunkInfo = installChunkInfo;
                 this._Entry = entry;
+                this._CryptoInfo = cryptoInfo;
             }
 
             public string DataPath
@@ -286,6 +300,11 @@ namespace Gibbed.Frostbite3.Unpacking
             public uint TailSize
             {
                 get { return this._Entry.TailSize; }
+            }
+
+            public CatalogFile.CryptoInfo? CryptoInfo
+            {
+                get { return this._CryptoInfo; }
             }
         }
 

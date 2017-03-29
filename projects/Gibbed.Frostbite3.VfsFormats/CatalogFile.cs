@@ -23,8 +23,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Gibbed.IO;
+using System.Linq;
+using System.Text;
 using Gibbed.Frostbite3.Common;
+using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.VfsFormats
 {
@@ -33,12 +35,12 @@ namespace Gibbed.Frostbite3.VfsFormats
         public const ulong Signature = 0x6E61794E6E61794E; // 'NyanNyan'
 
         private readonly List<ChunkEntry> _ChunkEntries;
-        private readonly List<Unknown3Entry> _Unknown3Entries; 
+        private readonly List<EncryptedChunkEntry> _EncryptedChunkEntries;
 
         public CatalogFile()
         {
             this._ChunkEntries = new List<ChunkEntry>();
-            this._Unknown3Entries = new List<Unknown3Entry>();
+            this._EncryptedChunkEntries = new List<EncryptedChunkEntry>();
         }
 
         public List<ChunkEntry> ChunkEntries
@@ -46,9 +48,9 @@ namespace Gibbed.Frostbite3.VfsFormats
             get { return this._ChunkEntries; }
         }
 
-        public List<Unknown3Entry> Unknown3s
+        public List<EncryptedChunkEntry> EncryptedChunkEntries
         {
-            get { return this._Unknown3Entries; }
+            get { return this._EncryptedChunkEntries; }
         }
 
         public static CatalogFile Read(string path)
@@ -73,13 +75,13 @@ namespace Gibbed.Frostbite3.VfsFormats
             var instance = new CatalogFile();
 
             var chunkCount = input.ReadValueU32(endian);
-            var unknown2Count = input.ReadValueU32(endian);
-            var unknown3Count = input.ReadValueU32(endian);
-            var unknown1C = input.ReadValueU32(endian);
-            var unknown20 = input.ReadValueU32(endian);
-            var unknown24 = input.ReadValueU32(endian);
+            var patchCount = input.ReadValueU32(endian);
+            var encryptedChunkCount = input.ReadValueU32(endian);
+            var unknown1C = input.ReadValueS32(endian);
+            var unknown20 = input.ReadValueS32(endian);
+            var unknown24 = input.ReadValueS32(endian);
 
-            if (unknown2Count != 0 || unknown1C != 0 || unknown20 != 0 || unknown24 != 0)
+            if (patchCount != 0 || unknown1C != 0 || unknown20 != 0 || unknown24 != 0)
             {
                 throw new FormatException();
             }
@@ -88,27 +90,31 @@ namespace Gibbed.Frostbite3.VfsFormats
 
             for (int i = 0; i < chunkCount; i++)
             {
-                var entry = new ChunkEntry();
-                entry.SHA1 = new SHA1(input.ReadBytes(20));
-                entry.Offset = input.ReadValueU32(endian);
-                entry.Size = input.ReadValueU32(endian);
-                entry.TailSize = input.ReadValueU32(endian);
-                entry.DataIndex = input.ReadValueU32(endian);
-                instance.ChunkEntries.Add(entry);
+                var chunk = ChunkEntry.Read(input, endian);
+
+                if (chunk.IsEncrypted == true)
+                {
+                    throw new FormatException();
+                }
+
+                instance.ChunkEntries.Add(chunk);
             }
 
-            for (int i = 0; i < unknown3Count; i++)
+            for (int i = 0; i < encryptedChunkCount; i++)
             {
-                var entry = new Unknown3Entry();
-                entry.Unknown0 = new SHA1(input.ReadBytes(20));
-                entry.Unknown1 = input.ReadValueU32(endian);
-                entry.Unknown2 = input.ReadValueU32(endian);
-                entry.Unknown3 = input.ReadValueU32(endian);
-                entry.Unknown4 = input.ReadValueU32(endian);
-                entry.Unknown5 = input.ReadValueU32(endian);
-                entry.Unknown6 = new SHA1(input.ReadBytes(20));
-                entry.Unknown7 = new SHA1(input.ReadBytes(20));
-                instance.Unknown3s.Add(entry);
+                var encryptedChunk = EncryptedChunkEntry.Read(input, endian);
+
+                if (encryptedChunk.Chunk.IsEncrypted == false)
+                {
+                    throw new FormatException();
+                }
+
+                if (encryptedChunk.Chunk.Size != encryptedChunk.CryptoInfo.Size)
+                {
+                    throw new FormatException();
+                }
+
+                instance.EncryptedChunkEntries.Add(encryptedChunk);
             }
 
             if (input.Position != input.Length)
@@ -119,7 +125,7 @@ namespace Gibbed.Frostbite3.VfsFormats
             return instance;
         }
 
-        public class ChunkEntry
+        public struct ChunkEntry
         {
             // ReSharper disable InconsistentNaming
             public SHA1 SHA1;
@@ -127,7 +133,25 @@ namespace Gibbed.Frostbite3.VfsFormats
             public uint Offset;
             public uint Size;
             public uint TailSize;
-            public uint DataIndex;
+            public byte DataIndex;
+            public bool IsEncrypted;
+
+            public static ChunkEntry Read(Stream input, Endian endian)
+            {
+                var instance = new ChunkEntry();
+                instance.SHA1 = new SHA1(input.ReadBytes(20));
+                instance.Offset = input.ReadValueU32(endian);
+                instance.Size = input.ReadValueU32(endian);
+                instance.TailSize = input.ReadValueU32(endian);
+                instance.DataIndex = input.ReadValueU8();
+                instance.IsEncrypted = input.ReadValueB8();
+                var padding = input.ReadBytes(2);
+                if (padding.Any(b => b != 0) == true)
+                {
+                    throw new FormatException();
+                }
+                return instance;
+            }
 
             public override string ToString()
             {
@@ -135,16 +159,39 @@ namespace Gibbed.Frostbite3.VfsFormats
             }
         }
 
-        public class Unknown3Entry
+        public struct EncryptedChunkEntry
         {
-            public SHA1 Unknown0;
-            public uint Unknown1;
-            public uint Unknown2;
-            public uint Unknown3;
-            public uint Unknown4;
-            public uint Unknown5;
-            public SHA1 Unknown6;
-            public SHA1 Unknown7;
+            public ChunkEntry Chunk;
+            public CryptoInfo CryptoInfo;
+
+            public static EncryptedChunkEntry Read(Stream input, Endian endian)
+            {
+                EncryptedChunkEntry instance;
+                instance.Chunk = ChunkEntry.Read(input, endian);
+                instance.CryptoInfo = CryptoInfo.Read(input, endian);
+                return instance;
+            }
+
+            public override string ToString()
+            {
+                return this.Chunk.ToString();
+            }
+        }
+
+        public struct CryptoInfo
+        {
+            public uint Size;
+            public string KeyId;
+            public byte[] Unknown;
+
+            public static CryptoInfo Read(Stream input, Endian endian)
+            {
+                CryptoInfo instance;
+                instance.Size = input.ReadValueU32(endian);
+                instance.KeyId = input.ReadString(8, true, Encoding.ASCII);
+                instance.Unknown = input.ReadBytes(32);
+                return instance;
+            }
         }
     }
 }

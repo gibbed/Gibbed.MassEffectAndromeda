@@ -20,8 +20,9 @@
  *    distribution.
  */
 
-using System.IO;
+using System;
 using System.Globalization;
+using System.IO;
 
 namespace Gibbed.Frostbite3.Unpacking
 {
@@ -43,6 +44,28 @@ namespace Gibbed.Frostbite3.Unpacking
         public static int CompareName(string left, string right)
         {
             return string.Compare(left, right, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase);
+        }
+
+        public static byte[] GetBytesFromHexString(string hex)
+        {
+            if (hex.Length % 2 == 1)
+            {
+                throw new ArgumentOutOfRangeException("s");
+            }
+
+            var length = hex.Length >> 1;
+            var bytes = new byte[length];
+            for (int i = 0, o = 0; o < length; i += 2, o++)
+            {
+                bytes[o] = (byte)((GetHexValue(hex[i + 0]) << 4) + (GetHexValue(hex[i + 1])));
+            }
+            return bytes;
+        }
+
+        public static int GetHexValue(char hex)
+        {
+            var val = (int)hex;
+            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
     }
 }
