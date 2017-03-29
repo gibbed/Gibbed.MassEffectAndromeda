@@ -48,6 +48,7 @@
     <Compile Include="FileLayers\DiceObfuscationLayer.cs" />
     <Compile Include="FileLayers\DiceSignatureLayer.cs" />
     <Compile Include="FileLayers\OoaObfuscationLayer.cs" />
+    <Compile Include="InitFileSystemFile.cs" />
     <Compile Include="LayoutFile.cs" />
     <Compile Include="Layout\InstallChunk.cs" />
     <Compile Include="Layout\InstallGroup.cs" />
