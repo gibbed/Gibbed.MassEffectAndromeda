@@ -24,24 +24,24 @@ namespace Gibbed.IO
 {
     public static partial class NumberHelpers
     {
-        public static int Align(this int value, int align)
+        public static int Padding(this int value, int align)
         {
-            return value == 0 ? 0 : value + value.Padding(align);
+            return (align - (value % align)) % align;
         }
 
-        public static uint Align(this uint value, uint align)
+        public static uint Padding(this uint value, uint align)
         {
-            return value == 0 ? 0 : value + value.Padding(align);
+            return (align - (value % align)) % align;
         }
 
-        public static long Align(this long value, long align)
+        public static long Padding(this long value, long align)
         {
-            return value == 0 ? 0 : value + value.Padding(align);
+            return (align - (value % align)) % align;
         }
 
-        public static ulong Align(this ulong value, ulong align)
+        public static ulong Padding(this ulong value, ulong align)
         {
-            return value == 0 ? 0 : value + value.Padding(align);
+            return (align - (value % align)) % align;
         }
     }
 }

@@ -40,6 +40,7 @@
     <Compile Include="NumberHelpers\Align.cs" />
     <Compile Include="NumberHelpers\BigEndian.cs" />
     <Compile Include="NumberHelpers\LittleEndian.cs" />
+    <Compile Include="NumberHelpers\Padding.cs" />
     <Compile Include="NumberHelpers\RotateLeft.cs" />
     <Compile Include="NumberHelpers\RotateRight.cs" />
     <Compile Include="NumberHelpers\Swap.cs" />
