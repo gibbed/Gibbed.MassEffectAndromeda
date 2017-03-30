@@ -21,7 +21,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 
@@ -61,22 +60,6 @@ namespace Gibbed.IO
                               : BitConverter.GetBytes(value);
             Debug.Assert(data.Length == 4);
             stream.WriteBytes(data);
-        }
-        #endregion
-
-        #region Obsolete
-        [Obsolete("use Endian enum instead of boolean to represent endianness")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Single ReadValueF32(this Stream stream, bool littleEndian)
-        {
-            return stream.ReadValueF32(littleEndian == true ? Endian.Little : Endian.Big);
-        }
-
-        [Obsolete("use Endian enum instead of boolean to represent endianness")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void WriteValueF32(this Stream stream, Single value, bool littleEndian)
-        {
-            stream.WriteValueF32(value, littleEndian == true ? Endian.Little : Endian.Big);
         }
         #endregion
     }

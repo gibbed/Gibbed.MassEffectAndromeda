@@ -35,7 +35,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ByteBufferReader.cs" />
     <Compile Include="Endian.cs" />
     <Compile Include="NumberHelpers\Align.cs" />
     <Compile Include="NumberHelpers\BigEndian.cs" />

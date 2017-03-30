@@ -21,8 +21,6 @@
  */
 
 using System;
-//using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 
 namespace Gibbed.IO
@@ -212,22 +210,6 @@ namespace Gibbed.IO
         public static void WriteValueEnum<T>(this Stream stream, object value)
         {
             stream.WriteValueEnum<T>(value, Endian.Little);
-        }
-        #endregion
-
-        #region Obsolete
-        [Obsolete("use Endian enum instead of boolean to represent endianness")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T ReadValueEnum<T>(this Stream stream, bool littleEndian)
-        {
-            return stream.ReadValueEnum<T>(littleEndian == true ? Endian.Little : Endian.Big);
-        }
-
-        [Obsolete("use Endian enum instead of boolean to represent endianness")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void WriteValueEnum<T>(this Stream stream, object value, bool littleEndian)
-        {
-            stream.WriteValueEnum<T>(value, littleEndian == true ? Endian.Little : Endian.Big);
         }
         #endregion
     }
