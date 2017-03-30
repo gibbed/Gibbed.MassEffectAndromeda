@@ -30,7 +30,6 @@ using Gibbed.Frostbite3.Unpacking;
 using Gibbed.Frostbite3.VfsFormats;
 using Gibbed.IO;
 using NDesk.Options;
-using AlphaFS = Alphaleonis.Win32.Filesystem;
 
 namespace Gibbed.Frostbite3.UnpackResources
 {
@@ -140,11 +139,11 @@ namespace Gibbed.Frostbite3.UnpackResources
                         }
 
                         var outputName = Helpers.FilterPath(resourceInfo.Name);
-                        var outputPath = AlphaFS.Path.Combine(paths.Output, outputName + ".dummy");
-                        var outputParentPath = AlphaFS.Path.GetDirectoryName(outputPath);
+                        var outputPath = Path.Combine(paths.Output, outputName + ".dummy");
+                        var outputParentPath = Path.GetDirectoryName(outputPath);
                         if (string.IsNullOrEmpty(outputParentPath) == false)
                         {
-                            AlphaFS.Directory.CreateDirectory(outputParentPath);
+                            Directory.CreateDirectory(outputParentPath);
                         }
 
                         if (verbose == true)
@@ -155,7 +154,7 @@ namespace Gibbed.Frostbite3.UnpackResources
                         bool wasConverted = false;
                         if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
                         {
-                            outputPath = AlphaFS.Path.Combine(paths.Output, outputName + ".dds");
+                            outputPath = Path.Combine(paths.Output, outputName + ".dds");
                             wasConverted = ConvertTexture(data, outputPath, chunkLookup, chunkLoader);
                         }
 
@@ -171,8 +170,8 @@ namespace Gibbed.Frostbite3.UnpackResources
                                 extension = ".#" + resourceInfo.ResourceType.ToString("X8");
                             }
 
-                            outputPath = AlphaFS.Path.Combine(paths.Output, outputName + extension);
-                            using (var output = AlphaFS.File.Create(outputPath))
+                            outputPath = Path.Combine(paths.Output, outputName + extension);
+                            using (var output = File.Create(outputPath))
                             {
                                 output.WriteFromStream(data, data.Length);
                             }
@@ -225,7 +224,7 @@ namespace Gibbed.Frostbite3.UnpackResources
                 dataBytes = temp.GetBuffer();
             }
 
-            using (var output = AlphaFS.File.Create(outputPath))
+            using (var output = File.Create(outputPath))
             {
                 DDSUtils.WriteFile(textureHeader, dataBytes, output);
             }
