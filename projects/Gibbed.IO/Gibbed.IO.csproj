@@ -43,6 +43,7 @@
     <Compile Include="NumberHelpers\RotateLeft.cs" />
     <Compile Include="NumberHelpers\RotateRight.cs" />
     <Compile Include="NumberHelpers\Swap.cs" />
+    <Compile Include="PathHelper.cs" />
     <Compile Include="StreamHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamHelpers\Aligned.cs" />
