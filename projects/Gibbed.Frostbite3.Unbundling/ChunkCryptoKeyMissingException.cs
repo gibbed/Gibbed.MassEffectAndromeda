@@ -22,7 +22,7 @@
 
 using System;
 
-namespace Gibbed.Frostbite3.Unpacking
+namespace Gibbed.Frostbite3.Unbundling
 {
     public class ChunkCryptoKeyMissingException : Exception
     {

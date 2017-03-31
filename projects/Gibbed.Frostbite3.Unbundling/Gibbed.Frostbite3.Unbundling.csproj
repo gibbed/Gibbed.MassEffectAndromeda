@@ -8,8 +8,8 @@
     <ProjectGuid>{2185B93A-0E4A-4BCA-B667-E515EBAF1532}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gibbed.Frostbite3.Unpacking</RootNamespace>
-    <AssemblyName>Gibbed.Frostbite3.Unpacking</AssemblyName>
+    <RootNamespace>Gibbed.Frostbite3.Unbundling</RootNamespace>
+    <AssemblyName>Gibbed.Frostbite3.Unbundling</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

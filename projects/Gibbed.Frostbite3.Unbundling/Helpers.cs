@@ -24,7 +24,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
-namespace Gibbed.Frostbite3.Unpacking
+namespace Gibbed.Frostbite3.Unbundling
 {
     public class Helpers
     {

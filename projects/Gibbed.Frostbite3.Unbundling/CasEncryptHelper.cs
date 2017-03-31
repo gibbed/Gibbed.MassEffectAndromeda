@@ -25,7 +25,7 @@ using System.Linq;
 using Gibbed.Frostbite3.VfsFormats;
 using YamlDotNet.RepresentationModel;
 
-namespace Gibbed.Frostbite3.Unpacking
+namespace Gibbed.Frostbite3.Unbundling
 {
     public static class CasEncryptHelper
     {

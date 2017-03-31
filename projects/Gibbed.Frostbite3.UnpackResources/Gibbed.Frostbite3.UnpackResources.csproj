@@ -60,9 +60,9 @@
       <Project>{6EE69377-2120-4500-97EF-97011781890D}</Project>
       <Name>Gibbed.Frostbite3.ResourceFormats</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gibbed.Frostbite3.Unpacking\Gibbed.Frostbite3.Unpacking.csproj">
+    <ProjectReference Include="..\Gibbed.Frostbite3.Unbundling\Gibbed.Frostbite3.Unbundling.csproj">
       <Project>{2185B93A-0E4A-4BCA-B667-E515EBAF1532}</Project>
-      <Name>Gibbed.Frostbite3.Unpacking</Name>
+      <Name>Gibbed.Frostbite3.Unbundling</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gibbed.Frostbite3.VfsFormats\Gibbed.Frostbite3.VfsFormats.csproj">
       <Project>{30CF6D81-3346-4439-9F4C-30C6CD535873}</Project>

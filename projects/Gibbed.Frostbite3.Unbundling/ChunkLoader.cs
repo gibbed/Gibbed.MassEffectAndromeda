@@ -28,7 +28,7 @@ using System.Security.Cryptography;
 using Gibbed.IO;
 using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
-namespace Gibbed.Frostbite3.Unpacking
+namespace Gibbed.Frostbite3.Unbundling
 {
     public class ChunkLoader
     {

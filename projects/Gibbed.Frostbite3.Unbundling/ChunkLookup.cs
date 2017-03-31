@@ -29,7 +29,7 @@ using Gibbed.Frostbite3.Common;
 using Gibbed.Frostbite3.VfsFormats;
 using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
-namespace Gibbed.Frostbite3.Unpacking
+namespace Gibbed.Frostbite3.Unbundling
 {
     public class ChunkLookup
     {
