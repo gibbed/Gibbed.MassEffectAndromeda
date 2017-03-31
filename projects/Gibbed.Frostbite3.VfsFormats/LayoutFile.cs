@@ -38,5 +38,8 @@ namespace Gibbed.Frostbite3.VfsFormats
 
         [DbObject.Property("installManifest")]
         public Layout.InstallManifest InstallManifest { get; set; }
+
+        [DbObject.Property("base")]
+        public int Base { get; set; }
     }
 }

@@ -25,7 +25,7 @@ using System.IO;
 
 namespace Gibbed.Frostbite3.VfsFormats
 {
-    internal static class FileLayerHelper
+    public static class FileLayerHelper
     {
         public static T ReadObject<T>(Stream input, Func<Stream, T> callback)
         {

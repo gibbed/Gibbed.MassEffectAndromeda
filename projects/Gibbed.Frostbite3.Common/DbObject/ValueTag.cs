@@ -22,7 +22,7 @@
 
 namespace Gibbed.Frostbite3.Common.DbObject
 {
-    internal struct ValueTag
+    public struct ValueTag
     {
         private byte _Value;
 
