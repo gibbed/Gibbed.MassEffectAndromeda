@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C0C92389-009E-44C4-BD34-097065AE2266}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gibbed.Frostbite3.UnpackPartitions</RootNamespace>
+    <AssemblyName>Gibbed.Frostbite3.UnpackPartitions</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Paths.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Common\Gibbed.Frostbite3.Common.csproj">
+      <Project>{3DFA8BBE-D842-433C-87F8-C60C9F1EA508}</Project>
+      <Name>Gibbed.Frostbite3.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.ResourceFormats\Gibbed.Frostbite3.ResourceFormats.csproj">
+      <Project>{6EE69377-2120-4500-97EF-97011781890D}</Project>
+      <Name>Gibbed.Frostbite3.ResourceFormats</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Unbundling\Gibbed.Frostbite3.Unbundling.csproj">
+      <Project>{2185B93A-0E4A-4BCA-B667-E515EBAF1532}</Project>
+      <Name>Gibbed.Frostbite3.Unbundling</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.VfsFormats\Gibbed.Frostbite3.VfsFormats.csproj">
+      <Project>{30CF6D81-3346-4439-9F4C-30C6CD535873}</Project>
+      <Name>Gibbed.Frostbite3.VfsFormats</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Zstd\Gibbed.Frostbite3.Zstd.csproj">
+      <Project>{3EDF2B71-ED88-4BDB-B127-34249CAF2EC3}</Project>
+      <Name>Gibbed.Frostbite3.Zstd</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.IO\Gibbed.IO.csproj">
+      <Project>{047857BA-DAA3-4CA7-AFB8-A1B082B28C6A}</Project>
+      <Name>Gibbed.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NDesk.Options\NDesk.Options.csproj">
+      <Project>{C98A6CD6-9422-4B35-8B7A-F520D75534D1}</Project>
+      <Name>NDesk.Options</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
