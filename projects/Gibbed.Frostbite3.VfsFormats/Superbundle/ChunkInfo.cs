@@ -32,7 +32,7 @@ namespace Gibbed.Frostbite3.VfsFormats.Superbundle
         public Guid Id { get; set; }
 
         [DbObject.Property("sha1")]
-        public SHA1 SHA1 { get; set; }
+        public SHA1Hash SHA1 { get; set; }
 
         [DbObject.Property("size")]
         public int Size { get; set; }

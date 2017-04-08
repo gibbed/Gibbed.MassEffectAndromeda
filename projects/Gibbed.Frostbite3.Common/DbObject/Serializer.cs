@@ -356,7 +356,7 @@ namespace Gibbed.Frostbite3.Common.DbObject
                 case ValueType.SHA1:
                 {
                     var bytes = input.ReadBytes(20);
-                    return new SHA1(bytes);
+                    return new SHA1Hash(bytes);
                 }
 
                 case ValueType.Bytes:

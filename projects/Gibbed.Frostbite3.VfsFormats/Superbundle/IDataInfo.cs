@@ -26,7 +26,7 @@ namespace Gibbed.Frostbite3.VfsFormats.Superbundle
 {
     public interface IDataInfo
     {
-        SHA1 SHA1 { get; }
+        SHA1Hash SHA1 { get; }
         long Size { get; }
         long OriginalSize { get; }
         byte[] InlineData { get; }

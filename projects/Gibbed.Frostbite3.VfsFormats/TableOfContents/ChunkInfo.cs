@@ -32,11 +32,11 @@ namespace Gibbed.Frostbite3.VfsFormats.TableOfContents
         public Guid Id { get; set; }
 
         [DbObject.Property("sha1")]
-        public SHA1 SHA1 { get; set; }
+        public SHA1Hash SHA1 { get; set; }
 
         public override string ToString()
         {
-            return string.Format("{0} => {1}", this.Id, this.SHA1.Text);
+            return string.Format("{0} => {1}", this.Id, this.SHA1);
         }
     }
 }
