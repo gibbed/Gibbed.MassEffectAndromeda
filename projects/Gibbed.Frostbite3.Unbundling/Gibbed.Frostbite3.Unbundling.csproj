@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NLog.4.4.5\lib\net40\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,11 +49,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CasEncryptHelper.cs" />
+    <Compile Include="CompressionFlags.cs" />
+    <Compile Include="CompressionHeader.cs" />
+    <Compile Include="CompressionHelper.cs" />
+    <Compile Include="ChunkVariantType.cs" />
+    <Compile Include="CompressionType.cs" />
+    <Compile Include="DataLoadException.cs" />
+    <Compile Include="InstallChunkManager.cs" />
     <Compile Include="ChunkLoader.cs" />
-    <Compile Include="ChunkLookup.cs" />
     <Compile Include="ChunkCryptoKeyMissingException.cs" />
+    <Compile Include="ChunkVariantInfo.cs" />
+    <Compile Include="Discovery.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="DataSource.cs" />
+    <Compile Include="PatchHelper.cs" />
+    <Compile Include="PatchType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DataManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gibbed.Frostbite3.Common\Gibbed.Frostbite3.Common.csproj">

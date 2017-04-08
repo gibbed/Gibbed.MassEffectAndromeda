@@ -29,7 +29,9 @@ namespace Gibbed.Frostbite3.Unbundling
 {
     public static class CasEncryptHelper
     {
-        public static void TryLoad(string path, ChunkLoader chunkLoader)
+        public const string FilePath = @"Scripts/CasEncrypt.yaml";
+
+        public static void TryLoad(string path, DataManager manager)
         {
             if (File.Exists(path) == false)
             {
@@ -38,7 +40,7 @@ namespace Gibbed.Frostbite3.Unbundling
 
             var initFileSystem = InitFileSystemFile.Read(path);
             var entry = initFileSystem.FirstOrDefault(
-                e => e.File.FileSystemName == null && e.File.Name == "Scripts/CasEncrypt.yaml");
+                e => e.File.FileSystemName == null && e.File.Name == FilePath);
             if (entry == null)
             {
                 return;
@@ -55,7 +57,7 @@ namespace Gibbed.Frostbite3.Unbundling
                 {
                     var key = ((YamlScalarNode)child.Children[new YamlScalarNode("key")]).Value;
                     var keyId = ((YamlScalarNode)child.Children[new YamlScalarNode("keyid")]).Value;
-                    chunkLoader.AddCryptoKey(keyId, key);
+                    manager.AddCryptoKey(keyId, key);
                 }
             }
         }

@@ -24,239 +24,161 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Security.Cryptography;
-using Gibbed.IO;
-using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
+using System.Linq;
+using Gibbed.Frostbite3.Common;
+using Gibbed.Frostbite3.VfsFormats;
 
 namespace Gibbed.Frostbite3.Unbundling
 {
-    public class ChunkLoader
+    internal class ChunkLoader : IDisposable
     {
-        private readonly ChunkLookup _Lookup;
-        private readonly Dictionary<string, byte[]> _CryptoKeys;
+        private readonly CatalogFile _Catalog;
+        private readonly Dictionary<byte, MemoryMappedFile> _Files;
+        private readonly Dictionary<SHA1Hash, List<ChunkVariantInfo>> _ChunkLookup;
 
-        public ChunkLoader(ChunkLookup lookup)
+        public ChunkLoader(CatalogFile catalog,
+                           IEnumerable<KeyValuePair<byte, MemoryMappedFile>> files,
+                           Dictionary<SHA1Hash, List<ChunkVariantInfo>> chunkLookup)
         {
-            if (lookup == null)
+            if (catalog == null)
             {
-                throw new ArgumentNullException("lookup");
+                throw new ArgumentNullException("catalog");
             }
 
-            this._Lookup = lookup;
-            this._CryptoKeys = new Dictionary<string, byte[]>();
-        }
+            this._Catalog = catalog;
+            this._Files = new Dictionary<byte, MemoryMappedFile>();
+            this._ChunkLookup = new Dictionary<SHA1Hash, List<ChunkVariantInfo>>();
 
-        public void AddCryptoKey(string keyId, string keyText)
-        {
-            if (this._CryptoKeys.ContainsKey(keyId) == true)
+            foreach (var kv in files)
             {
-                throw new InvalidOperationException();
+                this._Files[kv.Key] = kv.Value;
             }
 
-            var keyBytes = Helpers.GetBytesFromHexString(keyText);
-            this._CryptoKeys.Add(keyId, keyBytes);
-        }
-
-        public void Load(Superbundle.IDataInfo dataInfo, Stream output)
-        {
-            if (dataInfo.Size == dataInfo.OriginalSize)
+            foreach (var kv in chunkLookup)
             {
-                if (dataInfo.InlineData != null)
-                {
-                    if (dataInfo.InlineData.Length != dataInfo.Size)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    output.WriteBytes(dataInfo.InlineData);
-                }
-                else
-                {
-                    var chunkInfo = this._Lookup.GetChunkVariant(dataInfo);
-                    if (chunkInfo == null)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    Load(chunkInfo, output);
-                }
-            }
-            else
-            {
-                MemoryStream temp;
-
-                if (dataInfo.InlineData != null)
-                {
-                    if (dataInfo.InlineData.Length != dataInfo.Size)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    temp = new MemoryStream(dataInfo.InlineData, false);
-                }
-                else
-                {
-                    var chunkInfo = this._Lookup.GetChunkVariant(dataInfo);
-                    if (chunkInfo == null)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    temp = new MemoryStream();
-                    Load(chunkInfo, temp);
-                    temp.Position = 0;
-                }
-
-                using (temp)
-                {
-                    Decompress(temp, output, dataInfo.OriginalSize);
-                }
+                this._ChunkLookup[kv.Key] = new List<ChunkVariantInfo>(kv.Value);
             }
         }
 
-        public void Load(ChunkLookup.IChunkVariantInfo chunkVariantInfo, long size, Stream output)
+        ~ChunkLoader()
         {
-            if (chunkVariantInfo == null)
-            {
-                throw new ArgumentNullException("chunkVariantInfo");
-            }
-
-            if (chunkVariantInfo.Size == size)
-            {
-                Load(chunkVariantInfo, output);
-            }
-            else
-            {
-                using (var temp = new MemoryStream())
-                {
-                    Load(chunkVariantInfo, temp);
-                    if (temp.Length != chunkVariantInfo.Size)
-                    {
-                        throw new InvalidOperationException();
-                    }
-                    temp.Position = 0;
-                    Decompress(temp, output, size);
-                }
-            }
+            this.Dispose(false);
         }
 
-        private void Load(ChunkLookup.IChunkVariantInfo chunkVariantInfo, Stream output)
+        public CatalogFile Catalog
         {
-            using (var file = MemoryMappedFile.CreateFromFile(chunkVariantInfo.DataPath, FileMode.Open))
-            using (var input = file.CreateViewStream(chunkVariantInfo.Offset, chunkVariantInfo.Size.Align(16)))
+            get { return this._Catalog; }
+        }
+
+        public Dictionary<byte, MemoryMappedFile> Files
+        {
+            get { return this._Files; }
+        }
+
+        public Dictionary<SHA1Hash, List<ChunkVariantInfo>> ChunkLookup
+        {
+            get { return this._ChunkLookup; }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing == true)
             {
-                if (chunkVariantInfo.CryptoInfo.HasValue == false)
+                if (this._Files != null)
                 {
-                    output.WriteFromStream(input, chunkVariantInfo.Size);
-                    return;
-                }
-
-                var keyId = chunkVariantInfo.CryptoInfo.Value.KeyId;
-                byte[] keyBytes;
-                if (this._CryptoKeys.TryGetValue(keyId, out keyBytes) == false)
-                {
-                    throw new ChunkCryptoKeyMissingException(keyId);
-                }
-
-                using (var aes = Aes.Create())
-                {
-                    aes.Key = keyBytes;
-                    aes.IV = keyBytes; // yes, it's that stupid
-                    aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.PKCS7;
-                    using (var decryptor = aes.CreateDecryptor())
-                    using (var cryptoStream = new CryptoStream(input, decryptor, CryptoStreamMode.Read))
+                    foreach (var dataStream in this._Files.Values)
                     {
-                        output.WriteFromStream(cryptoStream, chunkVariantInfo.Size);
+                        dataStream.Dispose();
                     }
                 }
             }
         }
 
-        private static void Decompress(Stream input, Stream output, long originalSize)
+        public void Dispose()
         {
-            var remaining = originalSize;
-            var compressedBytes = new byte[0];
-            var uncompressedBytes = new byte[0];
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            while (remaining > 0)
+        public static ChunkLoader Load(string basePath)
+        {
+            var catalogPath = Path.Combine(basePath, "cas.cat");
+            if (File.Exists(catalogPath) == false)
             {
-                var uncompressedBlockSize = input.ReadValueS32(Endian.Big);
-                var compressionType = input.ReadValueU16(Endian.Big);
-                var compressedBlockSize = input.ReadValueU16(Endian.Big);
-
-                if (uncompressedBytes.Length < uncompressedBlockSize)
-                {
-                    Array.Resize(ref uncompressedBytes, uncompressedBlockSize);
-                }
-
-                switch (compressionType) // might be flags+type?
-                {
-                    case 0x70:
-                    {
-                        if (compressedBlockSize != uncompressedBlockSize)
-                        {
-                            throw new InvalidOperationException();
-                        }
-
-                        output.WriteFromStream(input, compressedBlockSize);
-                        remaining -= compressedBlockSize;
-                        break;
-                    }
-
-                    case 0x71:
-                    {
-                        if (compressedBlockSize != 0)
-                        {
-                            throw new InvalidOperationException();
-                        }
-
-                        output.WriteFromStream(input, uncompressedBlockSize);
-                        remaining -= uncompressedBlockSize;
-                        break;
-                    }
-
-                    case 0x0F70:
-                    {
-                        if (compressedBytes.Length < compressedBlockSize)
-                        {
-                            Array.Resize(ref compressedBytes, compressedBlockSize);
-                        }
-
-                        var read = input.Read(compressedBytes, 0, compressedBlockSize);
-                        if (read != compressedBlockSize)
-                        {
-                            throw new EndOfStreamException();
-                        }
-
-                        var result = Zstd.Decompress(
-                            compressedBytes,
-                            0,
-                            compressedBlockSize,
-                            uncompressedBytes,
-                            0,
-                            uncompressedBlockSize);
-                        if (Zstd.IsError(result) == true)
-                        {
-                            throw new InvalidOperationException();
-                        }
-
-                        if (result != (uint)uncompressedBlockSize)
-                        {
-                            throw new InvalidOperationException();
-                        }
-
-                        output.Write(uncompressedBytes, 0, uncompressedBlockSize);
-                        remaining -= uncompressedBlockSize;
-                        break;
-                    }
-
-                    default:
-                    {
-                        throw new NotSupportedException();
-                    }
-                }
+                return null;
             }
+
+            var catalog = CatalogFile.Read(catalogPath);
+
+            var chunkDataIndices = catalog.NormalEntries.Select(ce => ce.DataIndex);
+            var encryptedChunkDataIndices = catalog.EncryptedEntries.Select(ece => ece.Entry.DataIndex);
+
+            var files = new Dictionary<byte, MemoryMappedFile>();
+            foreach (var index in chunkDataIndices.Concat(encryptedChunkDataIndices).Distinct().OrderBy(v => v))
+            {
+                var dataPath = Path.Combine(basePath, string.Format("cas_{0:D2}.cas", index));
+                if (File.Exists(dataPath) == false)
+                {
+                    foreach (var stream in files.Values)
+                    {
+                        stream.Dispose();
+                    }
+                    return null;
+                }
+
+                var temp = File.OpenRead(dataPath);
+                files[index] = MemoryMappedFile.CreateFromFile(
+                    temp,
+                    null,
+                    0,
+                    MemoryMappedFileAccess.Read,
+                    null,
+                    HandleInheritability.None,
+                    false);
+            }
+
+            var chunkLookup = new Dictionary<SHA1Hash, List<ChunkVariantInfo>>();
+
+            for (int i = 0; i < catalog.NormalEntries.Count; i++)
+            {
+                var entry = catalog.NormalEntries[i];
+
+                List<ChunkVariantInfo> chunkVariants;
+                if (chunkLookup.TryGetValue(entry.Id, out chunkVariants) == false)
+                {
+                    chunkVariants = chunkLookup[entry.Id] = new List<ChunkVariantInfo>();
+                }
+
+                chunkVariants.Add(new ChunkVariantInfo(i, ChunkVariantType.Normal));
+            }
+
+            for (int i = 0; i < catalog.PatchEntries.Count; i++)
+            {
+                var entry = catalog.PatchEntries[i];
+
+                List<ChunkVariantInfo> chunkVariants;
+                if (chunkLookup.TryGetValue(entry.Id, out chunkVariants) == false)
+                {
+                    chunkVariants = chunkLookup[entry.Id] = new List<ChunkVariantInfo>();
+                }
+
+                chunkVariants.Add(new ChunkVariantInfo(i, ChunkVariantType.Patch));
+            }
+
+            for (int i = 0; i < catalog.EncryptedEntries.Count; i++)
+            {
+                var entry = catalog.EncryptedEntries[i];
+
+                List<ChunkVariantInfo> chunkVariants;
+                if (chunkLookup.TryGetValue(entry.Entry.Id, out chunkVariants) == false)
+                {
+                    chunkVariants = chunkLookup[entry.Entry.Id] = new List<ChunkVariantInfo>();
+                }
+
+                chunkVariants.Add(new ChunkVariantInfo(i, ChunkVariantType.Encrypted));
+            }
+
+            return new ChunkLoader(catalog, files, chunkLookup);
         }
     }
 }

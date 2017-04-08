@@ -27,7 +27,6 @@ using System.Linq;
 using Gibbed.Frostbite3.Common;
 using Gibbed.Frostbite3.ResourceFormats;
 using Gibbed.Frostbite3.Unbundling;
-using Gibbed.Frostbite3.VfsFormats;
 using Gibbed.IO;
 using NDesk.Options;
 
@@ -35,21 +34,41 @@ namespace Gibbed.Frostbite3.UnpackResources
 {
     public class Program
     {
+        #region Logger
+        // ReSharper disable InconsistentNaming
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        // ReSharper restore InconsistentNaming
+        #endregion
+
         private static string GetExecutableName()
         {
             return Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
         }
 
+        private static void IncreaseLogLevel(string arg, ref int level)
+        {
+            if (arg == null || level <= 0)
+            {
+                return;
+            }
+
+            level--;
+        }
+
         public static void Main(string[] args)
         {
             bool convertTextures = false;
-            bool verbose = false;
+            bool noPatch = false;
+            bool noCatch = false;
+            int logLevelOrdinal = 3;
             bool showHelp = false;
 
             var options = new OptionSet()
             {
-                { "convert-textures", "convert textures", v => convertTextures = v != null },
-                { "v|verbose", "be verbose", v => verbose = v != null },
+                { "t|convert-textures", "convert textures", v => convertTextures = v != null },
+                { "no-patch", "don't use patch data", v => noPatch = v != null },
+                { "no-catch", "don't catch exceptions when loading data", v => noCatch = v != null },
+                { "v|verbose", "increase log level (-v/-vv/-vvv)", v => IncreaseLogLevel(v, ref logLevelOrdinal) },
                 { "h|help", "show this message and exit", v => showHelp = v != null },
             };
 
@@ -76,105 +95,95 @@ namespace Gibbed.Frostbite3.UnpackResources
                 return;
             }
 
-            Paths paths;
-            if (Paths.Discover(extras[0], extras.Count > 1 ? extras[1] : null, out paths) == false)
+            LogHelper.SetConfiguration(NLog.LogLevel.FromOrdinal(logLevelOrdinal));
+
+            var inputPath = extras[0];
+            var outputBasePath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(inputPath, null) + "_res_unpack";
+
+            string newsuperbundleName;
+            var dataBasePath = Discovery.FindBasePath(inputPath, out newsuperbundleName);
+            if (string.IsNullOrEmpty(dataBasePath) == true)
             {
-                Console.WriteLine("Failed to discover data paths.");
+                Logger.Error("Failed to discover base game path.");
+                return;
+            }
+
+            var dataManager = DataManager.Initialize(dataBasePath, noPatch);
+            if (dataManager == null)
+            {
+                Logger.Fatal("Could not initialize superbundle manager.");
                 return;
             }
 
             var extensionsById = ResourceTypes.GetExtensions();
 
-            var superbundleName = Path.ChangeExtension(paths.Superbundle.Substring(paths.Data.Length + 1), null);
-            superbundleName = Helpers.FilterName(superbundleName).ToLowerInvariant();
+            var superbundle = dataManager.MountSuperbundle(newsuperbundleName);
 
-            var layout = LayoutFile.Read(Path.Combine(paths.Data, "layout.toc"));
-
-            var chunkLookup = new ChunkLookup(layout, paths.Data);
-            var chunkLoader = new ChunkLoader(chunkLookup);
-
-            var initFileSystemPath = Path.Combine(paths.Data, "initfs_Win32");
-            CasEncryptHelper.TryLoad(initFileSystemPath, chunkLoader);
-
-            var superbundle = chunkLookup.AddBundle(superbundleName);
-
-            // add common chunk bundles (chunks*.toc/sb)
-            foreach (var superbundleInfo in layout.Superbundles.Where(
-                sbi => ChunkLookup.IsChunkBundle(sbi.Name) == true))
+            foreach (var resourceInfo in superbundle.Bundles
+                                                    .Where(bi => bi.Resources != null)
+                                                    .SelectMany(bi => bi.Resources))
             {
-                if (chunkLookup.AddBundle(superbundleInfo.Name.ToLowerInvariant()) == null)
+                using (var data = new MemoryStream())
                 {
-                    Console.WriteLine("Failed to load catalog for '{0}'.", superbundleInfo.Name);
-                }
-            }
-
-            foreach (var bundleInfo in superbundle.Bundles)
-            {
-                if (bundleInfo.Resources == null)
-                {
-                    continue;
-                }
-
-                foreach (var resourceInfo in bundleInfo.Resources)
-                {
-                    using (var data = new MemoryStream())
+                    if (noCatch == true)
+                    {
+                        dataManager.LoadData(resourceInfo, data);
+                        data.Position = 0;
+                    }
+                    else
                     {
                         try
                         {
-                            chunkLoader.Load(resourceInfo, data);
+                            dataManager.LoadData(resourceInfo, data);
                             data.Position = 0;
                         }
                         catch (ChunkCryptoKeyMissingException e)
                         {
-                            Console.WriteLine("Cannot decrypt '{0}' without crypto key '{1}'.",
-                                              resourceInfo.Name,
-                                              e.KeyId);
+                            Logger.Warn("Cannot decrypt '{0}' without crypto key '{1}'.",
+                                        resourceInfo.Name,
+                                        e.KeyId);
                             continue;
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("Exception while loading '{0}':", resourceInfo.Name);
-                            Console.WriteLine(e);
+                            Logger.Warn(e, "Exception while loading '{0}':", resourceInfo.Name);
                             continue;
                         }
+                    }
 
-                        var outputName = Helpers.FilterPath(resourceInfo.Name);
-                        var outputPath = Path.Combine(paths.Output, outputName + ".dummy");
-                        var outputParentPath = Path.GetDirectoryName(outputPath);
-                        if (string.IsNullOrEmpty(outputParentPath) == false)
+                    var outputName = Helpers.FilterPath(resourceInfo.Name);
+                    var outputPath = Path.Combine(outputBasePath, outputName + ".dummy");
+                    var outputParentPath = Path.GetDirectoryName(outputPath);
+                    if (string.IsNullOrEmpty(outputParentPath) == false)
+                    {
+                        Directory.CreateDirectory(outputParentPath);
+                    }
+
+                    Logger.Info(resourceInfo.Name);
+
+                    bool wasConverted = false;
+                    if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
+                    {
+                        outputPath = Path.Combine(outputBasePath, outputName + ".dds");
+                        wasConverted = ConvertTexture(data, outputPath, dataManager);
+                    }
+
+                    if (wasConverted == false)
+                    {
+                        string extension;
+                        if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
                         {
-                            Directory.CreateDirectory(outputParentPath);
+                            extension = "." + extension;
+                        }
+                        else
+                        {
+                            extension = ".#" + resourceInfo.ResourceType.ToString("X8");
                         }
 
-                        if (verbose == true)
+                        outputPath = Path.Combine(outputBasePath, outputName + extension);
+                        using (var output = File.Create(outputPath))
                         {
-                            Console.WriteLine("{0}", resourceInfo.Name);
-                        }
-
-                        bool wasConverted = false;
-                        if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)
-                        {
-                            outputPath = Path.Combine(paths.Output, outputName + ".dds");
-                            wasConverted = ConvertTexture(data, outputPath, chunkLookup, chunkLoader);
-                        }
-
-                        if (wasConverted == false)
-                        {
-                            string extension;
-                            if (extensionsById.TryGetValue(resourceInfo.ResourceType, out extension) == true)
-                            {
-                                extension = "." + extension;
-                            }
-                            else
-                            {
-                                extension = ".#" + resourceInfo.ResourceType.ToString("X8");
-                            }
-
-                            outputPath = Path.Combine(paths.Output, outputName + extension);
-                            using (var output = File.Create(outputPath))
-                            {
-                                output.WriteFromStream(data, data.Length);
-                            }
+                            output.WriteFromStream(data, data.Length);
                         }
                     }
                 }
@@ -183,8 +192,7 @@ namespace Gibbed.Frostbite3.UnpackResources
 
         private static bool ConvertTexture(MemoryStream data,
                                            string outputPath,
-                                           ChunkLookup chunkLookup,
-                                           ChunkLoader chunkLoader)
+                                           DataManager dataManager)
         {
             var textureHeader = TextureHeader.Read(data);
 
@@ -203,15 +211,9 @@ namespace Gibbed.Frostbite3.UnpackResources
                 throw new FormatException();
             }
 
-            SHA1 chunkSHA1;
+            SHA1Hash chunkId;
             long size;
-            if (chunkLookup.GetChunkSHA1(textureHeader.DataChunkId, out chunkSHA1, out size) == false)
-            {
-                throw new InvalidOperationException();
-            }
-
-            var dataChunkInfo = chunkLookup.GetChunkVariant(chunkSHA1, size);
-            if (dataChunkInfo == null)
+            if (dataManager.GetChunkId(textureHeader.DataChunkId, out chunkId, out size) == false)
             {
                 throw new InvalidOperationException();
             }
@@ -219,7 +221,11 @@ namespace Gibbed.Frostbite3.UnpackResources
             byte[] dataBytes;
             using (var temp = new MemoryStream())
             {
-                chunkLoader.Load(dataChunkInfo, textureHeader.TotalSize, temp);
+                if (dataManager.LoadChunk(chunkId, textureHeader.TotalSize, temp) == false)
+                {
+                    throw new InvalidOperationException();
+                }
+
                 temp.Position = 0;
                 dataBytes = temp.GetBuffer();
             }
