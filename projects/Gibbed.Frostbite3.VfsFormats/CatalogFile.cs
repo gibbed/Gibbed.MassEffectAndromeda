@@ -34,23 +34,30 @@ namespace Gibbed.Frostbite3.VfsFormats
     {
         public const ulong Signature = 0x6E61794E6E61794E; // 'NyanNyan'
 
-        private readonly List<ChunkEntry> _ChunkEntries;
-        private readonly List<EncryptedChunkEntry> _EncryptedChunkEntries;
+        private readonly List<NormalEntry> _NormalEntries;
+        private readonly List<PatchEntry> _PatchEntries;
+        private readonly List<EncryptedChunkEntry> _EncryptedEntries;
 
         public CatalogFile()
         {
-            this._ChunkEntries = new List<ChunkEntry>();
-            this._EncryptedChunkEntries = new List<EncryptedChunkEntry>();
+            this._NormalEntries = new List<NormalEntry>();
+            this._PatchEntries = new List<PatchEntry>();
+            this._EncryptedEntries = new List<EncryptedChunkEntry>();
         }
 
-        public List<ChunkEntry> ChunkEntries
+        public List<NormalEntry> NormalEntries
         {
-            get { return this._ChunkEntries; }
+            get { return this._NormalEntries; }
         }
 
-        public List<EncryptedChunkEntry> EncryptedChunkEntries
+        public List<PatchEntry> PatchEntries
         {
-            get { return this._EncryptedChunkEntries; }
+            get { return this._PatchEntries; }
+        }
+
+        public List<EncryptedChunkEntry> EncryptedEntries
+        {
+            get { return this._EncryptedEntries; }
         }
 
         public static CatalogFile Read(string path)
@@ -74,47 +81,59 @@ namespace Gibbed.Frostbite3.VfsFormats
 
             var instance = new CatalogFile();
 
-            var chunkCount = input.ReadValueU32(endian);
+            var normalCount = input.ReadValueU32(endian);
             var patchCount = input.ReadValueU32(endian);
-            var encryptedChunkCount = input.ReadValueU32(endian);
-            var unknown1C = input.ReadValueS32(endian);
-            var unknown20 = input.ReadValueS32(endian);
-            var unknown24 = input.ReadValueS32(endian);
+            var encryptedCount = input.ReadValueU32(endian);
+            var unknown1C = input.ReadValueS32(endian); // patch version related?
+            var unknown20 = input.ReadValueS32(endian); // patch version related?
+            var unknown24 = input.ReadValueS32(endian); // patch version related?
 
-            if (patchCount != 0 || unknown1C != 0 || unknown20 != 0 || unknown24 != 0)
+            if (patchCount == 0)
             {
-                throw new FormatException();
+                if (unknown1C != 0 || unknown20 != 0 || unknown24 != 0)
+                {
+                    throw new FormatException();
+                }
+            }
+            else
+            {
+                if (unknown1C != -1 || unknown20 != -2 || unknown24 != -1)
+                {
+                    //throw new FormatException();
+                }
             }
 
-            instance.ChunkEntries.Clear();
-
-            for (int i = 0; i < chunkCount; i++)
+            instance.NormalEntries.Clear();
+            for (int i = 0; i < normalCount; i++)
             {
-                var chunk = ChunkEntry.Read(input, endian);
-
-                if (chunk.IsEncrypted == true)
+                var entry = NormalEntry.Read(input, endian);
+                if (entry.IsEncrypted == true)
                 {
                     throw new FormatException();
                 }
-
-                instance.ChunkEntries.Add(chunk);
+                instance.NormalEntries.Add(entry);
             }
 
-            for (int i = 0; i < encryptedChunkCount; i++)
+            instance.PatchEntries.Clear();
+            for (int i = 0; i < patchCount; i++)
             {
-                var encryptedChunk = EncryptedChunkEntry.Read(input, endian);
+                var entry = PatchEntry.Read(input, endian);
+                instance.PatchEntries.Add(entry);
+            }
 
-                if (encryptedChunk.Chunk.IsEncrypted == false)
+            instance.EncryptedEntries.Clear();
+            for (int i = 0; i < encryptedCount; i++)
+            {
+                var encryptedEntry = EncryptedChunkEntry.Read(input, endian);
+                if (encryptedEntry.Entry.IsEncrypted == false)
                 {
                     throw new FormatException();
                 }
-
-                if (encryptedChunk.Chunk.Size != encryptedChunk.CryptoInfo.Size)
+                if (encryptedEntry.Entry.Size != encryptedEntry.CryptoInfo.Size)
                 {
                     throw new FormatException();
                 }
-
-                instance.EncryptedChunkEntries.Add(encryptedChunk);
+                instance.EncryptedEntries.Add(encryptedEntry);
             }
 
             if (input.Position != input.Length)
@@ -125,10 +144,10 @@ namespace Gibbed.Frostbite3.VfsFormats
             return instance;
         }
 
-        public struct ChunkEntry
+        public struct NormalEntry
         {
             // ReSharper disable InconsistentNaming
-            public SHA1 SHA1;
+            public SHA1Hash Id;
             // ReSharper restore InconsistentNaming
             public uint Offset;
             public uint Size;
@@ -136,10 +155,10 @@ namespace Gibbed.Frostbite3.VfsFormats
             public byte DataIndex;
             public bool IsEncrypted;
 
-            public static ChunkEntry Read(Stream input, Endian endian)
+            public static NormalEntry Read(Stream input, Endian endian)
             {
-                var instance = new ChunkEntry();
-                instance.SHA1 = new SHA1(input.ReadBytes(20));
+                var instance = new NormalEntry();
+                instance.Id = new SHA1Hash(input.ReadBytes(20));
                 instance.Offset = input.ReadValueU32(endian);
                 instance.Size = input.ReadValueU32(endian);
                 instance.TailSize = input.ReadValueU32(endian);
@@ -155,26 +174,47 @@ namespace Gibbed.Frostbite3.VfsFormats
 
             public override string ToString()
             {
-                return this.SHA1.ToString();
+                return this.Id.ToString();
+            }
+        }
+
+        public struct PatchEntry
+        {
+            public SHA1Hash Id;
+            public SHA1Hash BaseId;
+            public SHA1Hash DeltaId;
+
+            public static PatchEntry Read(Stream input, Endian endian)
+            {
+                PatchEntry instance;
+                instance.Id = new SHA1Hash(input.ReadBytes(20));
+                instance.BaseId = new SHA1Hash(input.ReadBytes(20));
+                instance.DeltaId = new SHA1Hash(input.ReadBytes(20));
+                return instance;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0} = {1} + {2}", this.Id, this.BaseId, this.DeltaId);
             }
         }
 
         public struct EncryptedChunkEntry
         {
-            public ChunkEntry Chunk;
+            public NormalEntry Entry;
             public CryptoInfo CryptoInfo;
 
             public static EncryptedChunkEntry Read(Stream input, Endian endian)
             {
                 EncryptedChunkEntry instance;
-                instance.Chunk = ChunkEntry.Read(input, endian);
+                instance.Entry = NormalEntry.Read(input, endian);
                 instance.CryptoInfo = CryptoInfo.Read(input, endian);
                 return instance;
             }
 
             public override string ToString()
             {
-                return this.Chunk.ToString();
+                return this.Entry.ToString();
             }
         }
 
