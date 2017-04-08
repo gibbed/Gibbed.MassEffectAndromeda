@@ -114,13 +114,6 @@ namespace Gibbed.Frostbite3.VfsFormats
                 instance.NormalEntries.Add(entry);
             }
 
-            instance.PatchEntries.Clear();
-            for (int i = 0; i < patchCount; i++)
-            {
-                var entry = PatchEntry.Read(input, endian);
-                instance.PatchEntries.Add(entry);
-            }
-
             instance.EncryptedEntries.Clear();
             for (int i = 0; i < encryptedCount; i++)
             {
@@ -134,6 +127,13 @@ namespace Gibbed.Frostbite3.VfsFormats
                     throw new FormatException();
                 }
                 instance.EncryptedEntries.Add(encryptedEntry);
+            }
+
+            instance.PatchEntries.Clear();
+            for (int i = 0; i < patchCount; i++)
+            {
+                var entry = PatchEntry.Read(input, endian);
+                instance.PatchEntries.Add(entry);
             }
 
             if (input.Position != input.Length)
