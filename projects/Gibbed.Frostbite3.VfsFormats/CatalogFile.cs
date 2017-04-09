@@ -88,21 +88,6 @@ namespace Gibbed.Frostbite3.VfsFormats
             var unknown20 = input.ReadValueS32(endian); // patch version related?
             var unknown24 = input.ReadValueS32(endian); // patch version related?
 
-            if (patchCount == 0)
-            {
-                if (unknown1C != 0 || unknown20 != 0 || unknown24 != 0)
-                {
-                    throw new FormatException();
-                }
-            }
-            else
-            {
-                if (unknown1C != -1 || unknown20 != -2 || unknown24 != -1)
-                {
-                    //throw new FormatException();
-                }
-            }
-
             instance.NormalEntries.Clear();
             for (int i = 0; i < normalCount; i++)
             {
