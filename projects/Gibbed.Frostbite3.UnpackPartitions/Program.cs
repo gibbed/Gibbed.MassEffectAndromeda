@@ -115,7 +115,8 @@ namespace Gibbed.Frostbite3.UnpackPartitions
 
             foreach (var ebxInfo in superbundle.Bundles
                                                .Where(bi => bi.Ebx != null)
-                                               .SelectMany(bi => bi.Ebx))
+                                               .SelectMany(bi => bi.Ebx)
+                                               .OrderBy(bi => bi.Name))
             {
                 using (var data = new MemoryStream())
                 {

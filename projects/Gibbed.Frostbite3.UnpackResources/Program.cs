@@ -121,7 +121,8 @@ namespace Gibbed.Frostbite3.UnpackResources
 
             foreach (var resourceInfo in superbundle.Bundles
                                                     .Where(bi => bi.Resources != null)
-                                                    .SelectMany(bi => bi.Resources))
+                                                    .SelectMany(bi => bi.Resources)
+                                                    .OrderBy(bi => bi.Name))
             {
                 using (var data = new MemoryStream())
                 {
