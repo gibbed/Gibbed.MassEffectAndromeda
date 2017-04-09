@@ -147,6 +147,7 @@ namespace Gibbed.Frostbite3.Unbundling
             }
 
             var header = CompressionHeader.Read(input);
+            /*
             if (header.CompressionFlags == CompressionFlags.None)
             {
                 throw new NotSupportedException();
@@ -155,6 +156,7 @@ namespace Gibbed.Frostbite3.Unbundling
                                              : CompressionType.Zlib;
                 header.CompressionFlags = (CompressionFlags)7;
             }
+            */
 
             if (header.UncompressedBlockSize > count)
             {

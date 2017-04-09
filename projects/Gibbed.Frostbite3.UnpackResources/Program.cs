@@ -100,8 +100,8 @@ namespace Gibbed.Frostbite3.UnpackResources
             var inputPath = extras[0];
             var outputBasePath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(inputPath, null) + "_res_unpack";
 
-            string newsuperbundleName;
-            var dataBasePath = Discovery.FindBasePath(inputPath, out newsuperbundleName);
+            string superbundleName;
+            var dataBasePath = Discovery.FindBasePath(inputPath, out superbundleName);
             if (string.IsNullOrEmpty(dataBasePath) == true)
             {
                 Logger.Error("Failed to discover base game path.");
@@ -117,7 +117,7 @@ namespace Gibbed.Frostbite3.UnpackResources
 
             var extensionsById = ResourceTypes.GetExtensions();
 
-            var superbundle = dataManager.MountSuperbundle(newsuperbundleName);
+            var superbundle = dataManager.MountSuperbundle(superbundleName);
 
             foreach (var resourceInfo in superbundle.Bundles
                                                     .Where(bi => bi.Resources != null)
@@ -183,6 +183,7 @@ namespace Gibbed.Frostbite3.UnpackResources
                         outputPath = Path.Combine(outputBasePath, outputName + extension);
                         using (var output = File.Create(outputPath))
                         {
+                            data.Position = 0;
                             output.WriteFromStream(data, data.Length);
                         }
                     }
@@ -221,7 +222,7 @@ namespace Gibbed.Frostbite3.UnpackResources
             byte[] dataBytes;
             using (var temp = new MemoryStream())
             {
-                if (dataManager.LoadChunk(chunkId, textureHeader.TotalSize, temp) == false)
+                if (dataManager.LoadChunk(chunkId, size, textureHeader.TotalSize, temp) == false)
                 {
                     throw new InvalidOperationException();
                 }

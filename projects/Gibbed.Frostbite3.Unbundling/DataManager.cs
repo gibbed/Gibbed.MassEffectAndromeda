@@ -107,6 +107,7 @@ namespace Gibbed.Frostbite3.Unbundling
             }
 
             instance.ReadFile("initfs_Win32", s => CasEncryptHelper.TryLoad(s, instance));
+            instance.MountCommonSuperbundles();
             return instance;
         }
 
@@ -181,12 +182,8 @@ namespace Gibbed.Frostbite3.Unbundling
 
                 if (IsChunkBundle(name) == false)
                 {
-                    var installChunks = this._PrimaryLayout.InstallManifest.InstallChunks.Where(
-                        ic => ic.Superbundles != null &&
-                              ic.Superbundles.Any(sbi => Helpers.CompareName(name, sbi) == 0) == true);
-
                     int count = 0;
-                    foreach (var installChunk in installChunks)
+                    foreach (var installChunk in this.GetRequiredInstallChunks(name))
                     {
                         if (this.MountInstallChunk(installChunk) == false)
                         {
@@ -203,6 +200,7 @@ namespace Gibbed.Frostbite3.Unbundling
                 }
 
                 var superbundlePath = Helpers.FilterPath(name) + ".sb";
+                Logger.Info("Reading superbundle '{0}'", superbundlePath);
                 superbundle = this.ReadFile(superbundlePath, s => SuperbundleFile.Read(s));
                 if (superbundle == null)
                 {
@@ -210,6 +208,7 @@ namespace Gibbed.Frostbite3.Unbundling
                 }
 
                 var tableOfContentsPath = Helpers.FilterPath(name) + ".toc";
+                Logger.Info("Reading TOC '{0}'", tableOfContentsPath);
                 var tableOfContents = this.ReadFile(tableOfContentsPath, s => TableOfContentsFile.Read(s));
                 if (tableOfContents.IsCas == false)
                 {
@@ -219,6 +218,39 @@ namespace Gibbed.Frostbite3.Unbundling
                 this._Superbundles[name] = superbundle;
                 this._TableOfContents[name] = tableOfContents;
                 return superbundle;
+            }
+        }
+
+        private IEnumerable<Layout.InstallChunk> GetRequiredInstallChunks(string name)
+        {
+            var layout = this._PrimaryLayout;
+            var lookup = layout.InstallManifest.InstallChunks.ToDictionary(ic => ic.Id, ic => ic);
+
+            var completed = new List<Guid>();
+            var queue = new Queue<Layout.InstallChunk>();
+
+            foreach (var installChunk in layout.InstallManifest.InstallChunks.Where(
+                ic => ic.Superbundles != null &&
+                      ic.Superbundles.Any(sbi => Helpers.CompareName(name, sbi) == 0) == true))
+            {
+                yield return installChunk;
+                queue.Enqueue(installChunk);
+            }
+
+            while (queue.Count > 0)
+            {
+                var installChunk = queue.Dequeue();
+                foreach (var requiredInstallChunkId in installChunk.RequiredChunks.Except(completed))
+                {
+                    Layout.InstallChunk requiredInstallChunk;
+                    if (lookup.TryGetValue(requiredInstallChunkId, out requiredInstallChunk) == false)
+                    {
+                        continue;
+                    }
+                    yield return requiredInstallChunk;
+                    completed.Add(requiredInstallChunkId);
+                    queue.Enqueue(requiredInstallChunk);
+                }
             }
         }
 
@@ -307,9 +339,16 @@ namespace Gibbed.Frostbite3.Unbundling
             throw new DataLoadException(string.Format("could not find chunk '{0}'", dataInfo.SHA1));
         }
 
-        public bool LoadChunk(SHA1Hash id, uint totalSize, Stream output)
+        public bool LoadChunk(SHA1Hash id, long variantSize, long originalSize, Stream output)
         {
-            throw new NotImplementedException();
+            foreach (var installChunkManager in this._InstallChunkManagers.Values)
+            {
+                if (installChunkManager.LoadChunk(id, variantSize, originalSize, output) == true)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void ReadFile(string path, Action<string> action)

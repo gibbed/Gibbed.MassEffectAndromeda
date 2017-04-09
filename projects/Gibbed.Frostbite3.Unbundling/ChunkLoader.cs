@@ -65,6 +65,12 @@ namespace Gibbed.Frostbite3.Unbundling
             this.Dispose(false);
         }
 
+        #region Logger
+        // ReSharper disable InconsistentNaming
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        // ReSharper restore InconsistentNaming
+        #endregion
+
         public CatalogFile Catalog
         {
             get { return this._Catalog; }
@@ -108,6 +114,7 @@ namespace Gibbed.Frostbite3.Unbundling
                 return null;
             }
 
+            Logger.Info("Reading catalog '{0}'", catalogPath);
             var catalog = CatalogFile.Read(catalogPath);
 
             var chunkDataIndices = catalog.NormalEntries.Select(ce => ce.DataIndex);

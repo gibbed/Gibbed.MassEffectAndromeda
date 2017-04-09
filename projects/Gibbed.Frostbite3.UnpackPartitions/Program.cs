@@ -96,8 +96,8 @@ namespace Gibbed.Frostbite3.UnpackPartitions
             var inputPath = extras[0];
             var outputBasePath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(inputPath, null) + "_ebx_unpack";
 
-            string newsuperbundleName;
-            var dataBasePath = Discovery.FindBasePath(inputPath, out newsuperbundleName);
+            string superbundleName;
+            var dataBasePath = Discovery.FindBasePath(inputPath, out superbundleName);
             if (string.IsNullOrEmpty(dataBasePath) == true)
             {
                 Logger.Error("Failed to discover base game path.");
@@ -111,7 +111,7 @@ namespace Gibbed.Frostbite3.UnpackPartitions
                 return;
             }
 
-            var superbundle = dataManager.MountSuperbundle(newsuperbundleName);
+            var superbundle = dataManager.MountSuperbundle(superbundleName);
 
             foreach (var ebxInfo in superbundle.Bundles
                                                .Where(bi => bi.Ebx != null)
@@ -164,6 +164,7 @@ namespace Gibbed.Frostbite3.UnpackPartitions
                         outputPath = Path.Combine(outputBasePath, outputName + ".ebx");
                         using (var output = File.Create(outputPath))
                         {
+                            data.Position = 0;
                             output.WriteFromStream(data, data.Length);
                         }
                     }
