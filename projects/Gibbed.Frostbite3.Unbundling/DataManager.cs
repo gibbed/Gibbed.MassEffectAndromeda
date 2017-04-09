@@ -74,6 +74,11 @@ namespace Gibbed.Frostbite3.Unbundling
             }
         }
 
+        public IEnumerable<string> Superbundles
+        {
+            get { return this._PrimaryLayout.Superbundles.Select(sbi => sbi.Name); }
+        }
+
         private DataManager(string basePath)
         {
             if (string.IsNullOrEmpty(basePath) == true)
@@ -120,13 +125,16 @@ namespace Gibbed.Frostbite3.Unbundling
         {
             var instance = new DataManager(basePath);
 
-            if (instance.AddLayout("Data") == false)
+            var dataLayout = instance.AddLayout("Data");
+            if (dataLayout == null)
             {
                 Logger.Error("Could not add default superbundle layout.");
                 return null;
             }
 
-            if (noPatch == false && instance.AddLayout("Patch") == false)
+            instance.AddUpdates(dataLayout, "Update");
+
+            if (noPatch == false && instance.AddLayout("Patch") == null)
             {
                 Logger.Warn("Could not add patch superbundle layout.");
             }
@@ -158,21 +166,38 @@ namespace Gibbed.Frostbite3.Unbundling
             }
         }
 
-        private bool AddLayout(string name)
+        private LayoutFile AddLayout(string name)
         {
             var dataPath = Path.Combine(this._BasePath, name);
             var layoutPath = Path.Combine(dataPath, "layout.toc");
             if (File.Exists(layoutPath) == false)
             {
                 Logger.Debug("Could not load superbundle layout for '{0}'.", name);
-                return false;
+                return null;
             }
 
             var layout = LayoutFile.Read(layoutPath);
-
             var index = this._Sources.FindLastIndex(s => s.Layout.Head > layout.Head);
             this._Sources.Insert(index < 0 ? 0 : (index + 1), new DataSource(layout, dataPath));
-            return true;
+            return layout;
+        }
+
+        private void AddUpdates(LayoutFile layout, string name)
+        {
+            var updatesPath = Path.Combine(this._BasePath, name);
+
+            foreach (var updatePath in Directory.GetDirectories(updatesPath))
+            {
+                var manifestPath = Path.Combine(updatePath, "package.mft");
+                if (File.Exists(manifestPath) == false)
+                {
+                    continue;
+                }
+
+                var dataPath = Path.Combine(updatePath, "Data");
+                var index = this._Sources.FindLastIndex(s => s.Layout.Head > layout.Head);
+                this._Sources.Insert(index < 0 ? 0 : (index + 1), new DataSource(layout, dataPath));
+            }
         }
 
         public void MountCommonSuperbundles()
@@ -225,16 +250,32 @@ namespace Gibbed.Frostbite3.Unbundling
                 }
 
                 var superbundlePath = Helpers.FilterPath(name) + ".sb";
-                Logger.Info("Reading superbundle '{0}'", superbundlePath);
-                superbundle = this.ReadFile(superbundlePath, s => SuperbundleFile.Read(s));
+                superbundle = this.ReadFile(
+                    superbundlePath,
+                    s =>
+                    {
+                        Logger.Debug("Reading superbundle '{0}'", superbundlePath);
+                        return SuperbundleFile.Read(s);
+                    });
                 if (superbundle == null)
                 {
+                    Logger.Warn("Failed to read superbundle '{0}'", superbundlePath);
                     return null;
                 }
 
                 var tableOfContentsPath = Helpers.FilterPath(name) + ".toc";
-                Logger.Info("Reading TOC '{0}'", tableOfContentsPath);
-                var tableOfContents = this.ReadFile(tableOfContentsPath, s => TableOfContentsFile.Read(s));
+                var tableOfContents = this.ReadFile(
+                    tableOfContentsPath,
+                    s =>
+                    {
+                        Logger.Debug("Reading TOC '{0}'", tableOfContentsPath);
+                        return TableOfContentsFile.Read(s);
+                    });
+                if (tableOfContents == null)
+                {
+                    Logger.Warn("Failed to read TOC '{0}'", tableOfContentsPath);
+                    return null;
+                }
                 if (tableOfContents.IsCas == false)
                 {
                     throw new NotSupportedException();

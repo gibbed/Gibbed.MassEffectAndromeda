@@ -126,6 +126,8 @@ namespace Gibbed.Frostbite3.UnpackResources
             {
                 using (var data = new MemoryStream())
                 {
+                    Logger.Info(resourceInfo.Name);
+
                     if (noCatch == true)
                     {
                         dataManager.LoadData(resourceInfo, data);
@@ -159,8 +161,6 @@ namespace Gibbed.Frostbite3.UnpackResources
                     {
                         Directory.CreateDirectory(outputParentPath);
                     }
-
-                    Logger.Info(resourceInfo.Name);
 
                     bool wasConverted = false;
                     if (convertTextures == true && resourceInfo.ResourceType == ResourceTypes.Texture)

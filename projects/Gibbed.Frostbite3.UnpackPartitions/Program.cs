@@ -120,6 +120,8 @@ namespace Gibbed.Frostbite3.UnpackPartitions
             {
                 using (var data = new MemoryStream())
                 {
+                    Logger.Info(ebxInfo.Name);
+
                     if (noCatch == true)
                     {
                         dataManager.LoadData(ebxInfo, data);
@@ -153,8 +155,6 @@ namespace Gibbed.Frostbite3.UnpackPartitions
                     {
                         Directory.CreateDirectory(outputParentPath);
                     }
-
-                    Logger.Info(ebxInfo.Name);
 
                     bool wasConverted = false;
                     outputPath = Path.Combine(outputBasePath, outputName + ".entity");

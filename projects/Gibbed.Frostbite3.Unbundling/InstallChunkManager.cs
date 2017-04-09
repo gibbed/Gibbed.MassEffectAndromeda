@@ -214,11 +214,8 @@ namespace Gibbed.Frostbite3.Unbundling
 
                 input.Position = 0;
                 delta.Position = 0;
-                PatchHelper.Patch(input, delta, output);
-                return true;
+                return PatchHelper.Patch(input, delta, output);
             }
-
-            return false;
         }
 
         private bool LoadEncryptedChunk(ChunkLoader chunkLoader,

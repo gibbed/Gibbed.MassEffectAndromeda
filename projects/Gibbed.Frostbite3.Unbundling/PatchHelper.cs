@@ -28,7 +28,7 @@ namespace Gibbed.Frostbite3.Unbundling
 {
     internal class PatchHelper
     {
-        public static void Patch(Stream input, Stream delta, Stream output)
+        public static bool Patch(Stream input, Stream delta, Stream output)
         {
             if (input == null)
             {
@@ -164,6 +164,8 @@ namespace Gibbed.Frostbite3.Unbundling
             {
                 throw new InvalidOperationException();
             }
+
+            return true;
         }
     }
 }

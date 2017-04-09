@@ -114,7 +114,7 @@ namespace Gibbed.Frostbite3.Unbundling
                 return null;
             }
 
-            Logger.Info("Reading catalog '{0}'", catalogPath);
+            Logger.Debug("Reading catalog '{0}'", catalogPath);
             var catalog = CatalogFile.Read(catalogPath);
 
             var chunkDataIndices = catalog.NormalEntries.Select(ce => ce.DataIndex);
