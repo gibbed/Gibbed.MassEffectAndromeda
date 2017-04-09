@@ -59,6 +59,16 @@ namespace Gibbed.Frostbite3.Unbundling
 
                 switch (type)
                 {
+                    case PatchType.Copy:
+                    {
+                        for (int i = 0; i < count; i++)
+                        {
+                            var inputRead = CompressionHelper.DecompressBlock(input, inputBytes, work);
+                            output.Write(inputBytes, 0, inputRead);
+                        }
+                        break;
+                    }
+
                     case PatchType.CompressedChange:
                     {
                         var inputRead = CompressionHelper.DecompressBlock(input, inputBytes, work);
