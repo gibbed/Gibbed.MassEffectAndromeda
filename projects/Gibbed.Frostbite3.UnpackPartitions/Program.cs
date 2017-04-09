@@ -171,6 +171,8 @@ namespace Gibbed.Frostbite3.UnpackPartitions
                     }
                 }
             }
+
+            dataManager.Dispose();
         }
 
         private static bool ConvertEntity(MemoryStream data,

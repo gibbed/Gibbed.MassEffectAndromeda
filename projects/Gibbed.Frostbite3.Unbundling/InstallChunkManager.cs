@@ -31,7 +31,7 @@ using Layout = Gibbed.Frostbite3.VfsFormats.Layout;
 
 namespace Gibbed.Frostbite3.Unbundling
 {
-    public class InstallChunkManager
+    public class InstallChunkManager : IDisposable
     {
         public delegate bool TryGetCryptoKeyDelegate(string keyId, out byte[] keyBytes);
 
@@ -47,6 +47,31 @@ namespace Gibbed.Frostbite3.Unbundling
             {
                 this._ChunkLoaders.AddRange(chunkLoaders);
             }
+        }
+
+        ~InstallChunkManager()
+        {
+            this.Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing == true)
+            {
+                if (this._ChunkLoaders != null)
+                {
+                    foreach (var chunkLoader in this._ChunkLoaders)
+                    {
+                        chunkLoader.Dispose();
+                    }
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         internal static InstallChunkManager Initialize(TryGetCryptoKeyDelegate tryGetCryptoKey,

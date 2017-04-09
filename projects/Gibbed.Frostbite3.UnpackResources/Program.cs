@@ -190,6 +190,8 @@ namespace Gibbed.Frostbite3.UnpackResources
                     }
                 }
             }
+
+            dataManager.Dispose();
         }
 
         private static bool ConvertTexture(MemoryStream data,

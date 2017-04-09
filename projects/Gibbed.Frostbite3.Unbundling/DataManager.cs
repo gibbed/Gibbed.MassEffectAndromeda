@@ -33,7 +33,7 @@ using Superbundle = Gibbed.Frostbite3.VfsFormats.Superbundle;
 
 namespace Gibbed.Frostbite3.Unbundling
 {
-    public class DataManager
+    public class DataManager : IDisposable
     {
         private static readonly Regex _ChunkBundleRegex;
 
@@ -89,6 +89,31 @@ namespace Gibbed.Frostbite3.Unbundling
             this._InstallChunkManagers = new Dictionary<Guid, InstallChunkManager>();
             this._CryptoKeyLock = new object();
             this._CryptoKeys = new Dictionary<string, byte[]>();
+        }
+
+        ~DataManager()
+        {
+            this.Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing == true)
+            {
+                if (this._InstallChunkManagers != null)
+                {
+                    foreach (var installChunkManager in this._InstallChunkManagers.Values)
+                    {
+                        installChunkManager.Dispose();
+                    }
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public static DataManager Initialize(string basePath, bool noPatch)
