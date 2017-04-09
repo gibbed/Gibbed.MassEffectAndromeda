@@ -231,8 +231,9 @@ namespace Gibbed.Frostbite3.Unbundling
             }
 
             var entry = encryptedEntry.Entry;
+            var alignedSize = CryptoAlign(entry.Size, 16);
             var file = chunkLoader.Files[entry.DataIndex];
-            using (var input = file.CreateViewStream(entry.Offset, entry.Size.Align(16), MemoryMappedFileAccess.Read))
+            using (var input = file.CreateViewStream(entry.Offset, alignedSize, MemoryMappedFileAccess.Read))
             {
                 var keyId = encryptedEntry.CryptoInfo.KeyId;
                 byte[] keyBytes;
@@ -262,6 +263,11 @@ namespace Gibbed.Frostbite3.Unbundling
                 }
             }
             return true;
+        }
+
+        private static uint CryptoAlign(uint value, uint align)
+        {
+            return value + (align - (value % align));
         }
 
         public bool LoadData(VfsFormats.Superbundle.IDataInfo dataInfo, Stream output)
