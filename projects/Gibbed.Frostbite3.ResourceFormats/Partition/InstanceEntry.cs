@@ -25,16 +25,16 @@ using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.ResourceFormats.Partition
 {
-    internal struct InstanceEntry
+    public struct InstanceEntry
     {
-        public ushort Unknown0;
-        public ushort TypeDefinitionIndex;
+        public ushort TypeIndex;
+        public ushort Count;
 
         public static InstanceEntry Read(Stream input, Endian endian)
         {
             InstanceEntry instance;
-            instance.Unknown0 = input.ReadValueU16(endian);
-            instance.TypeDefinitionIndex = input.ReadValueU16(endian);
+            instance.TypeIndex = input.ReadValueU16(endian);
+            instance.Count = input.ReadValueU16(endian);
             return instance;
         }
     }

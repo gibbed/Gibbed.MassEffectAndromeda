@@ -25,18 +25,18 @@ using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.ResourceFormats.Partition
 {
-    internal struct ArrayEntry
+    public struct ArrayEntry
     {
-        public uint Unknown0;
-        public uint Unknown4;
-        public uint TypeDefinitionIndex;
+        public uint DataOffset;
+        public int ItemCount;
+        public int TypeIndex;
 
         public static ArrayEntry Read(Stream input, Endian endian)
         {
             ArrayEntry instance;
-            instance.Unknown0 = input.ReadValueU32(endian);
-            instance.Unknown4 = input.ReadValueU32(endian);
-            instance.TypeDefinitionIndex = input.ReadValueU32(endian);
+            instance.DataOffset = input.ReadValueU32(endian);
+            instance.ItemCount = input.ReadValueS32(endian);
+            instance.TypeIndex = input.ReadValueS32(endian);
             return instance;
         }
     }

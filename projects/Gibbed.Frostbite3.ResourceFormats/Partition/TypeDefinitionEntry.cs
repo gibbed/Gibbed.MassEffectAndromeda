@@ -25,10 +25,10 @@ using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.ResourceFormats.Partition
 {
-    internal struct TypeDefinitionEntry
+    public struct TypeDefinitionEntry
     {
         public uint NameHash;
-        public uint FieldStartIndex;
+        public int FieldStartIndex;
         public byte FieldCount;
         public byte Alignment;
         public DefinitionFlags Flags;
@@ -40,7 +40,7 @@ namespace Gibbed.Frostbite3.ResourceFormats.Partition
         {
             TypeDefinitionEntry instance;
             instance.NameHash = input.ReadValueU32(endian);
-            instance.FieldStartIndex = input.ReadValueU32(endian);
+            instance.FieldStartIndex = input.ReadValueS32(endian);
             instance.FieldCount = input.ReadValueU8();
             instance.Alignment = input.ReadValueU8();
             instance.Flags = (DefinitionFlags)input.ReadValueU16(endian);

@@ -26,7 +26,7 @@ using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.ResourceFormats.Partition
 {
-    internal struct ImportEntry
+    public struct ImportEntry
     {
         public Guid PartitionId;
         public Guid InstanceId;

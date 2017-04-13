@@ -25,13 +25,13 @@ using Gibbed.IO;
 
 namespace Gibbed.Frostbite3.ResourceFormats.Partition
 {
-    internal struct FieldDefinitionEntry
+    public struct FieldDefinitionEntry
     {
         public uint NameHash;
         public DefinitionFlags Flags;
         public ushort TypeIndex;
         public uint DataOffset;
-        public uint Unknown0C;
+        public uint Unknown0C; // maybe runtime offset?
         public string Name;
 
         public static FieldDefinitionEntry Read(Stream input, Endian endian)
