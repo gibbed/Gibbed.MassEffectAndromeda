@@ -177,6 +177,17 @@ namespace Gibbed.Frostbite3.Unbundling
             }
 
             var layout = LayoutFile.Read(layoutPath);
+
+            // superbundles listed in the layout, but not associated with any install chunk?
+            /*
+            var badSuperbundles = layout.Superbundles
+                                        .Select(sbi => sbi.Name)
+                                        .Except(layout.InstallManifest.InstallChunks
+                                                      .Where(ic => ic.Superbundles != null)
+                                                      .SelectMany(ic => ic.Superbundles))
+                                        .ToArray();
+            */
+
             var index = this._Sources.FindLastIndex(s => s.Layout.Head > layout.Head);
             this._Sources.Insert(index < 0 ? 0 : (index + 1), new DataSource(layout, dataPath));
             return layout;
@@ -335,6 +346,28 @@ namespace Gibbed.Frostbite3.Unbundling
 
             this._InstallChunkManagers.Add(installChunk.Id, manager);
             return true;
+        }
+
+        public Superbundle.ResourceInfo GetResourceInfo(string name)
+        {
+            return this._Superbundles
+                       .Values
+                       .Where(sb => sb.Bundles != null)
+                       .SelectMany(sb => sb.Bundles)
+                       .Where(bi => bi.Resources != null)
+                       .SelectMany(bi => bi.Resources)
+                       .FirstOrDefault(ci => ci.Name == name);
+        }
+
+        public Superbundle.EbxInfo GetEbxInfo(string name)
+        {
+            return this._Superbundles
+                       .Values
+                       .Where(sb => sb.Bundles != null)
+                       .SelectMany(sb => sb.Bundles)
+                       .Where(bi => bi.Ebx != null)
+                       .SelectMany(bi => bi.Ebx)
+                       .FirstOrDefault(ci => ci.Name == name);
         }
 
         public bool GetChunkId(Guid guid, out SHA1Hash sha1, out long size)
