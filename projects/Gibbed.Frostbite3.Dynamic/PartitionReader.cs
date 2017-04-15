@@ -162,12 +162,12 @@ namespace Gibbed.Frostbite3.Dynamic
             for (int i = 0; i < this._Partition.InstanceEntries.Count; i++)
             {
                 var instance = this._Partition.InstanceEntries[i];
-                var typeDefintiion = this._Partition.TypeDefinitionEntries[instance.TypeIndex];
-                var typeSize = (typeDefintiion.DataSize + dataOffsetDelta).Align(typeDefintiion.Alignment);
+                var typeDefinition = this._Partition.TypeDefinitionEntries[instance.TypeIndex];
+                var typeSize = (typeDefinition.DataSize + dataOffsetDelta).Align(typeDefinition.Alignment);
                 var flattenedType = this._FlattenedTypes[instance.TypeIndex];
                 for (int j = 0; j < instance.Count; j++)
                 {
-                    offset = offset.Align(typeDefintiion.Alignment);
+                    offset = offset.Align(typeDefinition.Alignment);
 
                     var guid = Guid.Empty;
                     if (i < this._Partition.NamedInstanceCount)
@@ -177,7 +177,13 @@ namespace Gibbed.Frostbite3.Dynamic
                         offset += 16;
                     }
 
-                    yield return new PartitionInstance(this, guid, offset + dataOffsetDelta, flattenedType);
+                    var instanceOffset = offset;
+                    if (typeDefinition.Alignment == 4)
+                    {
+                        instanceOffset += dataOffsetDelta;
+                    }
+
+                    yield return new PartitionInstance(this, guid, instanceOffset, flattenedType);
                     offset += typeSize;
                 }
             }
@@ -244,55 +250,10 @@ namespace Gibbed.Frostbite3.Dynamic
             var endian = this._Partition.Endian;
             switch (flags.DataType)
             {
-                case Partition.DataType.Boolean:
+                case Partition.DataType.Value:
                 {
-                    return this._Data.ReadValueB8();
-                }
-
-                case Partition.DataType.Int8:
-                {
-                    return this._Data.ReadValueS8();
-                }
-
-                case Partition.DataType.UInt8:
-                {
-                    return this._Data.ReadValueU8();
-                }
-
-                case Partition.DataType.Int16:
-                {
-                    return this._Data.ReadValueS16(endian);
-                }
-
-                case Partition.DataType.UInt16:
-                {
-                    return this._Data.ReadValueU16(endian);
-                }
-
-                case Partition.DataType.Int32:
-                {
-                    return this._Data.ReadValueS32(endian);
-                }
-
-                case Partition.DataType.UInt32:
-                {
-                    return this._Data.ReadValueU32(endian);
-                }
-
-                case Partition.DataType.Float32:
-                {
-                    return this._Data.ReadValueF32(endian);
-                }
-
-                case Partition.DataType.String2:
-                {
-                    var stringOffset = this._Data.ReadValueU32(endian);
-                    if (stringOffset == 0xFFFFFFFFu)
-                    {
-                        return null;
-                    }
-                    this._Data.Position = stringOffset;
-                    return this._Data.ReadStringZ(Encoding.UTF8);
+                    var type = this._FlattenedTypes[typeIndex];
+                    return new PartitionInstance(this, Guid.Empty, this._Data.Position, type).ToObject();
                 }
 
                 case Partition.DataType.Class:
@@ -307,13 +268,52 @@ namespace Gibbed.Frostbite3.Dynamic
                         value &= ~0x80000000u;
                         return this._Partition.ImportEntries[(int)value];
                     }
-                    return this._Instances[(int)value - 1].ToObject();
+                    return (this._Instances[(int)value - 1].ToObject());
                 }
 
-                case Partition.DataType.Value:
+                case Partition.DataType.List:
                 {
-                    var type = this._FlattenedTypes[typeIndex];
-                    return new PartitionInstance(this, Guid.Empty, this._Data.Position, type).ToObject();
+                    var arrayIndex = this._Data.ReadValueU32(endian);
+                    if (arrayIndex == 0xFFFFFFFFu)
+                    {
+                        return null;
+                    }
+                    if (arrayIndex >= this._Partition.ArrayEntries.Count)
+                    {
+                        throw new ArgumentOutOfRangeException("array index " + arrayIndex + " is invalid");
+                    }
+                    var arrayEntry = this._Partition.ArrayEntries[(int)arrayIndex];
+                    var arrayTypeDefinition = this._Partition.TypeDefinitionEntries[arrayEntry.TypeIndex];
+                    if (arrayTypeDefinition.DataSize != 4)
+                    {
+                        throw new InvalidOperationException("array should have a size of 4");
+                    }
+                    if (arrayTypeDefinition.FieldCount != 1)
+                    {
+                        throw new InvalidOperationException("array should only have one member");
+                    }
+                    var arrayMemberField = this._Partition.FieldDefinitionEntries[arrayTypeDefinition.FieldStartIndex];
+                    var arrayMemberSize = this.GetFieldDefinitionSize(arrayTypeDefinition.FieldStartIndex);
+                    var items = new dynamic[arrayEntry.ItemCount];
+                    for (int i = 0; i < arrayEntry.ItemCount; i++)
+                    {
+                        this._Data.Position = this._Partition.StringTableSize +
+                                              this._Partition.ArrayOffset +
+                                              arrayEntry.DataOffset + (i * arrayMemberSize);
+                        items[i] = this.ReadData(arrayMemberField.TypeIndex, arrayMemberField.Flags);
+                    }
+                    return items;
+                }
+
+                case Partition.DataType.String2:
+                {
+                    var stringOffset = this._Data.ReadValueU32(endian);
+                    if (stringOffset == 0xFFFFFFFFu)
+                    {
+                        return null;
+                    }
+                    this._Data.Position = stringOffset;
+                    return this._Data.ReadStringZ(Encoding.UTF8);
                 }
 
                 case Partition.DataType.Enum:
@@ -354,34 +354,49 @@ namespace Gibbed.Frostbite3.Dynamic
                     */
                 }
 
-                case Partition.DataType.List:
+                case Partition.DataType.Boolean:
                 {
-                    var arrayIndex = this._Data.ReadValueU32(endian);
-                    if (arrayIndex == 0xFFFFFFFFu)
-                    {
-                        return null;
-                    }
-                    var arrayEntry = this._Partition.ArrayEntries[(int)arrayIndex];
-                    var arrayTypeDefinition = this._Partition.TypeDefinitionEntries[arrayEntry.TypeIndex];
-                    if (arrayTypeDefinition.DataSize != 4)
-                    {
-                        throw new InvalidOperationException("array should have a size of 4");
-                    }
-                    if (arrayTypeDefinition.FieldCount != 1)
-                    {
-                        throw new InvalidOperationException("array should only have one member");
-                    }
-                    var arrayMemberField = this._Partition.FieldDefinitionEntries[arrayTypeDefinition.FieldStartIndex];
-                    var arrayMemberSize = this.GetFieldDefinitionSize(arrayTypeDefinition.FieldStartIndex);
-                    var items = new dynamic[arrayEntry.ItemCount];
-                    for (int i = 0; i < arrayEntry.ItemCount; i++)
-                    {
-                        this._Data.Position = this._Partition.StringTableSize +
-                                              this._Partition.ArrayOffset +
-                                              arrayEntry.DataOffset + (i * arrayMemberSize);
-                        items[i] = this.ReadData(arrayMemberField.TypeIndex, arrayMemberField.Flags);
-                    }
-                    return items;
+                    return this._Data.ReadValueB8();
+                }
+
+                case Partition.DataType.Int8:
+                {
+                    return this._Data.ReadValueS8();
+                }
+
+                case Partition.DataType.UInt8:
+                {
+                    return this._Data.ReadValueU8();
+                }
+
+                case Partition.DataType.Int16:
+                {
+                    return this._Data.ReadValueS16(endian);
+                }
+
+                case Partition.DataType.UInt16:
+                {
+                    return this._Data.ReadValueU16(endian);
+                }
+
+                case Partition.DataType.Int32:
+                {
+                    return this._Data.ReadValueS32(endian);
+                }
+
+                case Partition.DataType.UInt32:
+                {
+                    return this._Data.ReadValueU32(endian);
+                }
+
+                case Partition.DataType.Float32:
+                {
+                    return this._Data.ReadValueF32(endian);
+                }
+
+                case Partition.DataType.Guid:
+                {
+                    return this._Data.ReadValueGuid(endian);
                 }
             }
 
@@ -436,6 +451,11 @@ namespace Gibbed.Frostbite3.Dynamic
                 case Partition.DataType.List:
                 {
                     return 4;
+                }
+
+                case Partition.DataType.Guid:
+                {
+                    return 16;
                 }
             }
 

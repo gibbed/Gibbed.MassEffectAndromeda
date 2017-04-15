@@ -23,11 +23,19 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 
 namespace Gibbed.Frostbite3.Dynamic
 {
     internal class PartitionObject : DynamicObject
     {
+        private static readonly string[] _ExtraDynamicMemberNames;
+
+        static PartitionObject()
+        {
+            _ExtraDynamicMemberNames = new[] { "__INSTANCE" };
+        }
+
         private readonly PartitionInstance _Instance;
 
         public PartitionObject(PartitionInstance instance)
@@ -42,12 +50,23 @@ namespace Gibbed.Frostbite3.Dynamic
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            return this._Instance.GetDynamicMemberNames();
+            return _ExtraDynamicMemberNames.Concat(this._Instance.GetDynamicMemberNames());
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
+            if (binder.Name == "__INSTANCE")
+            {
+                result = this._Instance;
+                return true;
+            }
+
             return this._Instance.TryGetMember(binder, out result);
+        }
+
+        public override string ToString()
+        {
+            return "^" + this._Instance;
         }
     }
 }

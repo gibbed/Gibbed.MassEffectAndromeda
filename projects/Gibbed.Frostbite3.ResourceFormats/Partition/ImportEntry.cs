@@ -38,5 +38,10 @@ namespace Gibbed.Frostbite3.ResourceFormats.Partition
             instance.InstanceId = input.ReadValueGuid(endian);
             return instance;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} => {1}", this.PartitionId, this.InstanceId);
+        }
     }
 }

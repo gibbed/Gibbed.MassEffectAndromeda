@@ -31,6 +31,7 @@ namespace Gibbed.Frostbite3.Dynamic
     internal class PartitionFlattenedType
     {
         private readonly int _Index;
+        private readonly string _Name;
         private readonly Partition.FieldDefinitionEntry[] _Fields;
 
         public PartitionFlattenedType(PartitionFile partition, int typeIndex)
@@ -46,6 +47,7 @@ namespace Gibbed.Frostbite3.Dynamic
             }
 
             this._Index = typeIndex;
+            this._Name = partition.TypeDefinitionEntries[typeIndex].Name;
             this._Fields = FlattenFields(partition, typeIndex).ToArray();
         }
 
@@ -98,6 +100,11 @@ namespace Gibbed.Frostbite3.Dynamic
             {
                 yield return field;
             }
+        }
+
+        public override string ToString()
+        {
+            return this._Name ?? base.ToString();
         }
     }
 }

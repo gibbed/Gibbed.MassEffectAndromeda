@@ -1,4 +1,6 @@
-﻿/* Copyright (c) 2017 Rick (rick 'at' gibbed 'dot' us)
+﻿#define DEBUG_READING
+
+/* Copyright (c) 2017 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -93,18 +95,27 @@ namespace Gibbed.Frostbite3.Dynamic
 
             var field = this._Type.Fields[fieldIndex];
 
-            //try
+#if DEBUG_READING
+            try
+#endif
             {
                 result = this._Reader.ReadField(this._DataOffset, field);
             }
-            /*catch (Exception e)
+#if DEBUG_READING
+            catch (Exception e)
             {
                 result = e;
                 return true;
-            }*/
+            }
+#endif
 
             this._FieldCache.Add(binder.Name, result);
             return true;
+        }
+
+        public override string ToString()
+        {
+            return "instance of `" + this._Type + "`";
         }
     }
 }
