@@ -63,6 +63,16 @@ namespace Gibbed.Frostbite3.ResourceFormats.Partition
             return new DefinitionFlags(value);
         }
 
+        public bool IsVoid
+        {
+            get
+            {
+                return this.DataType == DataType.Void &&
+                       this.DataKind == DataKind.None &&
+                       this.DataFlags == DataFlags.None;
+            }
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();
