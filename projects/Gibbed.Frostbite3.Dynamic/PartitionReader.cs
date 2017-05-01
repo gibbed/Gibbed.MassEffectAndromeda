@@ -97,16 +97,16 @@ namespace Gibbed.Frostbite3.Dynamic
                     throw new InvalidOperationException(type + " is not attributed with PartitionEnumAttribute");
                 }
 
-                if ((attribute.Options & PartitionEnumOptions.Validate) != 0)
+                var typeNameHash = DJB.Compute(attribute.TypeName);
+                var typeIndex = this._Partition.TypeDefinitionEntries.FindIndex(td => td.NameHash == typeNameHash);
+                if (typeIndex >= 0)
                 {
-                    var typeNameHash = DJB.Compute(attribute.TypeName);
-                    var typeIndex = this._Partition.TypeDefinitionEntries.FindIndex(td => td.NameHash == typeNameHash);
-                    if (typeIndex >= 0)
+                    var typeDefinition = this._Partition.TypeDefinitionEntries[typeIndex];
+                    if ((attribute.Options & PartitionEnumOptions.Validate) != 0)
                     {
-                        var typeDefinition = this._Partition.TypeDefinitionEntries[typeIndex];
                         ValidateEnumType(type, typeDefinition);
-                        lookup.Add(typeIndex, type);
                     }
+                    lookup.Add(typeIndex, type);
                 }
             }
             return lookup;
@@ -163,7 +163,9 @@ namespace Gibbed.Frostbite3.Dynamic
             {
                 var instance = this._Partition.InstanceEntries[i];
                 var typeDefinition = this._Partition.TypeDefinitionEntries[instance.TypeIndex];
-                var typeSize = (typeDefinition.DataSize + dataOffsetDelta).Align(typeDefinition.Alignment);
+                var typeSize = typeDefinition.Alignment == 4
+                                   ? (typeDefinition.DataSize + dataOffsetDelta).Align(typeDefinition.Alignment)
+                                   : ((int)typeDefinition.DataSize).Align(typeDefinition.Alignment);
                 var flattenedType = this._FlattenedTypes[instance.TypeIndex];
                 for (int j = 0; j < instance.Count; j++)
                 {
@@ -220,7 +222,7 @@ namespace Gibbed.Frostbite3.Dynamic
             return this._Instances.Where(i => i.Type.Index == typeIndex).Select(i => i.ToObject());
         }
 
-        public IEnumerable<dynamic> GetObjectsOfType(string typeName)
+        public IEnumerable<dynamic> GetObjectsOfSpecificType(string typeName)
         {
             if (string.IsNullOrEmpty(typeName) == true)
             {
@@ -234,6 +236,58 @@ namespace Gibbed.Frostbite3.Dynamic
                 throw new ArgumentException("could not find type '" + typeName + "' in partition", "typeName");
             }
             return this._Instances.Where(i => i.Type.Index == typeIndex).Select(i => i.ToObject());
+        }
+
+        public IEnumerable<dynamic> GetObjectsOfType(params string[] typeNames)
+        {
+            if (typeNames == null || typeNames.Length == 0)
+            {
+                yield break;
+            }
+
+            foreach (var typeName in typeNames)
+            {
+                var typeNameHash = DJB.Compute(typeName);
+                var typeIndex = this._Partition.TypeDefinitionEntries.FindIndex(tde => tde.NameHash == typeNameHash);
+                if (typeIndex < 0)
+                {
+                    continue;
+                }
+
+                foreach (var derivedTypeIndex in this.GetClassHierarchy(typeIndex))
+                {
+                    int index = derivedTypeIndex;
+                    foreach (var obj in this._Instances.Where(i => i.Type.Index == index).Select(i => i.ToObject()))
+                    {
+                        yield return obj;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<int> GetClassHierarchy(int parentTypeIndex)
+        {
+            yield return parentTypeIndex;
+            var queue = new Queue<int>();
+            queue.Enqueue(parentTypeIndex);
+
+            while (queue.Count > 0)
+            {
+                var typeIndex = queue.Dequeue();
+                foreach (var fieldIndex in this._Partition.FieldDefinitionEntries.FindAllIndices(
+                    fde => fde.Flags.IsVoid == true && fde.Name == "$" && fde.TypeIndex == typeIndex))
+                {
+                    int baseFieldIndex = fieldIndex;
+                    foreach (var derivedTypeIndex in this._Partition.TypeDefinitionEntries.FindAllIndices(
+                        tde => tde.FieldCount > 0 &&
+                               baseFieldIndex >= tde.FieldStartIndex &&
+                               baseFieldIndex < tde.FieldStartIndex + tde.FieldCount))
+                    {
+                        yield return derivedTypeIndex;
+                        queue.Enqueue(derivedTypeIndex);
+                    }
+                }
+            }
         }
 
         internal object ReadField(long dataOffset, Partition.FieldDefinitionEntry field)

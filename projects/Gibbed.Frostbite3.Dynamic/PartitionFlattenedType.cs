@@ -56,6 +56,11 @@ namespace Gibbed.Frostbite3.Dynamic
             get { return this._Index; }
         }
 
+        public string Name
+        {
+            get { return this._Name; }
+        }
+
         public Partition.FieldDefinitionEntry[] Fields
         {
             get { return this._Fields; }

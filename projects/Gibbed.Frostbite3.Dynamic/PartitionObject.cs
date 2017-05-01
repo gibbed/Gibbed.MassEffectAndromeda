@@ -33,7 +33,7 @@ namespace Gibbed.Frostbite3.Dynamic
 
         static PartitionObject()
         {
-            _ExtraDynamicMemberNames = new[] { "__INSTANCE" };
+            _ExtraDynamicMemberNames = new[] { "__INSTANCE", "__GUID", "__TYPE" };
         }
 
         private readonly PartitionInstance _Instance;
@@ -58,6 +58,18 @@ namespace Gibbed.Frostbite3.Dynamic
             if (binder.Name == "__INSTANCE")
             {
                 result = this._Instance;
+                return true;
+            }
+
+            if (binder.Name == "__GUID")
+            {
+                result = this._Instance.Guid;
+                return true;
+            }
+
+            if (binder.Name == "__TYPE")
+            {
+                result = this._Instance.Type.Name;
                 return true;
             }
 

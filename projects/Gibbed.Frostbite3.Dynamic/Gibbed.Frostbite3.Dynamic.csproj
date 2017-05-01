@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ListHelpers.cs" />
     <Compile Include="PartitionEnumAttribute.cs" />
     <Compile Include="PartitionEnumOptions.cs" />
     <Compile Include="PartitionEnumValueAttribute.cs" />
