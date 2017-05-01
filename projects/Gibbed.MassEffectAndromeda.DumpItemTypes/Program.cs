@@ -113,7 +113,7 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                 return;
             }
 
-            var itemTypes = new Dictionary<string, ItemType>();
+            var itemTypes = new Dictionary<string, ItemInfo>();
 
             Logger.Info("Loading masteritemlist...");
             var masterItemListReader = LoadEbx(dataManager, "game/items/masteritemlist");
@@ -124,7 +124,7 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
             }
             using (masterItemListReader)
             {
-                var masterItemList = masterItemListReader.GetObjectsOfType("MasterItemList").First();
+                var masterItemList = masterItemListReader.GetObjectsOfSpecificType("MasterItemList").First();
                 foreach (var itemAsset in masterItemList.ItemAssets)
                 {
                     PartitionMap.PartitionInfo partitionInfo;
@@ -146,7 +146,11 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                     using (itemDataReader)
                     {
                         var itemData = itemDataReader.GetObject(itemAsset.InstanceId);
-                        itemTypes[partitionInfo.Name] = itemData.ItemType;
+                        itemTypes[partitionInfo.Name] = new ItemInfo()
+                        {
+                            Type = itemData.ItemType,
+                            ItemHash = itemData.ItemHash,
+                        };
                     }
                 }
             }
@@ -160,11 +164,23 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                 writer.WriteStartObject();
                 foreach (var kv in itemTypes.OrderBy(kv => kv.Key))
                 {
+                    var info = kv.Value;
                     writer.WritePropertyName(kv.Key);
-                    writer.WriteValue(kv.Value.ToString());
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("type");
+                    writer.WriteValue(info.Type.ToString());
+                    writer.WritePropertyName("item_hash");
+                    writer.WriteValue(info.ItemHash);
+                    writer.WriteEndObject();
                 }
                 writer.WriteEndObject();
             }
+        }
+
+        private struct ItemInfo
+        {
+            public ItemType Type;
+            public uint ItemHash;
         }
 
         private static PartitionReader LoadEbx(DataManager dataManager, string name, params Type[] enumTypes)
