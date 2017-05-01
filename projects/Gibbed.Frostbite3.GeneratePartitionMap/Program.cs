@@ -95,7 +95,7 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
             LogHelper.SetConfiguration(NLog.LogLevel.FromOrdinal(logLevelOrdinal));
 
             var dataBasePath = extras[0];
-            var outputPath = extras.Count > 1 ? extras[1] : Path.Combine(dataBasePath, "partition.map");
+            var outputPath = extras.Count > 1 ? extras[1] : Path.Combine(dataBasePath, "partition.map.json");
 
             var dataManager = DataManager.Initialize(dataBasePath, noPatch);
             if (dataManager == null)
