@@ -1,0 +1,1 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/9l5sx64q40v26fo4?svg=true)](https://ci.appveyor.com/project/gibbed/gibbed-masseffectandromeda)
