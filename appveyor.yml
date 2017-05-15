@@ -1,0 +1,43 @@
+version: 1.0.{build}
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+skip_commits:
+  files:
+    - README.md
+
+max_jobs: 1
+
+image: Visual Studio 2015
+
+clone_folder: c:\projects\gibbed-masseffectandromeda
+
+cache:
+  - packages -> **\packages.config
+  - '%LocalAppData%\NuGet\Cache'
+  - '%LocalAppData%\NuGet\v3-cache'
+
+install:
+  - git submodule update --init --recursive
+
+configuration: Debug
+
+build:
+  project: Mass Effect Andromeda.sln
+  parallel: true
+  verbosity: minimal
+
+before_build:
+  - nuget restore
+
+after_build:
+  - set TZ=GMT
+  - git log . > git-log.txt
+  - 7z a -r -tzip -mx=9 -x!bin/Test.exe -x!*/license.txt -x!*/readme.txt -x!*/git-log.txt mea-%APPVEYOR_BUILD_VERSION%.zip license.txt readme.txt git-log.txt bin/*.exe bin/*.dll bin/projects
+  - 7z a -r -tzip -mx=9 -x!bin/Test.exe -x!*/license.txt -x!*/readme.txt -x!*/git-log.txt mea-%APPVEYOR_BUILD_VERSION%-with-symbols.zip license.txt readme.txt git-log.txt bin/*.exe bin/*.dll bin/*.pdb bin/projects
+
+artifacts:
+  - path: mea-*.zip
