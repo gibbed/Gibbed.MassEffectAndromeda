@@ -369,7 +369,12 @@ namespace Gibbed.Frostbite3.Common.DbObject
                         throw new EndOfStreamException();
                     }
 
-                    var value = input.ReadBytes(length);
+                    if (length > int.MaxValue)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    var value = input.ReadBytes((int)length);
 
                     if (input.Position != endPosition)
                     {

@@ -245,7 +245,12 @@ namespace Gibbed.Frostbite3.ResourceFormats
                 throw new FormatException();
             }
 
-            var dataBytes = input.ReadBytes(dataSize);
+            if (dataSize > int.MaxValue)
+            {
+                throw new FormatException();
+            }
+
+            var dataBytes = input.ReadBytes((int)dataSize);
 
             this._ImportEntries.Clear();
             this._FieldDefinitionEntries.Clear();

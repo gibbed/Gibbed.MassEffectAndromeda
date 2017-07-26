@@ -87,6 +87,11 @@ namespace Gibbed.Frostbite3.VfsFormats.FileLayers
                 throw new FormatException();
             }
 
+            if (fileSize > int.MaxValue)
+            {
+                throw new FormatException();
+            }
+
             var mode = setupData[4];
             switch (mode)
             {
@@ -100,7 +105,7 @@ namespace Gibbed.Frostbite3.VfsFormats.FileLayers
                     var seed = setupData[5];
                     var magic = seed;
                     input.Position = basePosition;
-                    var bytes = input.ReadBytes(fileSize);
+                    var bytes = input.ReadBytes((int)fileSize);
                     for (int i = 0; i < bytes.Length; i++)
                     {
                         var b = bytes[i];
@@ -113,7 +118,7 @@ namespace Gibbed.Frostbite3.VfsFormats.FileLayers
                 case 3:
                 {
                     input.Position = basePosition;
-                    var bytes = input.ReadBytes(fileSize);
+                    var bytes = input.ReadBytes((int)fileSize);
                     return new MemoryStream(bytes, false);
                 }
             }

@@ -178,7 +178,12 @@ namespace Gibbed.Frostbite3.ConvertDbObject
                         throw new EndOfStreamException();
                     }
 
-                    var bytes = input.ReadBytes(length);
+                    if (length > int.MaxValue)
+                    {
+                        throw new FormatException();
+                    }
+
+                    var bytes = input.ReadBytes((int)length);
 
                     if (input.Position != endPosition)
                     {
