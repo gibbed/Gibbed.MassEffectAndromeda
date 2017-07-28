@@ -94,15 +94,19 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 return false;
             }
 
-            var referencingFieldIndices = partition.FieldDefinitionEntries
-                                                   .FindAllIndices(fde => fde.TypeIndex == idTypeIndex)
-                                                   .ToArray();
-            var referencingTypeIndices = partition.TypeDefinitionEntries
-                                                  .FindAllIndices(tde => referencingFieldIndices.Any(
-                                                      i => tde.FieldCount > 0 &&
-                                                           i >= tde.FieldStartIndex &&
-                                                           i < tde.FieldStartIndex + tde.FieldCount) == true)
-                                                  .ToArray();
+            var referencingFieldIndices =
+                partition
+                    .FieldDefinitionEntries
+                    .FindAllIndices(fde => fde.TypeIndex == idTypeIndex)
+                    .ToArray();
+            var referencingTypeIndices =
+                partition
+                    .TypeDefinitionEntries
+                    .FindAllIndices(tde => referencingFieldIndices.Any(
+                        i => tde.FieldCount > 0 &&
+                             i >= tde.FieldStartIndex &&
+                             i < tde.FieldStartIndex + tde.FieldCount) == true)
+                    .ToArray();
 
             var queue = new Queue<int>();
             foreach (var referencingTypeIndex in referencingTypeIndices)
@@ -118,17 +122,20 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 if (referencingType.Flags.DataType == Frostbite3.ResourceFormats.Partition.DataType.List ||
                     TypeHelpers.IsNested(referencingType.Name) == true)
                 {
-                    var parentFieldIndices = partition.FieldDefinitionEntries
-                                                      .FindAllIndices(
-                                                          fde => fde.TypeIndex == referencingTypeIndex)
-                                                      .ToArray();
-                    var parentTypeIndices = partition
-                        .TypeDefinitionEntries.FindAllIndices(
-                            tde => tde.FieldCount > 0 &&
-                                   parentFieldIndices.Any(
-                                       i => i >= tde.FieldStartIndex &&
-                                            i < tde.FieldStartIndex + tde.FieldCount) == true)
-                        .ToArray();
+                    var parentFieldIndices =
+                        partition
+                            .FieldDefinitionEntries
+                            .FindAllIndices(
+                                fde => fde.TypeIndex == referencingTypeIndex)
+                            .ToArray();
+                    var parentTypeIndices =
+                        partition
+                            .TypeDefinitionEntries.FindAllIndices(
+                                tde => tde.FieldCount > 0 &&
+                                       parentFieldIndices.Any(
+                                           i => i >= tde.FieldStartIndex &&
+                                                i < tde.FieldStartIndex + tde.FieldCount) == true)
+                            .ToArray();
                     foreach (var parentTypeIndex in parentTypeIndices)
                     {
                         queue.Enqueue(parentTypeIndex);
@@ -138,9 +145,11 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 interestingTypeIndices.Add(referencingTypeIndex);
             }
 
-            var interestingTypes = interestingTypeIndices.Distinct()
-                                                         .Select(i => partition.TypeDefinitionEntries[i])
-                                                         .ToArray();
+            var interestingTypes =
+                interestingTypeIndices
+                    .Distinct()
+                    .Select(i => partition.TypeDefinitionEntries[i])
+                    .ToArray();
             var interestingTypeNames = interestingTypes.Select(tde => tde.Name).ToArray();
             unknownTypeNames = interestingTypeNames.Where(v => TypeHelpers.IsKnown(v) == false).ToArray();
             return true;
@@ -161,12 +170,16 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             resultsByPath.Add(line);
         }
 
-        public void AddGuidResult(EbxInfo ebxInfo, Guid guid, params string[] typeParts)
+        public void AddGuidResult(EbxInfo ebxInfo, dynamic parent, Guid guid, params string[] typeParts)
         {
-            this.AddGuidResult(ebxInfo, guid, null, typeParts);
+            this.AddGuidResult(ebxInfo, parent, guid, null, typeParts);
         }
 
-        public void AddGuidResult(EbxInfo ebxInfo, Guid guid, Func<string> callback, params string[] typeParts)
+        public void AddGuidResult(EbxInfo ebxInfo,
+                                  dynamic parent,
+                                  Guid guid,
+                                  Func<string> callback,
+                                  params string[] typeParts)
         {
             if (typeParts.Length < 1)
             {
@@ -179,25 +192,36 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             }
 
             var sb = new StringBuilder();
+            Guid dataGuid = parent.__GUID;
+            if (dataGuid != Guid.Empty)
+            {
+                sb.Append("[`");
+                sb.Append(dataGuid);
+                sb.Append("`] ");
+            }
             sb.Append(string.Join(".", typeParts));
             if (callback != null)
             {
                 var extra = callback();
                 if (string.IsNullOrEmpty(extra) == false)
                 {
-                    sb.Append(" ");
+                    sb.Append(": ");
                     sb.Append(extra);
                 }
             }
             AddResult(ebxInfo, guid, sb.ToString());
         }
 
-        public void AddActionResult(EbxInfo ebxInfo, dynamic data, params string[] typeParts)
+        public void AddActionResult(EbxInfo ebxInfo, dynamic parent, dynamic data, params string[] typeParts)
         {
-            this.AddActionResult(ebxInfo, data, null, typeParts);
+            this.AddActionResult(ebxInfo, parent, data, null, typeParts);
         }
 
-        public void AddActionResult(EbxInfo ebxInfo, dynamic data, Func<string> callback, params string[] typeParts)
+        public void AddActionResult(EbxInfo ebxInfo,
+                                    dynamic parent,
+                                    dynamic data,
+                                    Func<string> callback,
+                                    params string[] typeParts)
         {
             if (typeParts.Length < 1)
             {
@@ -216,16 +240,19 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 throw new NotSupportedException();
             }
 
-            var typePath = string.Join(".", typeParts);
             var sb = new StringBuilder();
-            if (data.__GUID == Guid.Empty)
+            Guid dataGuid = parent.__GUID;
+            if (dataGuid == Guid.Empty)
             {
-                sb.AppendFormat("{0} => {1}", typePath, actionType);
+                dataGuid = data.__GUID;
             }
-            else
+            if (dataGuid != Guid.Empty)
             {
-                sb.AppendFormat("{0} `{1}` => {2}", typePath, data.__GUID, actionType);
+                sb.Append("[`");
+                sb.Append(dataGuid);
+                sb.Append("`] ");
             }
+            sb.AppendFormat("{0} => {1}", string.Join(".", typeParts), actionType);
             if (callback != null)
             {
                 var extra = callback();
@@ -237,12 +264,16 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             }
         }
 
-        public void AddConditionResult(EbxInfo ebxInfo, dynamic data, params string[] typeParts)
+        public void AddConditionResult(EbxInfo ebxInfo, dynamic parent, dynamic data, params string[] typeParts)
         {
-            this.AddConditionResult(ebxInfo, data, null, typeParts);
+            this.AddConditionResult(ebxInfo, parent, data, null, typeParts);
         }
 
-        public void AddConditionResult(EbxInfo ebxInfo, dynamic data, Func<string> callback, params string[] typeParts)
+        public void AddConditionResult(EbxInfo ebxInfo,
+                                       dynamic parent,
+                                       dynamic data,
+                                       Func<string> callback,
+                                       params string[] typeParts)
         {
             if (typeParts.Length < 1)
             {
@@ -263,16 +294,19 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 throw new NotSupportedException();
             }
 
-            var typePath = string.Join(".", typeParts);
             var sb = new StringBuilder();
-            if (data.__GUID == Guid.Empty)
+            Guid dataGuid = parent.__GUID;
+            if (dataGuid == Guid.Empty)
             {
-                sb.AppendFormat("{0} => {1}, {2}", typePath, conditionType, desiredValue);
+                dataGuid = data.__GUID;
             }
-            else
+            if (dataGuid != Guid.Empty)
             {
-                sb.AppendFormat("{0} `{1}` => {2}, {3}", typePath, data.__GUID, conditionType, desiredValue);
+                sb.Append("[`");
+                sb.Append(dataGuid);
+                sb.Append("`] ");
             }
+            sb.AppendFormat("{0} => {1}, {2}", string.Join(".", typeParts), conditionType, desiredValue);
             if (callback != null)
             {
                 var extra = callback();

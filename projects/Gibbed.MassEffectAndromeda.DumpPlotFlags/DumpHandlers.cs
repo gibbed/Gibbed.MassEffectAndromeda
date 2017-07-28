@@ -103,17 +103,17 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
 
         private static void DumpAction(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddActionResult(ebxInfo, data.Action, typeName, "Action");
+            dumper.AddActionResult(ebxInfo, data, data.Action, typeName, "Action");
         }
 
         private static void DumpGetPlotCondition(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddConditionResult(ebxInfo, data.PlotCondition, typeName, "PlotCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.PlotCondition, typeName, "PlotCondition");
         }
 
         private static void DumpGetCondition(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddConditionResult(ebxInfo, data.Condition, typeName, "Condition");
+            dumper.AddConditionResult(ebxInfo, data, data.Condition, typeName, "Condition");
         }
 
         private static void DumpGetConditions(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -126,19 +126,19 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
 
             foreach (dynamic condition in conditions)
             {
-                dumper.AddConditionResult(ebxInfo, condition, typeName, "Conditions");
+                dumper.AddConditionResult(ebxInfo, data, condition, typeName, "Conditions");
             }
         }
 
         private static void DumpCompareCondition(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             Func<string> callback = () => data.DesiredValue.ToString();
-            dumper.AddConditionResult(ebxInfo, data.Condition, callback, typeName, "Condition");
+            dumper.AddConditionResult(ebxInfo, data, data.Condition, callback, typeName, "Condition");
         }
 
         private static void DumpGetPlotFlag(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddGuidResult(ebxInfo, (Guid)data.PlotFlag.PlotFlagId.Guid, typeName, "PlotFlag");
+            dumper.AddGuidResult(ebxInfo, data, (Guid)data.PlotFlag.PlotFlagId.Guid, typeName, "PlotFlag");
         }
 
         private static void DumpGetPlotFlagIds(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -157,42 +157,47 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                     continue;
                 }
 
-                dumper.AddGuidResult(ebxInfo, guid, typeName, "PlotFlagIds");
+                dumper.AddGuidResult(ebxInfo, data, guid, typeName, "PlotFlagIds");
             }
         }
 
         private static void DumpGetPlotFlagReference(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddGuidResult(ebxInfo, (Guid)data.PlotFlagReference.PlotFlagId.Guid, typeName, "PlotFlagReference");
+            var guid = (Guid)data.PlotFlagReference.PlotFlagId.Guid;
+            dumper.AddGuidResult(ebxInfo, data, guid, typeName, "PlotFlagReference");
         }
 
         private static void DumpSetPlotFlagReferenceValue(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             Func<string> callback = () => data.Value.ToString();
             var guid = (Guid)data.PlotFlagReference.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, guid, callback, typeName, "PlotFlagReference");
+            dumper.AddGuidResult(ebxInfo, data, guid, callback, typeName, "PlotFlagReference");
         }
 
         private static void DumpSetPlotFlagValue(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var guid1 = (Guid)data.PlotFlagReference.PlotFlagId.Guid;
             var guid2 = (Guid)data.PlotFlagValue.PlotFlagId.Guid;
-            Func<string> callback1 = () => guid2.ToString();
-            Func<string> callback2 = () => guid1.ToString();
-            dumper.AddGuidResult(ebxInfo, guid1, callback1, typeName, "PlotFlagReference");
-            dumper.AddGuidResult(ebxInfo, guid2, callback2, typeName, "PlotFlagValue");
+            Func<string> callback1 = guid2.ToString;
+            Func<string> callback2 = guid1.ToString;
+            dumper.AddGuidResult(ebxInfo, data, guid1, callback1, typeName, "PlotFlagReference");
+            dumper.AddGuidResult(ebxInfo, data, guid2, callback2, typeName, "PlotFlagValue");
         }
 
         private static void DumpDebugBooleanPlotFlag(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             Func<string> callback = () => data.Value.ToString();
-            dumper.AddGuidResult(ebxInfo, (Guid)data.Target.PlotFlagId.Guid, callback, typeName, "Target");
+            dumper.AddGuidResult(ebxInfo, data, (Guid)data.Target.PlotFlagId.Guid, callback, typeName, "Target");
         }
 
         private static void DumpDebugIntegerPlotFlag(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddGuidResult(ebxInfo, (Guid)data.Target.PlotFlagId.Guid, typeName, "Target");
-            dumper.AddGuidResult(ebxInfo, (Guid)data.Source.PlotFlagId.Guid, typeName, "Source");
+            var guid1 = (Guid)data.Target.PlotFlagId.Guid;
+            var guid2 = (Guid)data.Source.PlotFlagId.Guid;
+            Func<string> callback1 = guid2.ToString;
+            Func<string> callback2 = guid1.ToString;
+            dumper.AddGuidResult(ebxInfo, data, guid1, callback1, typeName, "Target");
+            dumper.AddGuidResult(ebxInfo, data, guid2, callback2, typeName, "Source");
         }
 
         private static void DumpGameVaultVarInt(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -215,12 +220,13 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                                                minValue,
                                                maxValue);
                 };
-            dumper.AddGuidResult(ebxInfo, (Guid)data.PlotFlag.PlotFlagId.Guid, callback, typeName, "PlotFlag");
+            var guid = (Guid)data.PlotFlag.PlotFlagId.Guid;
+            dumper.AddGuidResult(ebxInfo, data, guid, callback, typeName, "PlotFlag");
         }
 
         private static void DumpDebugCondition(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddConditionResult(ebxInfo, data.DebugCondition, typeName, "DebugCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.DebugCondition, typeName, "DebugCondition");
         }
 
         private static void DumpPlotConditions(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -231,22 +237,24 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 return;
             }
 
-            foreach (dynamic plotCondition in plotConditions)
+            foreach (dynamic condition in plotConditions)
             {
-                dumper.AddConditionResult(ebxInfo, plotCondition, typeName, "PlotConditions");
+                dumper.AddConditionResult(ebxInfo, data, condition, typeName, "PlotConditions");
             }
         }
 
         private static void DumpPlotLogicBooleanFlagRule(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
+            var guid = (Guid)data.Flag.PlotFlagId.Guid;
             Func<string> callback = () => data.DesiredValue.ToString();
-            dumper.AddGuidResult(ebxInfo, (Guid)data.Flag.PlotFlagId.Guid, callback, typeName, "Flag");
+            dumper.AddGuidResult(ebxInfo, data, guid, callback, typeName, "Flag");
         }
 
         private static void DumpPlotLogicIntFlagRule(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
+            var guid = (Guid)data.Flag.PlotFlagId.Guid;
             Func<string> callback = () => string.Format("{0}, {1}", (PlotLogicOperator)data.Operator, data.DesiredValue);
-            dumper.AddGuidResult(ebxInfo, (Guid)data.Flag.PlotFlagId.Guid, callback, typeName, "Flag");
+            dumper.AddGuidResult(ebxInfo, data, guid, callback, typeName, "Flag");
         }
 
         private static void DumpPlotCompareIntegerEntityData(EbxInfo ebxInfo,
@@ -254,8 +262,12 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                                                              string typeName,
                                                              dynamic data)
         {
-            dumper.AddGuidResult(ebxInfo, (Guid)data.PlotFlagReferenceA.PlotFlagId.Guid, typeName, "PlotFlagReferenceA");
-            dumper.AddGuidResult(ebxInfo, (Guid)data.PlotFlagReferenceB.PlotFlagId.Guid, typeName, "PlotFlagReferenceB");
+            var guid1 = (Guid)data.PlotFlagReferenceA.PlotFlagId.Guid;
+            var guid2 = (Guid)data.PlotFlagReferenceB.PlotFlagId.Guid;
+            Func<string> callback1 = guid2.ToString;
+            Func<string> callback2 = guid1.ToString;
+            dumper.AddGuidResult(ebxInfo, data, guid1, callback1, typeName, "PlotFlagReferenceA");
+            dumper.AddGuidResult(ebxInfo, data, guid2, callback2, typeName, "PlotFlagReferenceB");
         }
 
         private static void DumpCraftingResearchProjectItemData(EbxInfo ebxInfo,
@@ -263,8 +275,14 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                                                                 string typeName,
                                                                 dynamic data)
         {
-            // also data.ResearchNexusLevel.NexusLevelPlotFlag
-            dumper.AddGuidResult(ebxInfo, (Guid)data.CompletedFlag.PlotFlagId.Guid, typeName, "CompletedFlag");
+            var guid1 = (Guid)data.CompletedFlag.PlotFlagId.Guid;
+            dumper.AddGuidResult(ebxInfo, data, guid1, typeName, "CompletedFlag");
+
+            if (data.ResearchNexusLevel != null)
+            {
+                var guid2 = (Guid)data.ResearchNexusLevel.NexusLevelPlotFlag.PlotFlagId.Guid;
+                dumper.AddGuidResult(ebxInfo, data, guid2, typeName, "ResearchNexusLevel", "NexusLevelPlotFlag");
+            }
         }
 
         private static void DumpCodexEntry(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -272,18 +290,18 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             var displayConditions = (object[])data.DisplayConditions;
             if (displayConditions != null && displayConditions.Length > 0)
             {
-                foreach (dynamic displayCondition in displayConditions)
+                foreach (dynamic condition in displayConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, displayCondition, typeName, "DisplayConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "DisplayConditions");
                 }
             }
 
             var hideConditions = (object[])data.HideConditions;
             if (hideConditions != null && hideConditions.Length > 0)
             {
-                foreach (dynamic hideCondition in hideConditions)
+                foreach (dynamic condition in hideConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, hideCondition, typeName, "HideConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "HideConditions");
                 }
             }
         }
@@ -293,27 +311,27 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             var displayConditions = (object[])data.DisplayConditions;
             if (displayConditions != null && displayConditions.Length > 0)
             {
-                foreach (dynamic displayCondition in displayConditions)
+                foreach (dynamic condition in displayConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, displayCondition, typeName, "DisplayConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "DisplayConditions");
                 }
             }
 
             var failureConditions = (object[])data.FailureConditions;
             if (failureConditions != null && failureConditions.Length > 0)
             {
-                foreach (dynamic failureCondition in failureConditions)
+                foreach (dynamic condition in failureConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, failureCondition, typeName, "FailureConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "FailureConditions");
                 }
             }
 
             var hideConditions = (object[])data.HideConditions;
             if (hideConditions != null && hideConditions.Length > 0)
             {
-                foreach (dynamic hideCondition in hideConditions)
+                foreach (dynamic condition in hideConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, hideCondition, typeName, "HideConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "HideConditions");
                 }
             }
         }
@@ -324,9 +342,9 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             var activationConditions = (object[])data.ActivationConditions;
             if (activationConditions != null && activationConditions.Length > 0)
             {
-                foreach (dynamic activationCondition in activationConditions)
+                foreach (dynamic condition in activationConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, activationCondition, callback, typeName, "ActivationConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, callback, typeName, "ActivationConditions");
                 }
             }
         }
@@ -336,8 +354,8 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                                                              string typeName,
                                                              dynamic data)
         {
-            dumper.AddConditionResult(ebxInfo, data.DisplayCondition, typeName, "DisplayCondition");
-            dumper.AddConditionResult(ebxInfo, data.HideCondition, typeName, "HideCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.DisplayCondition, typeName, "DisplayCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.HideCondition, typeName, "HideCondition");
         }
 
         private static void DumpConversationEntityData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -356,13 +374,13 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                     continue;
                 }
 
-                dumper.AddGuidResult(ebxInfo, guid, typeName, "FirstLineTimelineTrackConditionFlags");
+                dumper.AddGuidResult(ebxInfo, data, guid, typeName, "FirstLineTimelineTrackConditionFlags");
             }
         }
 
         private static void DumpConversationLine(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddGuidResult(ebxInfo, (Guid)data.OccurrencePlotFlagId.Guid, typeName, "OccurrencePlotFlagId");
+            dumper.AddGuidResult(ebxInfo, data, (Guid)data.OccurrencePlotFlagId.Guid, typeName, "OccurrencePlotFlagId");
         }
 
         private static void DumpAwardListenerEntityData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -381,7 +399,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                     foreach (dynamic plotFlag in plotFlags)
                     {
                         var guid = (Guid)plotFlag.PlotFlagId.Guid;
-                        dumper.AddGuidResult(ebxInfo, guid, typeName, "PlotAwards", "PlotFlags");
+                        dumper.AddGuidResult(ebxInfo, data, guid, typeName, "PlotAwards", "PlotFlags");
                     }
                 }
             }
@@ -390,11 +408,11 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
         private static void DumpPlotFlagListenerData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var guid1 = (Guid)data.NewGameStartedPlotFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, guid1, typeName, "NewGameStartedPlotFlag");
+            dumper.AddGuidResult(ebxInfo, data, guid1, typeName, "NewGameStartedPlotFlag");
             var guid2 = (Guid)data.TempestEnterExitPlotFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, guid2, typeName, "TempestEnterExitPlotFlag");
+            dumper.AddGuidResult(ebxInfo, data, guid2, typeName, "TempestEnterExitPlotFlag");
             var guid3 = (Guid)data.TempestPilotingPlotFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, guid3, typeName, "TempestPilotingPlotFlag");
+            dumper.AddGuidResult(ebxInfo, data, guid3, typeName, "TempestPilotingPlotFlag");
 
             var plotFlagsSettings = (object[])data.PlotFlagsSettings;
             if (plotFlagsSettings != null)
@@ -402,7 +420,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic plotFlagSetting in plotFlagsSettings)
                 {
                     var guid4 = (Guid)plotFlagSetting.PlotFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid4, typeName, "PlotFlagsSettings");
+                    dumper.AddGuidResult(ebxInfo, data, guid4, typeName, "PlotFlagsSettings");
                 }
             }
         }
@@ -418,7 +436,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             foreach (dynamic critPathPlot in critPathPlotCompletion)
             {
                 var guid = (Guid)critPathPlot.PlotFlagId.Guid;
-                dumper.AddGuidResult(ebxInfo, guid, typeName, "CritPathPlotCompletion");
+                dumper.AddGuidResult(ebxInfo, data, guid, typeName, "CritPathPlotCompletion");
             }
         }
 
@@ -443,7 +461,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
 
                 foreach (var condition in conditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, condition, typeName, "RuntimeStates", "Conditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "RuntimeStates", "Conditions");
                 }
             }
         }
@@ -456,7 +474,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic criticalPathFlag in criticalPathFlags)
                 {
                     var guid = (Guid)criticalPathFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "CriticalPathFlags");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "CriticalPathFlags");
                 }
             }
 
@@ -466,7 +484,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic enemyBaseFlag in enemyBaseFlags)
                 {
                     var guid = (Guid)enemyBaseFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "EnemyBaseFlags");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "EnemyBaseFlags");
                 }
             }
 
@@ -476,7 +494,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic loyaltyAndBStoryFlag in loyaltyAndBStoryFlags)
                 {
                     var guid = (Guid)loyaltyAndBStoryFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "LoyaltyAndBStoryFlags");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "LoyaltyAndBStoryFlags");
                 }
             }
 
@@ -486,7 +504,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic remnantVaultFlag in remnantVaultFlags)
                 {
                     var guid = (Guid)remnantVaultFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "RemnantVaultFlags");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "RemnantVaultFlags");
                 }
             }
 
@@ -496,7 +514,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic sideQuestFlag in sideQuestFlags)
                 {
                     var guid = (Guid)sideQuestFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "SideQuestFlags");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "SideQuestFlags");
                 }
             }
         }
@@ -504,7 +522,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
         private static void DumpActivePlayTimerEntityData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var guid = (Guid)data.TempestPilotingPlotFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, guid, typeName, "TempestPilotingPlotFlag");
+            dumper.AddGuidResult(ebxInfo, data, guid, typeName, "TempestPilotingPlotFlag");
         }
 
         private static void DumpLootManagerEntityData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -513,7 +531,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             if (lootConfiguration != null)
             {
                 var guid = (Guid)lootConfiguration.DisableLootInteraction.PlotFlagId.Guid;
-                dumper.AddGuidResult(ebxInfo, guid, typeName, "LootConfiguration", "DisableLootInteraction");
+                dumper.AddGuidResult(ebxInfo, data, guid, typeName, "LootConfiguration", "DisableLootInteraction");
             }
         }
 
@@ -528,15 +546,15 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic partyMemberBundle in partyMemberBundles)
                 {
                     var canLevelUpFlagGuid = (Guid)partyMemberBundle.CanLevelUpFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, canLevelUpFlagGuid, typeName, "CanLevelUpFlag");
+                    dumper.AddGuidResult(ebxInfo, data, canLevelUpFlagGuid, typeName, "CanLevelUpFlag");
                     var inPartyFlagGuid = (Guid)partyMemberBundle.InPartyFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, inPartyFlagGuid, typeName, "InPartyFlag");
+                    dumper.AddGuidResult(ebxInfo, data, inPartyFlagGuid, typeName, "InPartyFlag");
                     var loyaltyMissionGuid = (Guid)partyMemberBundle.LoyaltyMission.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, loyaltyMissionGuid, typeName, "LoyaltyMission");
+                    dumper.AddGuidResult(ebxInfo, data, loyaltyMissionGuid, typeName, "LoyaltyMission");
                     var trustLevelGuid = (Guid)partyMemberBundle.TrustLevel.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, trustLevelGuid, typeName, "TrustLevel");
+                    dumper.AddGuidResult(ebxInfo, data, trustLevelGuid, typeName, "TrustLevel");
                     var unlockedFlagGuid = (Guid)partyMemberBundle.UnlockedFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, unlockedFlagGuid, typeName, "UnlockedFlag");
+                    dumper.AddGuidResult(ebxInfo, data, unlockedFlagGuid, typeName, "UnlockedFlag");
                 }
             }
         }
@@ -552,7 +570,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic viabilityData in viabilityDatas)
                 {
                     var guid = (Guid)viabilityData.PlotFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "ViabilityData", "PlotFlag");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "ViabilityData", "PlotFlag");
                 }
             }
         }
@@ -565,7 +583,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic itemCountTracker in itemCountTrackers)
                 {
                     var guid = (Guid)itemCountTracker.ItemCountFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "ItemCountTracker", "ItemCountFlag");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "ItemCountTracker", "ItemCountFlag");
                 }
             }
         }
@@ -578,7 +596,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic extraData in extraDatas)
                 {
                     var guid = (Guid)extraData.ShouldUse.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "ExtraData", "ShouldUse");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "ExtraData", "ShouldUse");
                 }
             }
         }
@@ -586,9 +604,9 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
         private static void DumpSystemData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var availableFlag = (Guid)data.AvailableFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, availableFlag, typeName, "AvailableFlag");
+            dumper.AddGuidResult(ebxInfo, data, availableFlag, typeName, "AvailableFlag");
             var visitedFlag = (Guid)data.VisitedFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, visitedFlag, typeName, "VisitedFlag");
+            dumper.AddGuidResult(ebxInfo, data, visitedFlag, typeName, "VisitedFlag");
         }
 
         private static void DumpDestinationData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -599,14 +617,14 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic anomaly in anomalies)
                 {
                     var guid = (Guid)anomaly.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "Anomalies");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "Anomalies");
                 }
             }
 
             var currentDestinationFlag = (Guid)data.CurrentDestinationFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, currentDestinationFlag, typeName, "CurrentDestinationFlag");
+            dumper.AddGuidResult(ebxInfo, data, currentDestinationFlag, typeName, "CurrentDestinationFlag");
 
-            dumper.AddConditionResult(ebxInfo, data.ExcludeFromJournalTask, typeName, "ExcludeFromJournalTask");
+            dumper.AddConditionResult(ebxInfo, data, data.ExcludeFromJournalTask, typeName, "ExcludeFromJournalTask");
 
             var hazards = (object[])data.Hazards;
             if (hazards != null && hazards.Length > 0)
@@ -614,10 +632,10 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 throw new NotSupportedException();
             }
 
-            dumper.AddConditionResult(ebxInfo, data.IncludeInCompletion, typeName, "IncludeInCompletion");
+            dumper.AddConditionResult(ebxInfo, data, data.IncludeInCompletion, typeName, "IncludeInCompletion");
 
             var scannedFlag = (Guid)data.ScannedFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, scannedFlag, typeName, "ScannedFlag");
+            dumper.AddGuidResult(ebxInfo, data, scannedFlag, typeName, "ScannedFlag");
 
             var techs = (object[])data.Tech;
             if (techs != null && techs.Length > 0)
@@ -638,17 +656,23 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                     {
                         foreach (dynamic perk in perks)
                         {
-                            DumpPerk(ebxInfo, dumper, typeName, perk);
+                            DumpPerk(ebxInfo, dumper, typeName, perk, data);
                         }
                     }
                 }
             }
         }
 
-        private static void DumpPerk(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
+        private static void DumpPerk(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data, dynamic parent)
         {
             var plotFlagAcquired = (Guid)data.PlotFlagAcquired.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, plotFlagAcquired, typeName, "PerkCategories", "Perks", "PlotFlagAcquired");
+            dumper.AddGuidResult(ebxInfo,
+                                 parent,
+                                 plotFlagAcquired,
+                                 typeName,
+                                 "PerkCategories",
+                                 "Perks",
+                                 "PlotFlagAcquired");
 
             var plotFlagRequirements = (object[])data.PlotFlagRequirement;
             if (plotFlagRequirements != null)
@@ -657,6 +681,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 {
                     var plotFlagRequirementGuid = (Guid)plotFlagRequirement.PlotFlagId.Guid;
                     dumper.AddGuidResult(ebxInfo,
+                                         parent,
                                          plotFlagRequirementGuid,
                                          typeName,
                                          "PerkCategories",
@@ -666,15 +691,15 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             }
 
             var visibilityFlag = (Guid)data.VisibilityFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, visibilityFlag, typeName, "PerkCategories", "Perks", "VisibilityFlag");
+            dumper.AddGuidResult(ebxInfo, parent, visibilityFlag, typeName, "PerkCategories", "Perks", "VisibilityFlag");
         }
 
         private static void DumpTutorialEntry(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var entrySeenFlag = (Guid)data.EntrySeenFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, entrySeenFlag, typeName, "EntrySeenFlag");
+            dumper.AddGuidResult(ebxInfo, data, entrySeenFlag, typeName, "EntrySeenFlag");
             var entryVisibleFlag = (Guid)data.EntryVisibleFlag.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, entryVisibleFlag, typeName, "EntryVisibleFlag");
+            dumper.AddGuidResult(ebxInfo, data, entryVisibleFlag, typeName, "EntryVisibleFlag");
         }
 
         private static void DumpPlotLocationMarkerComponentData(EbxInfo ebxInfo,
@@ -682,19 +707,19 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                                                                 string typeName,
                                                                 dynamic data)
         {
-            dumper.AddConditionResult(ebxInfo, data.DisplayCondition, typeName, "DisplayCondition");
-            dumper.AddConditionResult(ebxInfo, data.HideCondition, typeName, "HideCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.DisplayCondition, typeName, "DisplayCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.HideCondition, typeName, "HideCondition");
         }
 
         private static void DumpConversationTypeSettings(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             Func<string> callback = () => data.DebugDisplayName;
-            dumper.AddConditionResult(ebxInfo, data.EnabledCondition, callback, typeName, "EnabledCondition");
+            dumper.AddConditionResult(ebxInfo, data, data.EnabledCondition, callback, typeName, "EnabledCondition");
         }
 
         private static void DumpConversationCategory(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
-            dumper.AddActionResult(ebxInfo, data.OnCategorySelectedAction, typeName, "OnCategorySelectedAction");
+            dumper.AddActionResult(ebxInfo, data, data.OnCategorySelectedAction, typeName, "OnCategorySelectedAction");
         }
 
         private static void DumpSystemDataReference(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -704,62 +729,76 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             {
                 foreach (dynamic neighboringSystemsInfo in neighboringSystemsInfos)
                 {
-                    DumpNeighboringSystemsInfo(ebxInfo, dumper, typeName, neighboringSystemsInfo);
+                    DumpNeighboringSystemsInfo(ebxInfo, dumper, typeName, neighboringSystemsInfo, data);
                 }
             }
         }
 
-        private static void DumpNeighboringSystemsInfo(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
+        private static void DumpNeighboringSystemsInfo(EbxInfo ebxInfo,
+                                                       Dumper dumper,
+                                                       string typeName,
+                                                       dynamic data,
+                                                       dynamic parent)
         {
             var displayCondition = data.DisplayCondition;
-            dumper.AddConditionResult(ebxInfo, displayCondition, typeName, "NeighboringSystemsInfo", "DisplayCondition");
+            dumper.AddConditionResult(ebxInfo,
+                                      parent,
+                                      displayCondition,
+                                      typeName,
+                                      "NeighboringSystemsInfo",
+                                      "DisplayCondition");
             var hideCondition = data.HideCondition;
-            dumper.AddConditionResult(ebxInfo, hideCondition, typeName, "NeighboringSystemsInfo", "HideCondition");
+            dumper.AddConditionResult(ebxInfo,
+                                      parent,
+                                      hideCondition,
+                                      typeName,
+                                      "NeighboringSystemsInfo",
+                                      "HideCondition");
         }
 
         private static void DumpProgressiveTaskData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var currentProgress = (Guid)data.CurrentProgress.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, currentProgress, typeName, "CurrentProgress");
+            dumper.AddGuidResult(ebxInfo, data, currentProgress, typeName, "CurrentProgress");
 
             var displayConditions = (object[])data.DisplayConditions;
             if (displayConditions != null)
             {
-                foreach (var displayCondition in displayConditions)
+                foreach (var condition in displayConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, displayCondition, typeName, "DisplayConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "DisplayConditions");
                 }
             }
 
             var failureConditions = (object[])data.FailureConditions;
             if (failureConditions != null)
             {
-                foreach (var failureCondition in failureConditions)
+                foreach (var condition in failureConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, failureCondition, typeName, "FailureConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "FailureConditions");
                 }
             }
 
             var hideConditions = (object[])data.HideConditions;
             if (hideConditions != null)
             {
-                foreach (var hideCondition in hideConditions)
+                foreach (var condition in hideConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, hideCondition, typeName, "HideConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "HideConditions");
                 }
             }
 
             var successConditions = (object[])data.SuccessConditions;
             if (successConditions != null)
             {
-                foreach (var successCondition in successConditions)
+                foreach (var condition in successConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, successCondition, typeName, "SuccessConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "SuccessConditions");
                 }
             }
 
             var total = (Guid)data.Total.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, total, typeName, "Total");
+            dumper.AddGuidResult(ebxInfo, data, total, typeName, "Total");
         }
 
         private static void DumpJournalContentData(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
@@ -767,18 +806,18 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             var displayConditions = (object[])data.DisplayConditions;
             if (displayConditions != null)
             {
-                foreach (var displayCondition in displayConditions)
+                foreach (var condition in displayConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, displayCondition, typeName, "DisplayConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "DisplayConditions");
                 }
             }
 
             var hideConditions = (object[])data.HideConditions;
             if (hideConditions != null)
             {
-                foreach (var hideCondition in hideConditions)
+                foreach (var condition in hideConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, hideCondition, typeName, "HideConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "HideConditions");
                 }
             }
         }
@@ -788,36 +827,36 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
             var displayConditions = (object[])data.DisplayConditions;
             if (displayConditions != null)
             {
-                foreach (var displayCondition in displayConditions)
+                foreach (var condition in displayConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, displayCondition, typeName, "DisplayConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "DisplayConditions");
                 }
             }
 
             var failureConditions = (object[])data.FailureConditions;
             if (failureConditions != null)
             {
-                foreach (var failureCondition in failureConditions)
+                foreach (var condition in failureConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, failureCondition, typeName, "FailureConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "FailureConditions");
                 }
             }
 
             var hideConditions = (object[])data.HideConditions;
             if (hideConditions != null)
             {
-                foreach (var hideCondition in hideConditions)
+                foreach (var condition in hideConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, hideCondition, typeName, "HideConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "HideConditions");
                 }
             }
 
             var successConditions = (object[])data.SuccessConditions;
             if (successConditions != null)
             {
-                foreach (var successCondition in successConditions)
+                foreach (var condition in successConditions)
                 {
-                    dumper.AddConditionResult(ebxInfo, successCondition, typeName, "SuccessConditions");
+                    dumper.AddConditionResult(ebxInfo, data, condition, typeName, "SuccessConditions");
                 }
             }
         }
@@ -830,7 +869,7 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
                 foreach (dynamic newGamePlusPlotFlag in newGamePlusPlotFlags)
                 {
                     var guid = (Guid)newGamePlusPlotFlag.PlotFlagId.Guid;
-                    dumper.AddGuidResult(ebxInfo, guid, typeName, "NewGamePlusPlotFlags");
+                    dumper.AddGuidResult(ebxInfo, data, guid, typeName, "NewGamePlusPlotFlags");
                 }
             }
         }
@@ -838,9 +877,9 @@ namespace Gibbed.MassEffectAndromeda.DumpPlotFlags
         private static void DumpGiveJournalPlotFlagReward(EbxInfo ebxInfo, Dumper dumper, string typeName, dynamic data)
         {
             var plotFlagValueDestination = (Guid)data.PlotFlagValueDestination.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, plotFlagValueDestination, typeName, "PlotFlagValueDestination");
+            dumper.AddGuidResult(ebxInfo, data, plotFlagValueDestination, typeName, "PlotFlagValueDestination");
             var plotFlagValueSource = (Guid)data.PlotFlagValueSource.PlotFlagId.Guid;
-            dumper.AddGuidResult(ebxInfo, plotFlagValueSource, typeName, "PlotFlagValueSource");
+            dumper.AddGuidResult(ebxInfo, data, plotFlagValueSource, typeName, "PlotFlagValueSource");
         }
     }
 }
