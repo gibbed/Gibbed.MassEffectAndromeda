@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DA349656-7948-4ED8-AA2E-1FF857EECC15}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gibbed.MassEffectAndromeda.DumpPlotFlags</RootNamespace>
+    <AssemblyName>Gibbed.MassEffectAndromeda.DumpPlotFlags</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NLog.4.4.6\lib\net40\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Dumper.cs" />
+    <Compile Include="DumpHandlers.cs" />
+    <Compile Include="ListHelpers.cs" />
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="PlotActionType.cs" />
+    <Compile Include="PlotConditionType.cs" />
+    <Compile Include="PlotLogicOperator.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeHelpers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Dynamic\Gibbed.Frostbite3.Dynamic.csproj">
+      <Project>{747BAD77-9235-4E11-9A6A-5B192D5EA9DE}</Project>
+      <Name>Gibbed.Frostbite3.Dynamic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.ResourceFormats\Gibbed.Frostbite3.ResourceFormats.csproj">
+      <Project>{6EE69377-2120-4500-97EF-97011781890D}</Project>
+      <Name>Gibbed.Frostbite3.ResourceFormats</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Unbundling\Gibbed.Frostbite3.Unbundling.csproj">
+      <Project>{2185B93A-0E4A-4BCA-B667-E515EBAF1532}</Project>
+      <Name>Gibbed.Frostbite3.Unbundling</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.VfsFormats\Gibbed.Frostbite3.VfsFormats.csproj">
+      <Project>{30CF6D81-3346-4439-9F4C-30C6CD535873}</Project>
+      <Name>Gibbed.Frostbite3.VfsFormats</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Zstd\Gibbed.Frostbite3.Zstd.csproj">
+      <Project>{3EDF2B71-ED88-4BDB-B127-34249CAF2EC3}</Project>
+      <Name>Gibbed.Frostbite3.Zstd</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NDesk.Options\NDesk.Options.csproj">
+      <Project>{C98A6CD6-9422-4B35-8B7A-F520D75534D1}</Project>
+      <Name>NDesk.Options</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
