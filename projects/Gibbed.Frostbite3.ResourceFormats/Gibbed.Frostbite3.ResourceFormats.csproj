@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LocalizedStringFile.cs" />
     <Compile Include="PartitionFile.cs" />
     <Compile Include="Partition\ArrayEntry.cs" />
     <Compile Include="Partition\DataKind.cs" />

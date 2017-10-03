@@ -53,6 +53,23 @@ namespace Gibbed.Frostbite3.Dynamic
             return _ExtraDynamicMemberNames.Concat(this._Instance.GetDynamicMemberNames());
         }
 
+        public bool HasMember(string name)
+        {
+            return this._Instance.HasMember(name);
+        }
+
+        // TODO(gibbed): hack, remove this eventually
+        public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+        {
+            if (binder.Name == "HasMember")
+            {
+                result = this.HasMember((string)args[0]);
+                return true;
+            }
+
+            return base.TryInvokeMember(binder, args, out result);
+        }
+
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             if (binder.Name == "__INSTANCE")

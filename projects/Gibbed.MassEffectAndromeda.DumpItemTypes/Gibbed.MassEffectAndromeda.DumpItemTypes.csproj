@@ -61,6 +61,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Common\Gibbed.Frostbite3.Common.csproj">
+      <Project>{3DFA8BBE-D842-433C-87F8-C60C9F1EA508}</Project>
+      <Name>Gibbed.Frostbite3.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gibbed.Frostbite3.Dynamic\Gibbed.Frostbite3.Dynamic.csproj">
       <Project>{747BAD77-9235-4E11-9A6A-5B192D5EA9DE}</Project>
       <Name>Gibbed.Frostbite3.Dynamic</Name>

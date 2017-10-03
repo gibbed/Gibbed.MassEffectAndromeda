@@ -77,6 +77,13 @@ namespace Gibbed.Frostbite3.Dynamic
             return this._Type.Fields.Select(fd => fd.Name);
         }
 
+        public bool HasMember(string name)
+        {
+            var nameHash = DJB.Compute(name);
+            var fieldIndex = Array.FindIndex(this._Type.Fields, fd => fd.NameHash == nameHash);
+            return fieldIndex >= 0;
+        }
+
         public bool TryGetMember(GetMemberBinder binder, out object result)
         {
             if (this._FieldCache.ContainsKey(binder.Name) == true)

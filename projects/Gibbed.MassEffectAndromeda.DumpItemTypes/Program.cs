@@ -25,9 +25,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Gibbed.Frostbite3.Unbundling;
 using NDesk.Options;
 using Newtonsoft.Json;
+using DJB = Gibbed.Frostbite3.Common.Hashing.DJB;
+using LocalizedStringFile = Gibbed.Frostbite3.ResourceFormats.LocalizedStringFile;
 using PartitionFile = Gibbed.Frostbite3.ResourceFormats.PartitionFile;
 using PartitionReader = Gibbed.Frostbite3.Dynamic.PartitionReader;
 
@@ -113,7 +116,22 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                 return;
             }
 
+            if (dataManager.MountSuperbundle("win32/loctext/en") == null)
+            {
+                Logger.Fatal("Failed to mount win32/loctext/en.");
+                return;
+            }
+
             var itemTypes = new Dictionary<string, ItemInfo>();
+
+            Logger.Info("Loading globalmaster...");
+            var globalMaster = new LocalizedStringFile();
+            using (var input = LoadResource(dataManager,
+                                            "game/localization/config/texttable/en/game/globalmaster",
+                                            (int)DJB.Compute("localizedstringresource")))
+            {
+                globalMaster.Deserialize(input);
+            }
 
             Logger.Info("Loading masteritemlist...");
             var masterItemListReader = LoadEbx(dataManager, "game/items/masteritemlist");
@@ -146,11 +164,20 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                     using (itemDataReader)
                     {
                         var itemData = itemDataReader.GetObject(itemAsset.InstanceId);
-                        itemTypes[partitionInfo.Name] = new ItemInfo()
+
+                        var type = (ItemType)itemData.ItemType;
+                        int tier = itemData.HasMember("TierValue") == false || itemData.TierValue == null
+                                       ? -1
+                                       : itemData.TierValue.ConstValue;
+                        var itemInfo = new ItemInfo()
                         {
-                            Type = itemData.ItemType,
+                            Type = type,
                             ItemHash = itemData.ItemHash,
+                            Name = globalMaster.Get((uint)itemData.DisplayName.StringId),
+                            Tier = tier,
+                            IsHidden = itemData.HideInInventory,
                         };
+                        itemTypes[partitionInfo.Name] = itemInfo;
                     }
                 }
             }
@@ -171,16 +198,77 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                     writer.WriteValue(info.Type.ToString());
                     writer.WritePropertyName("item_hash");
                     writer.WriteValue(info.ItemHash);
+                    if (string.IsNullOrEmpty(info.Name) == false)
+                    {
+                        writer.WritePropertyName("name");
+                        writer.WriteValue(Decode(globalMaster, info.Name));
+                    }
+                    if (info.Tier >= 0)
+                    {
+                        writer.WritePropertyName("tier");
+                        writer.WriteValue(info.Tier);
+                    }
+                    if (info.IsHidden == true)
+                    {
+                        writer.WritePropertyName("is_hidden");
+                        writer.WriteValue(true);
+                    }
                     writer.WriteEndObject();
                 }
                 writer.WriteEndObject();
             }
         }
 
+        private static string Decode(LocalizedStringFile table, string text)
+        {
+            bool shouldContinue;
+            do
+            {
+                shouldContinue = false;
+                text = Regex.Replace(text,
+                                     @"{string}(?<id>\d+){/string}",
+                                     m =>
+                                     {
+                                         shouldContinue = true;
+                                         return ReplaceToken(table, m);
+                                     });
+            }
+            while (shouldContinue == true);
+            return text;
+        }
+
+        private static string ReplaceToken(LocalizedStringFile table, Match match)
+        {
+            var idText = match.Groups["id"].Value;
+            uint id;
+            if (uint.TryParse(idText, out id) == false)
+            {
+                throw new InvalidOperationException();
+            }
+            return table.Get(id);
+        }
+
         private struct ItemInfo
         {
             public ItemType Type;
             public uint ItemHash;
+            public string Name;
+            public int Tier;
+            public bool IsHidden;
+        }
+
+        private static MemoryStream LoadResource(DataManager dataManager, string name, int type)
+        {
+            var info = dataManager.GetResourceInfo(name, type);
+            if (info == null)
+            {
+                return null;
+            }
+
+            var data = new MemoryStream();
+            dataManager.LoadData(info, data);
+            data.Position = 0;
+            return data;
         }
 
         private static PartitionReader LoadEbx(DataManager dataManager, string name, params Type[] enumTypes)

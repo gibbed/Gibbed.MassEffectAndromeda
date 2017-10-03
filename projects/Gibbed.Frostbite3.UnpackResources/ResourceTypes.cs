@@ -49,6 +49,7 @@ namespace Gibbed.Frostbite3.UnpackResources
                 { "havokphysicsdata", "havok_physics" },
                 { "IesResource", "ies" },
                 { "IShaderDatabase", "shader_db" },
+                { "LocalizedStringResource", "locstr" },
                 { "MeshAdjacencyResource", "mesh_adjacency" },
                 { "MeshSet", "mesh_set" },
                 { "MorphTargetsResource", "morph_targets" },

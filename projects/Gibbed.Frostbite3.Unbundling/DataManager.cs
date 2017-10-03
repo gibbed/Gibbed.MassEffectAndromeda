@@ -359,6 +359,17 @@ namespace Gibbed.Frostbite3.Unbundling
                        .FirstOrDefault(ci => ci.Name == name);
         }
 
+        public Superbundle.ResourceInfo GetResourceInfo(string name, int type)
+        {
+            return this._Superbundles
+                       .Values
+                       .Where(sb => sb.Bundles != null)
+                       .SelectMany(sb => sb.Bundles)
+                       .Where(bi => bi.Resources != null)
+                       .SelectMany(bi => bi.Resources)
+                       .FirstOrDefault(ci => ci.Name == name && ci.ResourceType == type);
+        }
+
         public Superbundle.EbxInfo GetEbxInfo(string name)
         {
             return this._Superbundles
