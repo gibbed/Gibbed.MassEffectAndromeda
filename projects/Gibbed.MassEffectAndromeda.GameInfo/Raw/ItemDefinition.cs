@@ -20,6 +20,7 @@
  *    distribution.
  */
 
+using System.ComponentModel;
 using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.GameInfo.Raw
@@ -27,10 +28,31 @@ namespace Gibbed.MassEffectAndromeda.GameInfo.Raw
     [JsonObject(MemberSerialization.OptIn)]
     internal class ItemDefinition
     {
+        public ItemDefinition()
+        {
+            this.Type = ItemType.Invalid;
+            this.ItemHash = uint.MaxValue;
+            this.Name = null;
+            this.Tier = -1;
+            this.IsHidden = false;
+        }
+
         [JsonProperty(PropertyName = "type", Required = Required.Always)]
         public ItemType Type { get; set; }
 
         [JsonProperty(PropertyName = "item_hash", Required = Required.Always)]
         public uint ItemHash { get; set; }
+
+        [JsonProperty(PropertyName = "name", Required = Required.Default)]
+        [DefaultValue(null)]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "tier", Required = Required.Default)]
+        [DefaultValue(-1)]
+        public int Tier { get; set; }
+
+        [JsonProperty(PropertyName = "is_hidden", Required = Required.Default)]
+        [DefaultValue(false)]
+        public bool IsHidden { get; set; }
     }
 }

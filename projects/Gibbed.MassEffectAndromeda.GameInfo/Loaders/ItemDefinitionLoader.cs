@@ -47,6 +47,9 @@ namespace Gibbed.MassEffectAndromeda.GameInfo.Loaders
             {
                 Type = kv.Value.Type,
                 ItemHash = kv.Value.ItemHash,
+                Name = kv.Value.Name,
+                Tier = kv.Value.Tier,
+                IsHidden = kv.Value.IsHidden,
             };
         }
     }

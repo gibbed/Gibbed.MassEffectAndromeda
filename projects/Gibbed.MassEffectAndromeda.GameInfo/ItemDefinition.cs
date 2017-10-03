@@ -26,5 +26,8 @@ namespace Gibbed.MassEffectAndromeda.GameInfo
     {
         public ItemType Type { get; internal set; }
         public uint ItemHash { get; internal set; }
+        public string Name { get; internal set; }
+        public int Tier { get; internal set; }
+        public bool IsHidden { get; internal set; }
     }
 }
