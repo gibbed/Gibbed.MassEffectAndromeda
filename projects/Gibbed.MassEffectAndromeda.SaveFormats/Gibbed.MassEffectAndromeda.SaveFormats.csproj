@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5CD4E640-4F3E-410B-AB08-DE629BE62AD3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gibbed.MassEffectAndromeda.SaveFormats</RootNamespace>
+    <AssemblyName>Gibbed.MassEffectAndromeda.SaveFormats</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BitWriterHelpers.cs" />
+    <Compile Include="Components\CraftingProgressionComponent.cs" />
+    <Compile Include="Components\EquipmentComponent.cs" />
+    <Compile Include="Data\CodexListUnknown0.cs" />
+    <Compile Include="Data\CodexListUnknown1.cs" />
+    <Compile Include="Data\DestructionUnknown0.cs" />
+    <Compile Include="Data\DestructionUnknown1.cs" />
+    <Compile Include="Data\DestructionUnknown2.cs" />
+    <Compile Include="Data\DestructionUnknown3.cs" />
+    <Compile Include="Data\DestructionUnknown4.cs" />
+    <Compile Include="Data\DestructionUnknown5.cs" />
+    <Compile Include="Data\JournalUnknown0.cs" />
+    <Compile Include="Data\PartyMemberVehicleData.cs" />
+    <Compile Include="Data\PartyMemberVehicleHealthData.cs" />
+    <Compile Include="Components\InventoryComponent.cs" />
+    <Compile Include="Data\PartyMemberUnknown.cs" />
+    <Compile Include="Data\PartyMemberActiveSkill.cs" />
+    <Compile Include="Data\PartyUnknown3.cs" />
+    <Compile Include="Data\PartyProgressionSnapshot.cs" />
+    <Compile Include="BaseSaveData.cs" />
+    <Compile Include="Components\ProgressionComponent.cs" />
+    <Compile Include="Components\SoldierHealthComponent.cs" />
+    <Compile Include="CustomizedParameters\CustomizedParameter.cs" />
+    <Compile Include="CustomizedParameters\CustomizedShader.cs" />
+    <Compile Include="CustomizedParameters\CustomizedVector4ShaderParameter.cs" />
+    <Compile Include="Data\EventTrackerUnknown0.cs" />
+    <Compile Include="Data\EventTrackerUnknown1.cs" />
+    <Compile Include="Data\EventTrackerUnknown2.cs" />
+    <Compile Include="Data\GalaxyDataUnknown0.cs" />
+    <Compile Include="Data\LootContainer.cs" />
+    <Compile Include="Data\LootObject.cs" />
+    <Compile Include="Data\NotificationsUnknown0.cs" />
+    <Compile Include="Data\NotificationsUnknown1.cs" />
+    <Compile Include="Data\NotificationsUnknown2.cs" />
+    <Compile Include="Data\NotificationsUnknown3.cs" />
+    <Compile Include="Data\NotificationsUnknown4.cs" />
+    <Compile Include="Data\NotificationsUnknown5.cs" />
+    <Compile Include="Data\PartyUnknown0.cs" />
+    <Compile Include="Data\PartyUnknown1.cs" />
+    <Compile Include="Data\PartyUnknown2.cs" />
+    <Compile Include="Data\PartyProgressionData.cs" />
+    <Compile Include="Data\Plot.cs" />
+    <Compile Include="Data\ProgressionUnknown0.cs" />
+    <Compile Include="Data\ProgressionUnknown1.cs" />
+    <Compile Include="Data\ProgressionUnknown2.cs" />
+    <Compile Include="Data\ProgressionUnknown3.cs" />
+    <Compile Include="Data\SaveDataUnknown0.cs" />
+    <Compile Include="Data\WorldMapUnknown2.cs" />
+    <Compile Include="Data\WorldMapUnknown0.cs" />
+    <Compile Include="Data\WorldMapUnknown1.cs" />
+    <Compile Include="Data\WorldMapUnknown3.cs" />
+    <Compile Include="Entities\MapWaypointEntity.cs" />
+    <Compile Include="Entities\EntityFactory.cs" />
+    <Compile Include="Entities\PopulationControllerEntity.cs" />
+    <Compile Include="Entities\RawEntity.cs" />
+    <Compile Include="Entities\SaveEntity.cs" />
+    <Compile Include="Items\GearItemData.cs" />
+    <Compile Include="Items\ItemData.cs" />
+    <Compile Include="Items\ItemDataFactory.cs" />
+    <Compile Include="Items\PowerItemData.cs" />
+    <Compile Include="Items\RangedWeaponItemData.cs" />
+    <Compile Include="Agent.cs" />
+    <Compile Include="BitReaderHelpers.cs" />
+    <Compile Include="CustomizedParameters\CustomizedColorShaderParameter.cs" />
+    <Compile Include="CustomizedParameters\CustomizedHairParameter.cs" />
+    <Compile Include="CustomizedParameters\CustomizedHeadMorphParameter.cs" />
+    <Compile Include="CustomizedParameters\CustomizedParameterAttribute.cs" />
+    <Compile Include="CustomizedParameters\ICustomizedParameter.cs" />
+    <Compile Include="CustomizedParameters\CustomizedTattooParameter.cs" />
+    <Compile Include="Data\BundleHeapType.cs" />
+    <Compile Include="Data\BundleHeapInfo.cs" />
+    <Compile Include="Agents\LatestAgent.cs" />
+    <Compile Include="CustomizedParameters\PackedShaderSetParameter.cs" />
+    <Compile Include="IComponentContainerAgent.cs" />
+    <Compile Include="AgentFactory.cs" />
+    <Compile Include="SaveData.cs" />
+    <Compile Include="IGameTypeAttribute.cs" />
+    <Compile Include="SaveFormatException.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\EntityAttribute.cs" />
+    <Compile Include="SaveMetaHeader.cs" />
+    <Compile Include="ComponentContainerAgentAttribute.cs" />
+    <Compile Include="ComponentContainerAgentFactory.cs" />
+    <Compile Include="GameTypeFactory.cs" />
+    <Compile Include="Agents\CodexListManagerAgent.cs" />
+    <Compile Include="ComponentContainerAgents\CustomizationAgent.cs" />
+    <Compile Include="Agents\DestructionManagerAgent.cs" />
+    <Compile Include="Agents\EventTrackerAgent.cs" />
+    <Compile Include="Agents\GalaxyDataManagerAgent.cs" />
+    <Compile Include="TypeHelpers.cs" />
+    <Compile Include="IComponent.cs" />
+    <Compile Include="Agents\PartyManagerAgent.cs" />
+    <Compile Include="Agents\NotificationsAgent.cs" />
+    <Compile Include="Agents\PlotAgent.cs" />
+    <Compile Include="ComponentContainerAgent.cs" />
+    <Compile Include="SaveFile.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Agents\ActivePlayTimerAgent.cs" />
+    <Compile Include="Agents\JournalSystemAgent.cs" />
+    <Compile Include="Agents\LootContainerAgent.cs" />
+    <Compile Include="Agents\VendorInventoryAgent.cs" />
+    <Compile Include="Agents\WorldMapAgent.cs" />
+    <Compile Include="Agents\WorldStateManagerAgent.cs" />
+    <Compile Include="AgentAttribute.cs" />
+    <Compile Include="SaveType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gibbed.Frostbite3.Common\Gibbed.Frostbite3.Common.csproj">
+      <Project>{3DFA8BBE-D842-433C-87F8-C60C9F1EA508}</Project>
+      <Name>Gibbed.Frostbite3.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.IO\Gibbed.IO.csproj">
+      <Project>{047857BA-DAA3-4CA7-AFB8-A1B082B28C6A}</Project>
+      <Name>Gibbed.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.MassEffectAndromeda.FileFormats\Gibbed.MassEffectAndromeda.FileFormats.csproj">
+      <Project>{93AACE29-A0ED-46A4-8D74-7A50B334AA73}</Project>
+      <Name>Gibbed.MassEffectAndromeda.FileFormats</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gibbed.MassEffectAndromeda.GameInfo\Gibbed.MassEffectAndromeda.GameInfo.csproj">
+      <Project>{FE8DE5ED-25C8-4D80-8A13-ED1BCFDE1D95}</Project>
+      <Name>Gibbed.MassEffectAndromeda.GameInfo</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
