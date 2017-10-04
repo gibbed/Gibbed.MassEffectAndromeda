@@ -49,6 +49,7 @@
     <Compile Include="Hashing\DJB.cs" />
     <Compile Include="Hashing\FNV32.cs" />
     <Compile Include="Hashing\ModifiedCRC32.cs" />
+    <Compile Include="MathHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SHA1Hash.cs" />
     <Compile Include="StreamHelpers.cs" />
