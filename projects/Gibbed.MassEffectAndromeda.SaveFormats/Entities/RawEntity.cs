@@ -20,14 +20,82 @@
  *    distribution.
  */
 
+using System.ComponentModel;
+
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Entities
 {
-    public class RawEntity
+    public class RawEntity : INotifyPropertyChanged
     {
-        public uint Id;
-        public int Data0Length;
-        public byte[] Data0Bytes;
-        public int Data1Length;
-        public byte[] Data1Bytes;
+        #region Fields
+        private uint _Id;
+        private int _Data0Length;
+        private byte[] _Data0Bytes;
+        private int _Data1Length;
+        private byte[] _Data1Bytes;
+        #endregion
+
+        #region Properties
+        public uint Id
+        {
+            get { return this._Id; }
+            set
+            {
+                this._Id = value;
+                this.NotifyPropertyChanged("Id");
+            }
+        }
+
+        public int Data0Length
+        {
+            get { return this._Data0Length; }
+            set
+            {
+                this._Data0Length = value;
+                this.NotifyPropertyChanged("Data0Length");
+            }
+        }
+
+        public byte[] Data0Bytes
+        {
+            get { return this._Data0Bytes; }
+            set
+            {
+                this._Data0Bytes = value;
+                this.NotifyPropertyChanged("Data0Bytes");
+            }
+        }
+
+        public int Data1Length
+        {
+            get { return this._Data1Length; }
+            set
+            {
+                this._Data1Length = value;
+                this.NotifyPropertyChanged("Data1Length");
+            }
+        }
+
+        public byte[] Data1Bytes
+        {
+            get { return this._Data1Bytes; }
+            set
+            {
+                this._Data1Bytes = value;
+                this.NotifyPropertyChanged("Data1Bytes");
+            }
+        }
+        #endregion
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

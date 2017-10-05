@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -115,6 +116,7 @@
     <Compile Include="CustomizedParameters\PackedShaderSetParameter.cs" />
     <Compile Include="IComponentContainerAgent.cs" />
     <Compile Include="AgentFactory.cs" />
+    <Compile Include="SaveCorruptionException.cs" />
     <Compile Include="SaveData.cs" />
     <Compile Include="IGameTypeAttribute.cs" />
     <Compile Include="SaveFormatException.cs" />

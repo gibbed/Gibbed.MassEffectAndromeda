@@ -20,17 +20,50 @@
  *    distribution.
  */
 
-using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class PartyProgressionData
+    public class PartyProgressionData : INotifyPropertyChanged
     {
+        #region Fields
         private byte[] _DataBytes;
         private bool _Unknown1;
         private bool _Unknown2;
+        #endregion
+
+        #region Properties
+        public byte[] DataBytes
+        {
+            get { return this._DataBytes; }
+            set
+            {
+                this._DataBytes = value;
+                this.NotifyPropertyChanged("DataBytes");
+            }
+        }
+
+        public bool Unknown1
+        {
+            get { return this._Unknown1; }
+            set
+            {
+                this._Unknown1 = value;
+                this.NotifyPropertyChanged("Unknown1");
+            }
+        }
+
+        public bool Unknown2
+        {
+            get { return this._Unknown2; }
+            set
+            {
+                this._Unknown2 = value;
+                this.NotifyPropertyChanged("Unknown2");
+            }
+        }
+        #endregion
 
         internal void Read(IBitReader reader, uint version)
         {
@@ -62,5 +95,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
             writer.PopFrameLength();
         }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

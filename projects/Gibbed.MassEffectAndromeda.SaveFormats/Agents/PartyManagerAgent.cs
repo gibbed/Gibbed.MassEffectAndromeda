@@ -20,12 +20,13 @@
  *    distribution.
  */
 
+using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
     [Agent(_AgentName)]
-    public class PartyManagerAgent : Agent
+    public class PartyManagerAgent : Agent, INotifyPropertyChanged
     {
         private const string _AgentName = "MEPartyManagerSaveGameAgent";
 
@@ -52,19 +53,31 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         public uint Unknown1
         {
             get { return this._Unknown1; }
-            set { this._Unknown1 = value; }
+            set
+            {
+                this._Unknown1 = value;
+                this.NotifyPropertyChanged("Unknown1");
+            }
         }
 
         public uint Unknown2
         {
             get { return this._Unknown2; }
-            set { this._Unknown2 = value; }
+            set
+            {
+                this._Unknown2 = value;
+                this.NotifyPropertyChanged("Unknown2");
+            }
         }
 
         public bool Unknown3
         {
             get { return this._Unknown3; }
-            set { this._Unknown3 = value; }
+            set
+            {
+                this._Unknown3 = value;
+                this.NotifyPropertyChanged("Unknown3");
+            }
         }
 
         public Data.PartyUnknown0 Unknown4
@@ -151,5 +164,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             this._Unknown5.Write(writer);
             writer.PopFrameLength();
         }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

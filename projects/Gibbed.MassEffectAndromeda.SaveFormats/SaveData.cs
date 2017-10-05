@@ -22,13 +22,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
 using Gibbed.MassEffectAndromeda.FileFormats;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
-    public class SaveData : BaseSaveData
+    public class SaveData : BaseSaveData, INotifyPropertyChanged
     {
         #region Fields
         private ulong _Timestamp;
@@ -48,7 +48,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
         private string _Unknown11;
         private string _Unknown12;
         private uint _Unknown13;
-        private byte[] _Unknown14;
+        private Guid _Unknown14;
         private uint _Unknown15;
         private readonly List<uint> _Unknown17;
         private readonly List<uint> _Unknown21;
@@ -57,6 +57,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
         private readonly List<Entities.RawEntity> _Entities;
         private ushort _Unknown22;
         #endregion
+
+        public string Name
+        {
+            get { return "SaveData"; }
+        }
 
         public SaveData()
         {
@@ -70,6 +75,213 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             this._ComponentContainerAgents = new List<IComponentContainerAgent>();
             this._Entities = new List<Entities.RawEntity>();
         }
+
+        #region Properties
+        public ulong Timestamp
+        {
+            get { return this._Timestamp; }
+            set
+            {
+                this._Timestamp = value;
+                this.NotifyPropertyChanged("Timestamp");
+            }
+        }
+
+        public string LevelName
+        {
+            get { return this._LevelName; }
+            set
+            {
+                this._LevelName = value;
+                this.NotifyPropertyChanged("LevelName");
+            }
+        }
+
+        public uint UserBuildInfo
+        {
+            get { return this._UserBuildInfo; }
+            set
+            {
+                this._UserBuildInfo = value;
+                this.NotifyPropertyChanged("UserBuildInfo");
+            }
+        }
+
+        public string Unknown1
+        {
+            get { return this._Unknown1; }
+            set
+            {
+                this._Unknown1 = value;
+                this.NotifyPropertyChanged("Unknown1");
+            }
+        }
+
+        public uint Unknown2
+        {
+            get { return this._Unknown2; }
+            set
+            {
+                this._Unknown2 = value;
+                this.NotifyPropertyChanged("Unknown2");
+            }
+        }
+
+        public List<string> PreloadedBundleNames
+        {
+            get { return this._PreloadedBundleNames; }
+        }
+
+        public Dictionary<string, string> LayerInclusion
+        {
+            get { return this._LayerInclusion; }
+        }
+
+        public List<Data.BundleHeapInfo> BundleHeaps
+        {
+            get { return this._BundleHeaps; }
+        }
+
+        public List<Data.SaveDataUnknown0> Unknown3
+        {
+            get { return this._Unknown3; }
+        }
+
+        public Guid Unknown4
+        {
+            get { return this._Unknown4; }
+            set
+            {
+                this._Unknown4 = value;
+                this.NotifyPropertyChanged("Unknown4");
+            }
+        }
+
+        public ushort Unknown6
+        {
+            get { return this._Unknown6; }
+            set
+            {
+                this._Unknown6 = value;
+                this.NotifyPropertyChanged("Unknown6");
+            }
+        }
+
+        public ushort Unknown7
+        {
+            get { return this._Unknown7; }
+            set
+            {
+                this._Unknown7 = value;
+                this.NotifyPropertyChanged("Unknown7");
+            }
+        }
+
+        public bool Unknown8
+        {
+            get { return this._Unknown8; }
+            set
+            {
+                this._Unknown8 = value;
+                this.NotifyPropertyChanged("Unknown8");
+            }
+        }
+
+        public string Unknown10
+        {
+            get { return this._Unknown10; }
+            set
+            {
+                this._Unknown10 = value;
+                this.NotifyPropertyChanged("Unknown10");
+            }
+        }
+
+        public string Unknown11
+        {
+            get { return this._Unknown11; }
+            set
+            {
+                this._Unknown11 = value;
+                this.NotifyPropertyChanged("Unknown11");
+            }
+        }
+
+        public string Unknown12
+        {
+            get { return this._Unknown12; }
+            set
+            {
+                this._Unknown12 = value;
+                this.NotifyPropertyChanged("Unknown12");
+            }
+        }
+
+        public uint Unknown13
+        {
+            get { return this._Unknown13; }
+            set
+            {
+                this._Unknown13 = value;
+                this.NotifyPropertyChanged("Unknown13");
+            }
+        }
+
+        public Guid Unknown14
+        {
+            get { return this._Unknown14; }
+            set
+            {
+                this._Unknown14 = value;
+                this.NotifyPropertyChanged("Unknown14");
+            }
+        }
+
+        public uint Unknown15
+        {
+            get { return this._Unknown15; }
+            set
+            {
+                this._Unknown15 = value;
+                this.NotifyPropertyChanged("Unknown15");
+            }
+        }
+
+        public List<uint> Unknown17
+        {
+            get { return this._Unknown17; }
+        }
+
+        public List<uint> Unknown21
+        {
+            get { return this._Unknown21; }
+        }
+
+        public Dictionary<byte, Agent> Agents
+        {
+            get { return this._Agents; }
+        }
+
+        public List<IComponentContainerAgent> ComponentContainerAgents
+        {
+            get { return this._ComponentContainerAgents; }
+        }
+
+        public List<Entities.RawEntity> Entities
+        {
+            get { return this._Entities; }
+        }
+
+        public ushort Unknown22
+        {
+            get { return this._Unknown22; }
+            set
+            {
+                this._Unknown22 = value;
+                this.NotifyPropertyChanged("Unknown22");
+            }
+        }
+        #endregion
 
         internal override void Read(IBitReader reader)
         {
@@ -108,7 +320,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             for (int i = 0; i < bundleHeapCount; i++)
             {
                 reader.PushFrameLength(24);
-                Data.BundleHeapInfo bundleHeap;
+                var bundleHeap = new Data.BundleHeapInfo();
                 bundleHeap.Unknown0 = reader.ReadString();
                 bundleHeap.Unknown1 = reader.ReadUInt32();
                 bundleHeap.Unknown2 = reader.ReadUInt32();
@@ -170,7 +382,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             reader.PopFrameLength();
 
             this._Unknown13 = reader.ReadUInt32();
-            this._Unknown14 = reader.ReadBytes(16);
+            this._Unknown14 = reader.ReadGuid();
             this._Unknown15 = reader.ReadUInt32();
             reader.PopFrameLength();
 
@@ -479,7 +691,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             writer.WriteString(this._Unknown12);
             writer.PopFrameLength();
             writer.WriteUInt32(this._Unknown13);
-            writer.WriteBytes(this._Unknown14); // 16 bytes
+            writer.WriteGuid(this._Unknown14);
             writer.WriteUInt32(this._Unknown15);
             writer.PopFrameLength();
             writer.WriteUInt32((uint)unknown9, 26);
@@ -657,5 +869,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 }
             }
         }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

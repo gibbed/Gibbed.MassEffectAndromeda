@@ -143,7 +143,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 var computedCRC = Hashing.CRC32.Compute(metaHeaderBytes, 4, metaHeaderBytes.Length - 4, 0x12345678);
                 if (providedCRC != computedCRC)
                 {
-                    throw new SaveFormatException("save metadata CRC invalid -- corrupt?");
+                    throw new SaveCorruptionException("save metadata CRC invalid -- corrupt?");
                 }
                 this._MetaHeader.Deserialize(data, endian);
             }
@@ -155,13 +155,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 var computedCRC = Hashing.CRC32.Compute(dataBytes, 4, dataBytes.Length - 4, 0x12345678);
                 if (providedCRC != computedCRC)
                 {
-                    throw new SaveFormatException("save data CRC invalid -- corrupt?");
+                    throw new SaveCorruptionException("save data CRC invalid -- corrupt?");
                 }
                 var reader = new BitReader(dataBytes, 4, dataBytes.Length - 4);
                 this._Data.Read(reader);
             }
 
             this._Endian = endian;
+        }
+
+        public static SaveFile Read(Stream input)
+        {
+            var instance = new SaveFile();
+            instance.Deserialize(input);
+            return instance;
         }
     }
 }

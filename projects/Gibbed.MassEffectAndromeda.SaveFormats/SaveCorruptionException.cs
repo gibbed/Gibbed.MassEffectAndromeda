@@ -20,18 +20,24 @@
  *    distribution.
  */
 
-namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
+using System;
+
+namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
-    public struct BundleHeapInfo
+    public class SaveCorruptionException : Exception
     {
-        public string Unknown0 { get; set; }
-        public uint Unknown1 { get; set; }
-        public uint Unknown2 { get; set; }
-        public BundleHeapType Type { get; set; }
-        public uint Unknown3 { get; set; }
-        public bool Unknown4 { get; set; }
-        public byte Unknown5 { get; set; }
-        public byte Unknown6 { get; set; }
-        public uint Unknown7 { get; set; }
+        public SaveCorruptionException()
+        {
+        }
+
+        public SaveCorruptionException(string message)
+            : base(message)
+        {
+        }
+
+        public SaveCorruptionException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

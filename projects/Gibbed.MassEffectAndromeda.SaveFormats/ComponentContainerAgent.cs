@@ -70,12 +70,21 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
+        #region Fields
         private readonly Dictionary<uint, ComponentContainer> _ComponentContainers;
+        #endregion
 
         protected ComponentContainerAgent()
         {
             this._ComponentContainers = new Dictionary<uint, ComponentContainer>();
         }
+
+        #region Properties
+        public Dictionary<uint, ComponentContainer> ComponentContainers
+        {
+            get { return this._ComponentContainers; }
+        }
+        #endregion
 
         public virtual void Read(IBitReader reader, ushort version)
         {
