@@ -115,7 +115,7 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
                 superbundles.Add(superbundleName, superbundle);
             }
 
-            var guidMap = new Dictionary<Guid, Dictionary<string, List<string>>>();
+            var infos = new Dictionary<Guid, PartitionInfo>();
 
             foreach (var kv in superbundles.Where(kv => kv.Value.Bundles != null))
             {
@@ -157,21 +157,24 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
                         var partition = new ResourceFormats.PartitionFile();
                         partition.Deserialize(data);
 
-                        Dictionary<string, List<string>> guidEntries;
-                        if (guidMap.TryGetValue(partition.Guid, out guidEntries) == false)
+                        PartitionInfo info;
+                        if (infos.TryGetValue(partition.Guid, out info) == false)
                         {
-                            guidMap[partition.Guid] = guidEntries = new Dictionary<string, List<string>>();
+                            info = infos[partition.Guid] = new PartitionInfo();
+                            info.Name = ebxInfo.Name;
+                            info.Imports.AddRange(partition.ImportEntries);
+                        }
+                        else
+                        {
+                            if (info.Name != ebxInfo.Name)
+                            {
+                                throw new InvalidOperationException();
+                            }
                         }
 
-                        List<string> superbundleEntries;
-                        if (guidEntries.TryGetValue(ebxInfo.Name, out superbundleEntries) == false)
+                        if (info.Superbundles.Contains(superbundleName) == false)
                         {
-                            guidEntries[ebxInfo.Name] = superbundleEntries = new List<string>();
-                        }
-
-                        if (superbundleEntries.Contains(superbundleName) == false)
-                        {
-                            superbundleEntries.Add(superbundleName);
+                            info.Superbundles.Add(superbundleName);
                         }
                     }
                 }
@@ -184,36 +187,41 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
                 writer.IndentChar = ' ';
                 writer.Indentation = 2;
                 writer.WriteStartObject();
-                foreach (var kv in guidMap.OrderBy(kv => kv.Key))
+                Formatting oldFormatting;
+                foreach (var kv in infos.OrderBy(kv => kv.Key))
                 {
-                    if (kv.Value.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    if (kv.Value.Count > 1)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
+                    var guid = kv.Key;
+                    var info = kv.Value;
                     writer.WritePropertyName(kv.Key.ToString());
-
-                    var kv2 = kv.Value.First();
-
-                    var oldFormatting = writer.Formatting;
-                    writer.Formatting = Formatting.None;
                     writer.WriteStartObject();
                     writer.WritePropertyName("name");
-                    writer.WriteValue(kv2.Key);
-                    writer.WritePropertyName("superbundles");
+                    writer.WriteValue(info.Name);
+                    writer.WritePropertyName("imports");
                     writer.WriteStartArray();
-                    foreach (var superbundleName in kv2.Value.OrderBy(sn => sn))
+                    foreach (var import in info.Imports.OrderBy(i => i.PartitionId).ThenBy(i => i.InstanceId))
+                    {
+                        oldFormatting = writer.Formatting;
+                        writer.WriteStartObject();
+                        writer.Formatting = Formatting.None;
+                        writer.WritePropertyName("p");
+                        writer.WriteValue(import.PartitionId.ToString());
+                        writer.WritePropertyName("i");
+                        writer.WriteValue(import.InstanceId.ToString());
+                        writer.WriteEndObject();
+                        writer.Formatting = oldFormatting;
+                    }
+                    writer.WriteEndArray();
+                    writer.WritePropertyName("superbundles");
+                    oldFormatting = writer.Formatting;
+                    writer.Formatting = Formatting.None;
+                    writer.WriteStartArray();
+                    foreach (var superbundleName in info.Superbundles.OrderBy(sn => sn))
                     {
                         writer.WriteValue(superbundleName);
                     }
                     writer.WriteEndArray();
-                    writer.WriteEndObject();
                     writer.Formatting = oldFormatting;
+                    writer.WriteEndObject();
                 }
                 writer.WriteEndObject();
             }
