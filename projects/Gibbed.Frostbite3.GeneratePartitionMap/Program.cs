@@ -57,12 +57,14 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
         public static void Main(string[] args)
         {
             int logLevelOrdinal = 3;
+            bool includeImports = false;
             bool noPatch = false;
             bool noCatch = false;
             bool showHelp = false;
 
             var options = new OptionSet()
             {
+                { "i|imports", "include imports information", v => includeImports = v != null },
                 { "no-patch", "don't use patch data", v => noPatch = v != null },
                 { "no-catch", "don't catch exceptions when loading data", v => noCatch = v != null },
                 { "v|verbose", "increase log level (-v/-vv/-vvv)", v => IncreaseLogLevel(v, ref logLevelOrdinal) },
@@ -162,7 +164,11 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
                         {
                             info = infos[partition.Guid] = new PartitionInfo();
                             info.Name = ebxInfo.Name;
-                            info.Imports.AddRange(partition.ImportEntries);
+
+                            if (includeImports == true)
+                            {
+                                info.Imports.AddRange(partition.ImportEntries);
+                            }
                         }
                         else
                         {
@@ -196,21 +202,24 @@ namespace Gibbed.Frostbite3.GeneratePartitionMap
                     writer.WriteStartObject();
                     writer.WritePropertyName("name");
                     writer.WriteValue(info.Name);
-                    writer.WritePropertyName("imports");
-                    writer.WriteStartArray();
-                    foreach (var import in info.Imports.OrderBy(i => i.PartitionId).ThenBy(i => i.InstanceId))
+                    if (info.Imports.Count > 0)
                     {
-                        oldFormatting = writer.Formatting;
-                        writer.WriteStartObject();
-                        writer.Formatting = Formatting.None;
-                        writer.WritePropertyName("p");
-                        writer.WriteValue(import.PartitionId.ToString());
-                        writer.WritePropertyName("i");
-                        writer.WriteValue(import.InstanceId.ToString());
-                        writer.WriteEndObject();
-                        writer.Formatting = oldFormatting;
+                        writer.WritePropertyName("imports");
+                        writer.WriteStartArray();
+                        foreach (var import in info.Imports.OrderBy(i => i.PartitionId).ThenBy(i => i.InstanceId))
+                        {
+                            oldFormatting = writer.Formatting;
+                            writer.WriteStartObject();
+                            writer.Formatting = Formatting.None;
+                            writer.WritePropertyName("p");
+                            writer.WriteValue(import.PartitionId.ToString());
+                            writer.WritePropertyName("i");
+                            writer.WriteValue(import.InstanceId.ToString());
+                            writer.WriteEndObject();
+                            writer.Formatting = oldFormatting;
+                        }
+                        writer.WriteEndArray();
                     }
-                    writer.WriteEndArray();
                     writer.WritePropertyName("superbundles");
                     oldFormatting = writer.Formatting;
                     writer.Formatting = Formatting.None;
