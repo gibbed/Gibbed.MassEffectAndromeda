@@ -26,13 +26,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Gibbed.Frostbite3.Unbundling;
-using NDesk.Options;
 using Newtonsoft.Json;
-using DJB = Gibbed.Frostbite3.Common.Hashing.DJB;
 using LocalizedStringFile = Gibbed.Frostbite3.ResourceFormats.LocalizedStringFile;
-using PartitionFile = Gibbed.Frostbite3.ResourceFormats.PartitionFile;
-using PartitionReader = Gibbed.Frostbite3.Dynamic.PartitionReader;
 
 namespace Gibbed.MassEffectAndromeda.DumpItemTypes
 {
@@ -44,100 +39,34 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
         // ReSharper restore InconsistentNaming
         #endregion
 
-        private static string GetExecutableName()
-        {
-            return Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-        }
-
-        private static void IncreaseLogLevel(string arg, ref int level)
-        {
-            if (arg == null || level <= 0)
-            {
-                return;
-            }
-
-            level--;
-        }
-
         public static void Main(string[] args)
         {
-            int logLevelOrdinal = 3;
-            bool noPatch = false;
-            bool showHelp = false;
+            var dumper = new Dumping.Dumper(true);
+            dumper.AddRequiredSuperbundle(
+                "win32/globals",
+                "win32/loctext/en");
+            dumper.Main(args, "item_types.json", Dump);
+        }
 
-            var options = new OptionSet()
-            {
-                { "no-patch", "don't use patch data", v => noPatch = v != null },
-                { "v|verbose", "increase log level (-v/-vv/-vvv)", v => IncreaseLogLevel(v, ref logLevelOrdinal) },
-                { "h|help", "show this message and exit", v => showHelp = v != null },
-            };
-
-            List<string> extras;
-
-            try
-            {
-                extras = options.Parse(args);
-            }
-            catch (OptionException e)
-            {
-                Console.Write("{0}: ", GetExecutableName());
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `{0} --help' for more information.", GetExecutableName());
-                return;
-            }
-
-            if (extras.Count < 2 || extras.Count > 3 || showHelp == true)
-            {
-                Console.WriteLine("Usage: {0} [OPTIONS]+ game_dir partition_map [output_json]", GetExecutableName());
-                Console.WriteLine();
-                Console.WriteLine("Options:");
-                options.WriteOptionDescriptions(Console.Out);
-                return;
-            }
-
-            LogHelper.SetConfiguration(NLog.LogLevel.FromOrdinal(logLevelOrdinal));
-
-            var dataBasePath = extras[0];
-            var partitionMapPath = extras[1];
-            var outputPath = extras.Count > 2 ? extras[2] : Path.Combine(dataBasePath, "item_types.json");
-
-            var partitionMap = PartitionMap.Load(partitionMapPath);
-
-            var dataManager = DataManager.Initialize(dataBasePath, noPatch);
-            if (dataManager == null)
-            {
-                Logger.Fatal("Could not initialize superbundle manager.");
-                return;
-            }
-
-            if (dataManager.MountSuperbundle("win32/globals") == null)
-            {
-                Logger.Fatal("Failed to mount win32/globals.");
-                return;
-            }
-
-            if (dataManager.MountSuperbundle("win32/loctext/en") == null)
-            {
-                Logger.Fatal("Failed to mount win32/loctext/en.");
-                return;
-            }
-
+        private static void Dump(Dumping.Dumper dumper,
+                                 Dictionary<Guid, Dumping.PartitionMap.PartitionInfo> partitionMap,
+                                 string outputPath)
+        {
             var itemTypes = new Dictionary<string, ItemInfo>();
 
             Logger.Info("Loading globalmaster...");
             var globalMaster = new LocalizedStringFile();
-            using (var input = LoadResource(dataManager,
-                                            "game/localization/config/texttable/en/game/globalmaster",
-                                            (int)DJB.Compute("localizedstringresource")))
+            using (var input = dumper.LoadResource("game/localization/config/texttable/en/game/globalmaster",
+                                                   "localizedstringresource"))
             {
                 globalMaster.Deserialize(input);
             }
 
             Logger.Info("Loading masteritemlist...");
-            var masterItemListReader = LoadEbx(dataManager, "game/items/masteritemlist");
+            var masterItemListReader = dumper.LoadEbx("game/items/masteritemlist");
             if (masterItemListReader == null)
             {
-                Logger.Fatal("Failed to load game/items/masteritemlist.");
+                Logger.Fatal("Failed to load masteritemlist.");
                 return;
             }
             using (masterItemListReader)
@@ -145,17 +74,17 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                 var masterItemList = masterItemListReader.GetObjectsOfSpecificType("MasterItemList").First();
                 foreach (var itemAsset in masterItemList.ItemAssets)
                 {
-                    PartitionMap.PartitionInfo partitionInfo;
+                    Dumping.PartitionMap.PartitionInfo partitionInfo;
                     if (partitionMap.TryGetValue(itemAsset.PartitionId, out partitionInfo) == false)
                     {
                         Logger.Warn("Failed to find partition info for {0}!", itemAsset.PartitionId);
                         continue;
                     }
 
-                    dataManager.MountSuperbundle(partitionInfo.Superbundles.First());
+                    dumper.MountSuperbundle(partitionInfo.Superbundles.First());
 
                     Logger.Info("Loading item '{0}'...", partitionInfo.Name);
-                    var itemDataReader = LoadEbx(dataManager, partitionInfo.Name, typeof(ItemType));
+                    var itemDataReader = dumper.LoadEbx(partitionInfo.Name, typeof(ItemType));
                     if (itemDataReader == null)
                     {
                         Logger.Warn("Failed to load item data '{0}'!", partitionInfo.Name);
@@ -219,19 +148,29 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
             }
         }
 
+        private struct ItemInfo
+        {
+            public ItemType Type;
+            public uint ItemHash;
+            public string Name;
+            public int Tier;
+            public bool IsHidden;
+        }
+
         private static string Decode(LocalizedStringFile table, string text)
         {
             bool shouldContinue;
             do
             {
                 shouldContinue = false;
-                text = Regex.Replace(text,
-                                     @"{string}(?<id>\d+){/string}",
-                                     m =>
-                                     {
-                                         shouldContinue = true;
-                                         return ReplaceToken(table, m);
-                                     });
+                text = Regex.Replace(
+                    text,
+                    @"{string}(?<id>\d+){/string}",
+                    m =>
+                    {
+                        shouldContinue = true;
+                        return ReplaceToken(table, m);
+                    });
             }
             while (shouldContinue == true);
             return text;
@@ -246,48 +185,6 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                 throw new InvalidOperationException();
             }
             return table.Get(id);
-        }
-
-        private struct ItemInfo
-        {
-            public ItemType Type;
-            public uint ItemHash;
-            public string Name;
-            public int Tier;
-            public bool IsHidden;
-        }
-
-        private static MemoryStream LoadResource(DataManager dataManager, string name, int type)
-        {
-            var info = dataManager.GetResourceInfo(name, type);
-            if (info == null)
-            {
-                return null;
-            }
-
-            var data = new MemoryStream();
-            dataManager.LoadData(info, data);
-            data.Position = 0;
-            return data;
-        }
-
-        private static PartitionReader LoadEbx(DataManager dataManager, string name, params Type[] enumTypes)
-        {
-            var info = dataManager.GetEbxInfo(name);
-            if (info == null)
-            {
-                return null;
-            }
-
-            using (var data = new MemoryStream())
-            {
-                dataManager.LoadData(info, data);
-                data.Position = 0;
-
-                var partition = new PartitionFile();
-                partition.Deserialize(data);
-                return new PartitionReader(partition, enumTypes);
-            }
         }
     }
 }

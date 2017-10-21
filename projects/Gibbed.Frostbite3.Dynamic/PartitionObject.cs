@@ -90,7 +90,7 @@ namespace Gibbed.Frostbite3.Dynamic
                 return true;
             }
 
-            return this._Instance.TryGetMember(binder, out result);
+            return this._Instance.TryGetMember(binder.Name, out result);
         }
 
         public override string ToString()

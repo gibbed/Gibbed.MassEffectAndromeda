@@ -30,7 +30,7 @@ using DJB = Gibbed.Frostbite3.Common.Hashing.DJB;
 
 namespace Gibbed.Frostbite3.Dynamic
 {
-    internal class PartitionInstance
+    public class PartitionInstance
     {
         private readonly PartitionReader _Reader;
         private readonly Guid _Guid;
@@ -38,7 +38,7 @@ namespace Gibbed.Frostbite3.Dynamic
         private readonly PartitionFlattenedType _Type;
         private readonly Dictionary<string, object> _FieldCache;
 
-        public PartitionInstance(PartitionReader reader, Guid guid, long dataOffset, PartitionFlattenedType type)
+        internal PartitionInstance(PartitionReader reader, Guid guid, long dataOffset, PartitionFlattenedType type)
         {
             if (reader == null)
             {
@@ -62,12 +62,12 @@ namespace Gibbed.Frostbite3.Dynamic
             get { return this._Guid; }
         }
 
-        public PartitionFlattenedType Type
+        internal PartitionFlattenedType Type
         {
             get { return this._Type; }
         }
 
-        public PartitionObject ToObject()
+        internal PartitionObject ToObject()
         {
             return new PartitionObject(this);
         }
@@ -84,15 +84,15 @@ namespace Gibbed.Frostbite3.Dynamic
             return fieldIndex >= 0;
         }
 
-        public bool TryGetMember(GetMemberBinder binder, out object result)
+        public bool TryGetMember(string name, out object result)
         {
-            if (this._FieldCache.ContainsKey(binder.Name) == true)
+            if (this._FieldCache.ContainsKey(name) == true)
             {
-                result = this._FieldCache[binder.Name];
+                result = this._FieldCache[name];
                 return true;
             }
 
-            var nameHash = DJB.Compute(binder.Name);
+            var nameHash = DJB.Compute(name);
             var fieldIndex = Array.FindIndex(this._Type.Fields, fd => fd.NameHash == nameHash);
             if (fieldIndex < 0)
             {
@@ -116,7 +116,7 @@ namespace Gibbed.Frostbite3.Dynamic
             }
 #endif
 
-            this._FieldCache.Add(binder.Name, result);
+            this._FieldCache.Add(name, result);
             return true;
         }
 

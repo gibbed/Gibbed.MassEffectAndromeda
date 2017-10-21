@@ -25,9 +25,9 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace Gibbed.MassEffectAndromeda.DumpItemTypes
+namespace Gibbed.MassEffectAndromeda.Dumping
 {
-    internal static class PartitionMap
+    public static class PartitionMap
     {
         public static Dictionary<Guid, PartitionInfo> Load(string path)
         {
@@ -36,8 +36,9 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
                 return new Dictionary<Guid, PartitionInfo>();
             }
 
-            using (var stringReader = new StringReader(File.ReadAllText(path)))
-            using (var jsonReader = new JsonTextReader(stringReader))
+            using (var input = File.OpenRead(path))
+            using (var streamReader = new StreamReader(input))
+            using (var jsonReader = new JsonTextReader(streamReader))
             {
                 var serializer = new JsonSerializer();
                 return serializer.Deserialize<Dictionary<Guid, PartitionInfo>>(jsonReader);
@@ -50,8 +51,21 @@ namespace Gibbed.MassEffectAndromeda.DumpItemTypes
             [JsonProperty(PropertyName = "name")]
             public string Name { get; set; }
 
+            [JsonProperty(PropertyName = "imports")]
+            public ImportInfo[] Imports { get; set; }
+
             [JsonProperty(PropertyName = "superbundles")]
             public string[] Superbundles { get; set; }
+        }
+
+        [JsonObject(MemberSerialization.OptIn)]
+        public struct ImportInfo
+        {
+            [JsonProperty(PropertyName = "p")]
+            public Guid PartitionId { get; set; }
+
+            [JsonProperty(PropertyName = "i")]
+            public Guid InstanceId { get; set; }
         }
     }
 }
