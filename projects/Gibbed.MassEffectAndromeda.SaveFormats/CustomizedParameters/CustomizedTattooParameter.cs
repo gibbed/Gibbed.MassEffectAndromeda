@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [CustomizedParameter(_ComponentName)]
     public class CustomizedTattooParameter : CustomizedParameter
     {
@@ -46,17 +48,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public byte[] Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("head_id")]
         public uint HeadId
         {
             get { return this._HeadId; }
             set { this._HeadId = value; }
         }
 
+        [JsonProperty("unknown2")]
         public uint Unknown2
         {
             get { return this._Unknown2; }

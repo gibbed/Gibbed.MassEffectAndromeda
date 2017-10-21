@@ -22,45 +22,49 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class ProgressionUnknown2
+    [JsonObject(MemberSerialization.OptIn)]
+    public class Preset
     {
         #region Fields
-        private int _Unknown1;
-        private readonly List<ProgressionUnknown3> _Unknown2;
+        private int _ProfileId;
+        private readonly List<PresetPower> _Powers;
         #endregion
 
-        public ProgressionUnknown2()
+        public Preset()
         {
-            this._Unknown2 = new List<ProgressionUnknown3>();
+            this._Powers = new List<PresetPower>();
         }
 
         #region Properties
-        public int Unknown1
+        [JsonProperty("profile_id")]
+        public int ProfileId
         {
-            get { return this._Unknown1; }
-            set { this._Unknown1 = value; }
+            get { return this._ProfileId; }
+            set { this._ProfileId = value; }
         }
 
-        public List<ProgressionUnknown3> Unknown2
+        [JsonProperty("powers")]
+        public List<PresetPower> Powers
         {
-            get { return this._Unknown2; }
+            get { return this._Powers; }
         }
         #endregion
 
         internal void Read(IBitReader reader)
         {
             reader.PushFrameLength(24);
-            this._Unknown1 = reader.ReadInt32();
-            var unknown2Count = reader.ReadUInt16();
-            this._Unknown2.Clear();
-            for (int i = 0; i < unknown2Count; i++)
+            this._ProfileId = reader.ReadInt32();
+            var powerCount = reader.ReadUInt16();
+            this._Powers.Clear();
+            for (int i = 0; i < powerCount; i++)
             {
-                var unknown2 = new ProgressionUnknown3();
-                unknown2.Read(reader);
-                this._Unknown2.Add(unknown2);
+                var power = new PresetPower();
+                power.Read(reader);
+                this._Powers.Add(power);
             }
             reader.PopFrameLength();
         }
@@ -68,11 +72,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         internal void Write(IBitWriter writer)
         {
             writer.PushFrameLength(24);
-            writer.WriteInt32(this._Unknown1);
-            writer.WriteUInt16((ushort)this._Unknown2.Count);
-            foreach (var unknown2 in this._Unknown2)
+            writer.WriteInt32(this._ProfileId);
+            writer.WriteUInt16((ushort)this._Powers.Count);
+            foreach (var power in this._Powers)
             {
-                unknown2.Write(writer);
+                power.Write(writer);
             }
             writer.PopFrameLength();
         }

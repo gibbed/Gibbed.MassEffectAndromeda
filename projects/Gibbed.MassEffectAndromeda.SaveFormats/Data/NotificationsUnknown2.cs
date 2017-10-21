@@ -22,11 +22,14 @@
 
 using System;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class NotificationsUnknown2
     {
+        #region Fields
         private uint _Unknown1;
         private uint _Unknown2;
         private readonly NotificationsUnknown5 _Unknown3;
@@ -34,12 +37,62 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         private uint _Unknown5;
         private uint _Unknown6;
         private uint _Unknown7;
+        #endregion
 
         public NotificationsUnknown2()
         {
             this._Unknown3 = new NotificationsUnknown5();
             this._Unknown4 = new NotificationsUnknown5();
         }
+
+        #region Properties
+        [JsonProperty("unknown1")]
+        public uint Unknown1
+        {
+            get { return this._Unknown1; }
+            set { this._Unknown1 = value; }
+        }
+
+        [JsonProperty("unknown2")]
+        public uint Unknown2
+        {
+            get { return this._Unknown2; }
+            set { this._Unknown2 = value; }
+        }
+
+        [JsonProperty("unknown3")]
+        public NotificationsUnknown5 Unknown3
+        {
+            get { return this._Unknown3; }
+        }
+
+        [JsonProperty("unknown4")]
+        public NotificationsUnknown5 Unknown4
+        {
+            get { return this._Unknown4; }
+        }
+
+        [JsonProperty("unknown5")]
+        public uint Unknown5
+        {
+            get { return this._Unknown5; }
+            set { this._Unknown5 = value; }
+        }
+
+        [JsonProperty("unknown6")]
+        public uint Unknown6
+        {
+            get { return this._Unknown6; }
+            set { this._Unknown6 = value; }
+        }
+
+        [JsonProperty("unknown7")]
+        public uint Unknown7
+        {
+            get { return this._Unknown7; }
+            set { this._Unknown7 = value; }
+        }
+        #endregion
 
         internal void Read(IBitReader reader, ushort version)
         {
@@ -58,7 +111,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             reader.PopFrameLength();
         }
 
-        internal void Write(IBitWriter writer, ushort version)
+        internal void Write(IBitWriter writer)
         {
             throw new NotImplementedException();
         }

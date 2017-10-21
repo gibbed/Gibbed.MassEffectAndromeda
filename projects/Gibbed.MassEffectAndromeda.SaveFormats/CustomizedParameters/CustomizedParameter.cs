@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class CustomizedParameter : ICustomizedParameter
     {
         public abstract string ComponentName { get; }
@@ -33,6 +35,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         #endregion
 
         #region Properties
+        [JsonProperty("parameter_id")]
         public uint ParameterId
         {
             get { return this._ParameterId; }

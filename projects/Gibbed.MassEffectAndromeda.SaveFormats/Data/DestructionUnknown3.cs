@@ -22,9 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class DestructionUnknown3
     {
         #region Fields
@@ -38,11 +40,13 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public List<DestructionUnknown4> Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public uint Unknown2
         {
             get { return this._Unknown2; }

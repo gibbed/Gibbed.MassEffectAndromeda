@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
@@ -43,31 +44,38 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
 
         public class ComponentContainer
         {
+            #region Fields
             private bool _Unknown1;
             private string _Unknown2;
             private readonly List<TType> _Components;
+            #endregion
 
             public ComponentContainer()
             {
                 this._Components = new List<TType>();
             }
 
+            #region Properties
+            [JsonProperty("unknown1")]
             public bool Unknown1
             {
                 get { return this._Unknown1; }
                 set { this._Unknown1 = value; }
             }
 
+            [JsonProperty("unknown2")]
             public string Unknown2
             {
                 get { return this._Unknown2; }
                 set { this._Unknown2 = value; }
             }
 
+            [JsonProperty("components")]
             public List<TType> Components
             {
                 get { return this._Components; }
             }
+            #endregion
         }
 
         #region Fields
@@ -80,6 +88,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
         }
 
         #region Properties
+        [JsonProperty("component_containers")]
         public Dictionary<uint, ComponentContainer> ComponentContainers
         {
             get { return this._ComponentContainers; }

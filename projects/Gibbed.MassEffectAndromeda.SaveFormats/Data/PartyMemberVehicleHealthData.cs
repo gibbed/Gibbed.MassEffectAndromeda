@@ -21,44 +21,58 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class PartyMemberVehicleHealthData
     {
         #region Fields
         private float _CurrentValue;
         private float _MaximumValue;
-        private bool _Unknown2;
+        private bool _Unknown;
         #endregion
 
         #region Properties
+        [JsonProperty("current_value")]
         public float CurrentValue
         {
             get { return this._CurrentValue; }
             set { this._CurrentValue = value; }
         }
 
+        [JsonProperty("maximum_value")]
         public float MaximumValue
         {
             get { return this._MaximumValue; }
             set { this._MaximumValue = value; }
         }
 
-        public bool Unknown2
+        [JsonProperty("unknown")]
+        public bool Unknown
         {
-            get { return this._Unknown2; }
-            set { this._Unknown2 = value; }
+            get { return this._Unknown; }
+            set { this._Unknown = value; }
         }
         #endregion
 
-        public void Read(IBitReader reader, int version)
+        public void Read(IBitReader reader)
         {
             reader.PushFrameLength(24);
             this._CurrentValue = reader.ReadFloat32();
             this._MaximumValue = reader.ReadFloat32();
-            this._Unknown2 = reader.ReadBoolean();
+            this._Unknown = reader.ReadBoolean();
             reader.PopFrameLength();
+        }
+
+        public void Write(IBitWriter writer)
+        {
+            writer.PushFrameLength(24);
+            writer.WriteFloat32(this._CurrentValue);
+            writer.WriteFloat32(this._MaximumValue);
+            writer.WriteBoolean(this._Unknown);
+            writer.PopFrameLength();
         }
     }
 }

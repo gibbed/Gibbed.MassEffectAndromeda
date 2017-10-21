@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 using InfoManager = Gibbed.MassEffectAndromeda.GameInfo.InfoManager;
 using ItemData = Gibbed.MassEffectAndromeda.SaveFormats.Items.ItemData;
 using ItemDataFactory = Gibbed.MassEffectAndromeda.SaveFormats.Items.ItemDataFactory;
@@ -31,6 +32,7 @@ using ItemDefinition = Gibbed.MassEffectAndromeda.GameInfo.ItemDefinition;
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 {
     // ServerMEInventoryComponent
+    [JsonObject(MemberSerialization.OptIn)]
     public class InventoryComponent
     {
         #region Fields
@@ -43,13 +45,14 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
         }
 
         #region Properties
+        [JsonProperty("items")]
         public List<RawItemData> Items
         {
             get { return this._Items; }
         }
         #endregion
 
-        public void Read(IBitReader reader, int version)
+        public void Read(IBitReader reader, ushort version)
         {
             var count = reader.ReadUInt16();
             for (int i = 0; i < count; i++)
@@ -61,6 +64,19 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
                 itemData.DataBytes = reader.ReadBits(itemData.DataLength);
                 this._Items.Add(itemData);
                 reader.PopFrameLength();
+            }
+        }
+
+        public void Write(IBitWriter writer)
+        {
+            writer.WriteUInt16((ushort)this._Items.Count);
+            foreach (var itemData in this._Items)
+            {
+                writer.PushFrameLength(24);
+                writer.WriteUInt32(itemData.Id);
+                writer.WriteUInt32((uint)itemData.DataLength, 24);
+                writer.WriteBits(itemData.DataBytes, itemData.DataLength);
+                writer.PopFrameLength();
             }
         }
 
@@ -78,7 +94,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
                 throw new NotSupportedException();
             }
 
-            var unknown0 = reader.ReadUInt32();
+            var unknown1 = reader.ReadUInt32();
             var partitionName = reader.ReadString();
 
             ItemDefinition itemDefinition;
@@ -89,7 +105,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
             }
 
             var itemData = ItemDataFactory.Create(itemDefinition.Type);
-            itemData.Unknown0 = unknown0;
+            itemData.Unknown1 = unknown1;
             itemData.PartitionName = partitionName;
             itemData.Read(reader, version);
             return itemData;

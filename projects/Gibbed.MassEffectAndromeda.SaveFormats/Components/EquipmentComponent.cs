@@ -21,15 +21,17 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 {
     // ServerMEEquipmentComponent
+    [JsonObject(MemberSerialization.OptIn)]
     public class EquipmentComponent
     {
         #region Fields
-        private uint _Unknown0;
-        private bool _Unknown1;
+        private uint _Unknown1;
+        private bool _Unknown2;
         private readonly uint[] _PowerIds;
         private readonly uint[] _RangedWeaponIds;
         private uint _MeleeWeaponId;
@@ -49,49 +51,58 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
         }
 
         #region Properties
-        public uint Unknown0
-        {
-            get { return this._Unknown0; }
-            set { this._Unknown0 = value; }
-        }
-
-        public bool Unknown1
+        [JsonProperty("unknown1")]
+        public uint Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("unknown2")]
+        public bool Unknown2
+        {
+            get { return this._Unknown2; }
+            set { this._Unknown2 = value; }
+        }
+
+        [JsonProperty("power_ids")]
         public uint[] PowerIds
         {
             get { return this._PowerIds; }
         }
 
+        [JsonProperty("ranged_weapon_ids")]
         public uint[] RangedWeaponIds
         {
             get { return this._RangedWeaponIds; }
         }
 
+        [JsonProperty("melee_weapon_id")]
         public uint MeleeWeaponId
         {
             get { return this._MeleeWeaponId; }
             set { this._MeleeWeaponId = value; }
         }
 
+        [JsonProperty("gear_ids")]
         public uint[] GearIds
         {
             get { return this._GearIds; }
         }
 
+        [JsonProperty("space_tool_ids")]
         public uint[] SpaceToolIds
         {
             get { return this._SpaceToolIds; }
         }
 
+        [JsonProperty("consumable_ids")]
         public uint[] ConsumableIds
         {
             get { return this._ConsumableIds; }
         }
 
+        [JsonProperty("casual_outfit_id")]
         public uint CasualOutfitId
         {
             get { return this._CasualOutfitId; }
@@ -101,8 +112,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 
         public void Read(IBitReader reader, int version)
         {
-            this._Unknown0 = reader.ReadUInt32();
-            this._Unknown1 = version >= 10 && reader.ReadBoolean();
+            this._Unknown1 = reader.ReadUInt32();
+            this._Unknown2 = version >= 10 && reader.ReadBoolean();
 
             for (int i = 0; i < this._PowerIds.Length; i++)
             {
@@ -132,6 +143,41 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
             }
 
             this._CasualOutfitId = reader.ReadUInt32();
+        }
+
+        public void Write(IBitWriter writer)
+        {
+            writer.WriteUInt32(this._Unknown1);
+            writer.WriteBoolean(this._Unknown2);
+
+            for (int i = 0; i < this._PowerIds.Length; i++)
+            {
+                writer.WriteUInt32(this._PowerIds[i]);
+            }
+
+            for (int i = 0; i < this._RangedWeaponIds.Length; i++)
+            {
+                writer.WriteUInt32(this._RangedWeaponIds[i]);
+            }
+
+            writer.WriteUInt32(this._MeleeWeaponId);
+
+            for (int i = 0; i < this._GearIds.Length; i++)
+            {
+                writer.WriteUInt32(this._GearIds[i]);
+            }
+
+            for (int i = 0; i < this._SpaceToolIds.Length; i++)
+            {
+                writer.WriteUInt32(this._SpaceToolIds[i]);
+            }
+
+            for (int i = 0; i < this._ConsumableIds.Length; i++)
+            {
+                writer.WriteUInt32(this._ConsumableIds[i]);
+            }
+
+            writer.WriteUInt32(this._CasualOutfitId);
         }
     }
 }

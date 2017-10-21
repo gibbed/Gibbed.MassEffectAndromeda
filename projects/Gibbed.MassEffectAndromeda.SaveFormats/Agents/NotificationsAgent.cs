@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class NotificationsAgent : Agent
     {
@@ -35,18 +37,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Fields
-        private readonly Data.NotificationsUnknown0 _Unknown1;
+        private readonly Data.NotificationsUnknown0 _Unknown;
         #endregion
 
         public NotificationsAgent()
+            : base(4)
         {
-            this._Unknown1 = new Data.NotificationsUnknown0();
+            this._Unknown = new Data.NotificationsUnknown0();
         }
 
         #region Properties
-        public Data.NotificationsUnknown0 Unknown1
+        [JsonProperty("unknown")]
+        public Data.NotificationsUnknown0 Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
         }
         #endregion
 
@@ -54,7 +58,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Read2(reader);
             reader.PushFrameLength(24);
-            this._Unknown1.Read(reader, this.Version);
+            this._Unknown.Read(reader, this.ReadVersion);
             reader.PopFrameLength();
         }
 
@@ -62,7 +66,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Write2(writer);
             writer.PushFrameLength(24);
-            this._Unknown1.Write(writer, this.Version);
+            this._Unknown.Write(writer);
             writer.PopFrameLength();
         }
     }

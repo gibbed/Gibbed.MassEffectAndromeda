@@ -20,12 +20,20 @@
  *    distribution.
  */
 
+using Newtonsoft.Json;
+
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public struct SaveDataUnknown0
     {
-        public ushort Unknown0;
-        public ushort Unknown1;
-        public byte Unknown2;
+        [JsonProperty("unknown1")]
+        public ushort Unknown1 { get; set; }
+
+        [JsonProperty("unknown2")]
+        public ushort Unknown2 { get; set; }
+
+        [JsonProperty("unknown3")]
+        public byte Unknown3 { get; set; }
     }
 }

@@ -20,14 +20,24 @@
  *    distribution.
  */
 
+using Newtonsoft.Json;
+
 namespace Gibbed.MassEffectAndromeda.FileFormats
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public struct Transform
     {
-        public Vector3 Right;
-        public Vector3 Up;
-        public Vector3 Forward;
-        public Vector3 Translate;
+        [JsonProperty("right")]
+        public Vector3 Right { get; set; }
+
+        [JsonProperty("up")]
+        public Vector3 Up { get; set; }
+
+        [JsonProperty("forward")]
+        public Vector3 Forward { get; set; }
+
+        [JsonProperty("translate")]
+        public Vector3 Translate { get; set; }
 
         public override string ToString()
         {

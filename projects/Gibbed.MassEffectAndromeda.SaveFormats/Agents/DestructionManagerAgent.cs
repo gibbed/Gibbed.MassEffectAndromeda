@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class DestructionManagerAgent : Agent
     {
@@ -40,17 +42,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public DestructionManagerAgent()
+            : base(1)
         {
             this._Unknown1 = new Data.DestructionUnknown0();
             this._Unknown2 = new Data.DestructionUnknown3();
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public Data.DestructionUnknown0 Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public Data.DestructionUnknown3 Unknown2
         {
             get { return this._Unknown2; }

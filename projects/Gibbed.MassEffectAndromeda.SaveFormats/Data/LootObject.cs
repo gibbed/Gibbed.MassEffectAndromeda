@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class LootObject
     {
         #region Fields
@@ -39,23 +41,27 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public byte[] Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public uint Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
+        [JsonProperty("unknown3")]
         public uint Unknown3
         {
             get { return this._Unknown3; }
             set { this._Unknown3 = value; }
         }
 
+        [JsonProperty("unknown4")]
         public uint Unknown4
         {
             get { return this._Unknown4; }

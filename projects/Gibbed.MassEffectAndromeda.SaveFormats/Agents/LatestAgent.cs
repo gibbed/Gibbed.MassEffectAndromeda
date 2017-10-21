@@ -20,8 +20,11 @@
  *    distribution.
  */
 
+using Newtonsoft.Json;
+
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     internal class LatestAgent : Agent
     {
@@ -30,6 +33,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         internal override string AgentName
         {
             get { return _AgentName; }
+        }
+
+        public LatestAgent()
+            : base(0)
+        {
         }
     }
 }

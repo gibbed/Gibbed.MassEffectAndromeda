@@ -22,9 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class WorldMapAgent : Agent
     {
@@ -41,17 +43,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public WorldMapAgent()
+            : base(4)
         {
             this._Unknown1 = new List<Data.WorldMapUnknown0>();
             this._Unknown2 = new List<Data.WorldMapUnknown2>();
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public List<Data.WorldMapUnknown0> Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public List<Data.WorldMapUnknown2> Unknown2
         {
             get { return this._Unknown2; }
@@ -72,7 +77,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             }
 
             this._Unknown2.Clear();
-            if (this.Version >= 4)
+            if (this.ReadVersion >= 4)
             {
                 var unknown2Count = reader.ReadUInt16();
                 for (int i = 0; i < unknown2Count; i++)
@@ -94,13 +99,10 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
                 unknown1.Write(writer);
             }
 
-            if (this.Version >= 4)
+            writer.WriteUInt16((ushort)this._Unknown2.Count);
+            foreach (var unknown2 in this._Unknown2)
             {
-                writer.WriteUInt16((ushort)this._Unknown2.Count);
-                foreach (var unknown2 in this._Unknown2)
-                {
-                    unknown2.Write(writer);
-                }
+                unknown2.Write(writer);
             }
         }
     }

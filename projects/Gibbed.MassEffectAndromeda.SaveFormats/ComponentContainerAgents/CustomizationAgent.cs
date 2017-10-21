@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.ComponentContainerAgents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [ComponentContainerAgent(_ComponentName)]
     public class CustomizationAgent
         : ComponentContainerAgent<ICustomizedParameter, CustomizedParameterAttribute>

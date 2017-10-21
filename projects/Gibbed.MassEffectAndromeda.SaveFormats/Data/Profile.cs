@@ -21,31 +21,44 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class PartyUnknown1
+    [JsonObject(MemberSerialization.OptIn)]
+    public class Profile
     {
-        private uint _Unknown1;
-        private uint _Unknown2;
-        private uint _Unknown3;
+        #region Fields
+        private int _Level;
+        private bool _IsNew;
+        #endregion
 
-        internal void Read(IBitReader reader)
+        #region Properties
+        [JsonProperty("level")]
+        public int Level
         {
-            reader.PushFrameLength(24);
-            this._Unknown1 = reader.ReadUInt32();
-            this._Unknown2 = reader.ReadUInt32();
-            this._Unknown3 = reader.ReadUInt32();
-            reader.PopFrameLength();
+            get { return this._Level; }
+            set { this._Level = value; }
+        }
+
+        [JsonProperty("is_new")]
+        public bool IsNew
+        {
+            get { return this._IsNew; }
+            set { this._IsNew = value; }
+        }
+        #endregion
+
+        internal void Read(IBitReader reader, uint version)
+        {
+            this._Level = reader.ReadInt32();
+            this._IsNew = version >= 5 && reader.ReadBoolean();
         }
 
         internal void Write(IBitWriter writer)
         {
-            writer.PushFrameLength(24);
-            writer.WriteUInt32(this._Unknown1);
-            writer.WriteUInt32(this._Unknown2);
-            writer.WriteUInt32(this._Unknown3);
-            writer.PopFrameLength();
+            writer.WriteInt32(this._Level);
+            writer.WriteBoolean(this._IsNew);
         }
     }
 }

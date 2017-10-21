@@ -22,45 +22,48 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class PartyUnknown0
+    [JsonObject(MemberSerialization.OptIn)]
+    public class SkillGroup
     {
-        private uint _Unknown1;
-        private readonly List<PartyUnknown1> _Unknown2; 
+        #region Fields
+        private readonly List<SkillLine> _SkillLines;
+        #endregion
 
-        public PartyUnknown0()
+        public SkillGroup()
         {
-            this._Unknown2 = new List<PartyUnknown1>();
+            this._SkillLines = new List<SkillLine>();
         }
+
+        #region Properties
+        [JsonProperty("skill_lines")]
+        public List<SkillLine> SkillLines
+        {
+            get { return this._SkillLines; }
+        }
+        #endregion
 
         internal void Read(IBitReader reader)
         {
-            this._Unknown1 = reader.ReadUInt32();
-            this._Unknown2.Clear();
-            if (this._Unknown1 >= 2)
+            this._SkillLines.Clear();
+            var skillLineCount = reader.ReadUInt16();
+            for (int i = 0; i < skillLineCount; i++)
             {
-                var unknown2Count = reader.ReadUInt16();
-                for (int i = 0; i < unknown2Count; i++)
-                {
-                    var unknown2 = new PartyUnknown1();
-                    unknown2.Read(reader);
-                    this._Unknown2.Add(unknown2);
-                }
+                var skillLine = new SkillLine();
+                skillLine.Read(reader);
+                this._SkillLines.Add(skillLine);
             }
         }
 
         internal void Write(IBitWriter writer)
         {
-            writer.WriteUInt32(this._Unknown1);
-            if (this._Unknown1 >= 2)
+            writer.WriteUInt16((ushort)this._SkillLines.Count);
+            foreach (var unknown1 in this._SkillLines)
             {
-                writer.WriteUInt16((ushort)this._Unknown2.Count);
-                foreach (var unknown2 in this._Unknown2)
-                {
-                    unknown2.Write(writer);
-                }
+                unknown1.Write(writer);
             }
         }
     }

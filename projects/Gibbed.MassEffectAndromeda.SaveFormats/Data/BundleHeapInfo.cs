@@ -20,18 +20,38 @@
  *    distribution.
  */
 
+using Newtonsoft.Json;
+
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public struct BundleHeapInfo
     {
-        public string Unknown0 { get; set; }
-        public uint Unknown1 { get; set; }
+        [JsonProperty("unknown1")]
+        public string Unknown1 { get; set; }
+        
+        [JsonProperty("unknown2")]
         public uint Unknown2 { get; set; }
-        public BundleHeapType Type { get; set; }
+        
+        [JsonProperty("unknown3")]
         public uint Unknown3 { get; set; }
-        public bool Unknown4 { get; set; }
-        public byte Unknown5 { get; set; }
+
+        [JsonProperty("type")]
+        public BundleHeapType Type { get; set; }
+
+        [JsonProperty("unknown4")]
+        public uint Unknown4 { get; set; }
+
+        [JsonProperty("unknown5")]
+        public bool Unknown5 { get; set; }
+
+        [JsonProperty("unknown6")]
         public byte Unknown6 { get; set; }
-        public uint Unknown7 { get; set; }
+
+        [JsonProperty("unknown7")]
+        public byte Unknown7 { get; set; }
+
+        [JsonProperty("unknown8")]
+        public uint Unknown8 { get; set; }
     }
 }

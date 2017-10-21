@@ -20,32 +20,56 @@
  *    distribution.
  */
 
+using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 {
     // ServerMECraftingProgressionComponent
+    [JsonObject(MemberSerialization.OptIn)]
     public class CraftingProgressionComponent
     {
         #region Fields
+        private readonly List<KeyValuePair<uint, bool>> _Unknown;
         #endregion
 
         public CraftingProgressionComponent()
         {
+            this._Unknown = new List<KeyValuePair<uint,bool>>();
         }
 
         #region Properties
+        [JsonProperty("unknown")]
+        public List<KeyValuePair<uint, bool>> Unknown
+        {
+            get { return this._Unknown; }
+        }
         #endregion
 
         public void Read(IBitReader reader, int version)
         {
-            var unknown0 = reader.ReadUInt16();
-            for (int i = 0; i < unknown0; i++)
+            var unknown1Count = reader.ReadUInt16();
+            this._Unknown.Clear();
+            for (int i = 0; i < unknown1Count; i++)
             {
                 reader.PushFrameLength(24);
-                var unknown1 = reader.ReadUInt32();
-                var unknown2 = reader.ReadBoolean();
+                var unknown1Key = reader.ReadUInt32();
+                var unknown1Value = reader.ReadBoolean();
+                this._Unknown.Add(new KeyValuePair<uint, bool>(unknown1Key, unknown1Value));
                 reader.PopFrameLength();
+            }
+        }
+
+        public void Write(IBitWriter writer)
+        {
+            writer.WriteUInt16((ushort)this._Unknown.Count);
+            foreach (var kv in this._Unknown)
+            {
+                writer.PushFrameLength(24);
+                writer.WriteUInt32(kv.Key);
+                writer.WriteBoolean(kv.Value);
+                writer.PopFrameLength();
             }
         }
     }

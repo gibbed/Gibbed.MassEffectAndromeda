@@ -22,10 +22,12 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 {
     // ServerProgressionComponent
+    [JsonObject(MemberSerialization.OptIn)]
     public class ProgressionComponent
     {
         #region Fields
@@ -33,135 +35,176 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
         private float _Unknown1;
         private uint _Unknown2;
         private uint _Unknown3;
-        private uint _Unknown4;
-        private readonly List<Data.ProgressionUnknown0> _Unknown5;
-        private int _Unknown6;
-        private readonly List<KeyValuePair<int, bool>> _Unknown7;
-        private int _Unknown8;
-        private readonly List<Data.ProgressionUnknown2> _Unknown9; 
+        private readonly List<Data.SkillGroup> _SkillGroups;
+        private int _CurrentProfileId;
+        private readonly List<Data.Profile> _Profiles;
+        private int _CurrentPresetIndex;
+        private readonly List<Data.Preset> _Presets; 
         #endregion
 
         public ProgressionComponent()
         {
-            this._Unknown5 = new List<Data.ProgressionUnknown0>();
-            this._Unknown7 = new List<KeyValuePair<int, bool>>();
-            this._Unknown9 = new List<Data.ProgressionUnknown2>();
+            this._SkillGroups = new List<Data.SkillGroup>();
+            this._Profiles = new List<Data.Profile>();
+            this._Presets = new List<Data.Preset>();
         }
 
         #region Properties
+        [JsonProperty("level")]
         public int Level
         {
             get { return this._Level; }
             set { this._Level = value; }
         }
 
+        [JsonProperty("unknown1")]
         public float Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("unknown2")]
         public uint Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
+        [JsonProperty("unknown3")]
         public uint Unknown3
         {
             get { return this._Unknown3; }
             set { this._Unknown3 = value; }
         }
 
-        public uint Unknown4
+        [JsonProperty("skill_groups")]
+        public List<Data.SkillGroup> SkillGroups
         {
-            get { return this._Unknown4; }
-            set { this._Unknown4 = value; }
+            get { return this._SkillGroups; }
         }
 
-        public List<Data.ProgressionUnknown0> Unknown5
+        [JsonProperty("current_profile_id")]
+        public int CurrentProfileId
         {
-            get { return this._Unknown5; }
+            get { return this._CurrentProfileId; }
+            set { this._CurrentProfileId = value; }
         }
 
-        public int Unknown6
+        [JsonProperty("profiles")]
+        public List<Data.Profile> Profiles
         {
-            get { return this._Unknown6; }
-            set { this._Unknown6 = value; }
+            get { return this._Profiles; }
         }
 
-        public List<KeyValuePair<int, bool>> Unknown7
+        [JsonProperty("current_preset_index")]
+        public int CurrentPresetIndex
         {
-            get { return this._Unknown7; }
+            get { return this._CurrentPresetIndex; }
+            set { this._CurrentPresetIndex = value; }
         }
 
-        public int Unknown8
+        [JsonProperty("presets")]
+        public List<Data.Preset> Presets
         {
-            get { return this._Unknown8; }
-            set { this._Unknown8 = value; }
-        }
-
-        public List<Data.ProgressionUnknown2> Unknown9
-        {
-            get { return this._Unknown9; }
+            get { return this._Presets; }
         }
         #endregion
 
-        public void Read(IBitReader reader, int version, int characterIndex)
+        public void Read(IBitReader reader, ushort baseVersion, bool excludeProfiles, bool excludePresets)
         {
             this._Level = reader.ReadInt32();
             this._Unknown1 = reader.ReadFloat32();
             this._Unknown2 = reader.ReadUInt32(); // skill points?
 
-            if (version >= 5)
+            if (baseVersion < 5)
             {
-                this._Unknown3 = reader.ReadUInt32();
+                return;
+            }
 
-                if (this._Unknown3 >= 2 && this._Unknown3 <= 3)
+            var version = reader.ReadUInt32();
+            if (version > 6)
+            {
+                throw new SaveFormatException("unsupported version");
+            }
+
+            if (version >= 2 && version <= 3)
+            {
+                reader.SkipBits(32);
+            }
+
+            if (version >= 3)
+            {
+                this._Unknown3 = reader.ReadUInt32(); // skill points?
+            }
+
+            var skillGroupCount = reader.ReadUInt16();
+            this._SkillGroups.Clear();
+            for (int i = 0; i < skillGroupCount; i++)
+            {
+                var skillGroup = new Data.SkillGroup();
+                skillGroup.Read(reader);
+                this._SkillGroups.Add(skillGroup);
+            }
+
+            if (excludeProfiles == false)
+            {
+                this._CurrentProfileId = reader.ReadInt32();
+                var profileCount = reader.ReadUInt16();
+                this._Profiles.Clear();
+                for (int i = 0; i < profileCount; i++)
                 {
-                    reader.SkipBits(32);
+                    var profile = new Data.Profile();
+                    profile.Read(reader, version);
+                    this._Profiles.Add(profile);
                 }
+            }
 
-                if (this._Unknown3 >= 3)
+            if (excludePresets == false)
+            {
+                this._CurrentPresetIndex = reader.ReadInt32();
+                var presetCount = reader.ReadUInt16();
+                this._Presets.Clear();
+                for (int i = 0; i < presetCount; i++)
                 {
-                    this._Unknown4 = reader.ReadUInt32(); // skill points?
+                    var preset = new Data.Preset();
+                    preset.Read(reader);
+                    this._Presets.Add(preset);
                 }
+            }
+        }
 
-                // skill data
-                var unknown5Count = reader.ReadUInt16();
-                this._Unknown5.Clear();
-                for (int i = 0; i < unknown5Count; i++)
+        public void Write(IBitWriter writer, bool excludeProfiles, bool excludePresets)
+        {
+            writer.WriteInt32(this._Level);
+            writer.WriteFloat32(this._Unknown1);
+            writer.WriteUInt32(this._Unknown2);
+            writer.WriteUInt32(6); // version
+            writer.WriteUInt32(this._Unknown3);
+
+            writer.WriteUInt16((ushort)this._SkillGroups.Count);
+            foreach (var skillGroup in this._SkillGroups)
+            {
+                skillGroup.Write(writer);
+            }
+
+            if (excludeProfiles == false)
+            {
+                writer.WriteInt32(this._CurrentProfileId);
+                writer.WriteUInt16((ushort)this._Profiles.Count);
+                foreach (var profile in this._Profiles)
                 {
-                    var unknown5 = new Data.ProgressionUnknown0();
-                    unknown5.Read(reader);
-                    this._Unknown5.Add(unknown5);
+                    profile.Write(writer);
                 }
+            }
 
-                if (characterIndex == 0) // ExcludeProfiles
+            if (excludePresets == false)
+            {
+                writer.WriteInt32(this._CurrentPresetIndex);
+                writer.WriteUInt16((ushort)this._Presets.Count);
+                foreach (var preset in this._Presets)
                 {
-                    this._Unknown6 = reader.ReadInt32();
-                    var unknown7Count = reader.ReadUInt16();
-                    this._Unknown7.Clear();
-                    for (int i = 0; i < unknown7Count; i++)
-                    {
-                        var unknown7Key = reader.ReadInt32();
-                        var unknown7Value = this._Unknown3 >= 5 && reader.ReadBoolean();
-                        this._Unknown7.Add(new KeyValuePair<int, bool>(unknown7Key, unknown7Value));
-                    }
-                }
-
-                if (characterIndex == 0) // ExcludePresets
-                {
-                    this._Unknown8 = reader.ReadInt32();
-
-                    var unknown9Count = reader.ReadUInt16();
-                    this._Unknown9.Clear();
-                    for (int i = 0; i < unknown9Count; i++)
-                    {
-                        var unknown9 = new Data.ProgressionUnknown2();
-                        unknown9.Read(reader);
-                        this._Unknown9.Add(unknown9);
-                    }
+                    preset.Write(writer);
                 }
             }
         }

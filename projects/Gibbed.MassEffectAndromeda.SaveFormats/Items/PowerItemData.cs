@@ -21,6 +21,7 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
 {
@@ -34,24 +35,28 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
         #endregion
 
         #region Properties
+        [JsonProperty("unknown5")]
         public uint Unknown5
         {
             get { return this._Unknown5; }
             set { this._Unknown5 = value; }
         }
 
+        [JsonProperty("unknown6")]
         public uint Unknown6
         {
             get { return this._Unknown6; }
             set { this._Unknown6 = value; }
         }
 
+        [JsonProperty("unknown7")]
         public bool Unknown7
         {
             get { return this._Unknown7; }
             set { this._Unknown7 = value; }
         }
 
+        [JsonProperty("unknown8")]
         public uint Unknown8
         {
             get { return this._Unknown8; }

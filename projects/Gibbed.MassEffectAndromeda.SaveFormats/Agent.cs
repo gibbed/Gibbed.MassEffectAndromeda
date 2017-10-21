@@ -27,22 +27,31 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
     public abstract class Agent
     {
         #region Fields
-        private ushort _Version;
+        private readonly ushort _Version;
+        private ushort _ReadVersion;
         #endregion
+
+        protected Agent(ushort version)
+        {
+            this._Version = version;
+        }
 
         #region Properties
         internal abstract string AgentName { get; }
 
-        public ushort Version
+        protected ushort ReadVersion
         {
-            get { return this._Version; }
-            set { this._Version = value; }
+            get { return this._ReadVersion; }
         }
         #endregion
 
         internal virtual void Read0(IBitReader reader, byte index)
         {
-            this._Version = reader.ReadUInt16();
+            this._ReadVersion = reader.ReadUInt16();
+            if (this._ReadVersion > this._Version)
+            {
+                throw new SaveFormatException("unsupported version");
+            }
         }
 
         internal virtual void Write0(IBitWriter writer, byte index)

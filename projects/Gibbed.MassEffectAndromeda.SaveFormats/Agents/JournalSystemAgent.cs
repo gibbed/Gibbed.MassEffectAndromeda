@@ -21,10 +21,12 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
     // ServerJournalSystem
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class JournalSystemAgent : Agent
     {
@@ -36,31 +38,33 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Fields
-        private readonly Data.JournalUnknown0 _Unknown1;
+        private readonly Data.JournalUnknown0 _Unknown;
         #endregion
 
         public JournalSystemAgent()
+            : base(2)
         {
-            this._Unknown1 = new Data.JournalUnknown0();
+            this._Unknown = new Data.JournalUnknown0();
         }
 
         #region Properties
-        public Data.JournalUnknown0 Unknown1
+        [JsonProperty("unknown")]
+        public Data.JournalUnknown0 Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
         }
         #endregion
 
         internal override void Read5(IBitReader reader)
         {
             base.Read5(reader);
-            this._Unknown1.Read(reader);
+            this._Unknown.Read(reader);
         }
 
         internal override void Write5(IBitWriter writer)
         {
             base.Write5(writer);
-            this._Unknown1.Write(writer);
+            this._Unknown.Write(writer);
         }
     }
 }

@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [CustomizedParameter(_ComponentName)]
     public class PackedShaderSetParameter : CustomizedParameter
     {
@@ -40,12 +42,14 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         #endregion
 
         #region Properties
+        [JsonProperty("layout_signature")]
         public uint LayoutSignature
         {
             get { return this._LayoutSignature; }
             set { this._LayoutSignature = value; }
         }
 
+        [JsonProperty("packed_data")]
         public byte[] PackedData
         {
             get { return this._PackedData; }

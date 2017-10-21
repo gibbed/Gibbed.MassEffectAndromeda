@@ -23,9 +23,11 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [CustomizedParameter(_ComponentName)]
     public class CustomizedHeadMorphParameter : CustomizedParameter
     {
@@ -48,10 +50,14 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         private readonly List<byte[]> _Bones;
         #endregion
 
+        [JsonObject(MemberSerialization.OptIn)]
         public struct Unknown3Data
         {
-            public Guid Unknown0;
-            public uint Unknown1;
+            [JsonProperty("unknown1")]
+            public Guid Unknown1 { get; set; }
+
+            [JsonProperty("unknown2")]
+            public uint Unknown2 { get; set; }
         }
 
         public CustomizedHeadMorphParameter()
@@ -66,48 +72,57 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public byte[] Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public byte[] Unknown2
         {
             get { return this._Unknown2; }
         }
 
+        [JsonProperty("unknown3")]
         public List<Unknown3Data> Unknown3
         {
             get { return this._Unknown3; }
         }
 
+        [JsonProperty("head_texture_id")]
         public uint HeadTextureId
         {
             get { return this._HeadTextureId; }
             set { this._HeadTextureId = value; }
         }
 
+        [JsonProperty("unknown4")]
         public byte Unknown4
         {
             get { return this._Unknown4; }
             set { this._Unknown4 = value; }
         }
 
+        [JsonProperty("unknown5")]
         public List<uint> Unknown5
         {
             get { return this._Unknown5; }
         }
 
+        [JsonProperty("unknown6")]
         public List<uint> Unknown6
         {
             get { return this._Unknown6; }
         }
 
+        [JsonProperty("unknown7")]
         public List<Vector3> Unknown7
         {
             get { return this._Unknown7; }
         }
 
+        [JsonProperty("bones")]
         public List<byte[]> Bones
         {
             get { return this._Bones; }
@@ -135,9 +150,9 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
             this._Unknown3.Clear();
             for (uint i = 0; i < unknown3Count; i++)
             {
-                Unknown3Data instance;
-                instance.Unknown0 = unknown3Guids[i];
-                instance.Unknown1 = unknown3Values[i];
+                var instance = new Unknown3Data();
+                instance.Unknown1 = unknown3Guids[i];
+                instance.Unknown2 = unknown3Values[i];
                 this._Unknown3.Add(instance);
             }
 
@@ -183,11 +198,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
             writer.WriteUInt32((uint)this._Unknown3.Count);
             foreach (var instance in this._Unknown3)
             {
-                writer.WriteGuid(instance.Unknown0);
+                writer.WriteGuid(instance.Unknown1);
             }
             foreach (var instance in this._Unknown3)
             {
-                writer.WriteUInt32(instance.Unknown1);
+                writer.WriteUInt32(instance.Unknown2);
             }
             
             writer.WriteUInt8(this._Unknown4);

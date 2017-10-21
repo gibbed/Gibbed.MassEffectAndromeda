@@ -20,63 +20,65 @@
  *    distribution.
  */
 
+using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
-namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
+namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class WorldMapUnknown1
+    public class UnknownComponent
     {
         #region Fields
-        private uint _Unknown1;
-        private readonly byte[] _Unknown2;
-        private readonly byte[] _Unknown3;
-        private readonly byte[] _Unknown4;
-        private readonly byte[] _Unknown5;
+        private Vector3 _Unknown1;
+        private Vector3 _Unknown2;
+        private Vector3 _Unknown3;
+        private Vector3 _Unknown4;
+        private bool _Unknown5;
         private uint _Unknown6;
         private uint _Unknown7;
-        private byte[] _Unknown8;
+        private readonly List<Data.PartyMemberVehicleData> _Vehicles;
         #endregion
 
-        public WorldMapUnknown1()
+        public UnknownComponent()
         {
-            this._Unknown2 = new byte[12];
-            this._Unknown3 = new byte[12];
-            this._Unknown4 = new byte[12];
-            this._Unknown5 = new byte[12];
+            this._Vehicles = new List<Data.PartyMemberVehicleData>();
         }
 
         #region Properties
         [JsonProperty("unknown1")]
-        public uint Unknown1
+        public Vector3 Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
         [JsonProperty("unknown2")]
-        public byte[] Unknown2
+        public Vector3 Unknown2
         {
             get { return this._Unknown2; }
+            set { this._Unknown2 = value; }
         }
 
         [JsonProperty("unknown3")]
-        public byte[] Unknown3
+        public Vector3 Unknown3
         {
             get { return this._Unknown3; }
+            set { this._Unknown3 = value; }
         }
 
         [JsonProperty("unknown4")]
-        public byte[] Unknown4
+        public Vector3 Unknown4
         {
             get { return this._Unknown4; }
+            set { this._Unknown4 = value; }
         }
 
         [JsonProperty("unknown5")]
-        public byte[] Unknown5
+        public bool Unknown5
         {
             get { return this._Unknown5; }
+            set { this._Unknown5 = value; }
         }
 
         [JsonProperty("unknown6")]
@@ -93,70 +95,55 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             set { this._Unknown7 = value; }
         }
 
-        [JsonProperty("unknown8")]
-        public byte[] Unknown8
+        [JsonProperty("vehicles")]
+        public List<Data.PartyMemberVehicleData> Vehicles
         {
-            get { return this._Unknown8; }
-            set { this._Unknown8 = value; }
+            get { return this._Vehicles; }
         }
         #endregion
 
-        internal void Read(IBitReader reader)
+        public void Read(IBitReader reader, uint baseVersion)
         {
-            reader.PushFrameLength(24);
-
-            this._Unknown1 = reader.ReadUInt32();
-
-            // probably a primitive type
+            this._Unknown1 = reader.ReadVector3();
+            this._Unknown2 = reader.ReadVector3();
+            this._Unknown3 = reader.ReadVector3();
+            this._Unknown4 = reader.ReadVector3();
+            this._Unknown5 = reader.ReadBoolean();
+            if (this._Unknown5 == true)
             {
-                reader.PushFrameLength(24);
-
-                reader.ReadBytes(this._Unknown2);
-                reader.ReadBytes(this._Unknown3);
-                reader.ReadBytes(this._Unknown4);
-                reader.ReadBytes(this._Unknown5);
                 this._Unknown6 = reader.ReadUInt32();
                 this._Unknown7 = reader.ReadUInt32();
-
-                // probably another primitive type
-                {
-                    var unknown8Length = reader.ReadUInt32();
-                    this._Unknown8 = reader.ReadBytes((int)unknown8Length);
-                }
-
-                reader.PopFrameLength();
             }
-
-            reader.PopFrameLength();
+            if (baseVersion > 9)
+            {
+                var vehicleCount = reader.ReadUInt32();
+                this._Vehicles.Clear();
+                for (uint i = 0; i < vehicleCount; i++)
+                {
+                    var vehicle = new Data.PartyMemberVehicleData();
+                    vehicle.Read(reader);
+                    this._Vehicles.Add(vehicle);
+                }
+            }
         }
 
-        internal void Write(IBitWriter writer)
+        public void Write(IBitWriter writer)
         {
-            writer.PushFrameLength(24);
-
-            writer.WriteUInt32(this._Unknown1);
-
-            // probably a primitive type
+            writer.WriteVector3(this._Unknown1);
+            writer.WriteVector3(this._Unknown2);
+            writer.WriteVector3(this._Unknown3);
+            writer.WriteVector3(this._Unknown4);
+            writer.WriteBoolean(this._Unknown5);
+            if (this._Unknown5 == true)
             {
-                writer.PushFrameLength(24);
-
-                writer.WriteBytes(this._Unknown2);
-                writer.WriteBytes(this._Unknown3);
-                writer.WriteBytes(this._Unknown4);
-                writer.WriteBytes(this._Unknown5);
                 writer.WriteUInt32(this._Unknown6);
                 writer.WriteUInt32(this._Unknown7);
-
-                // probably another primitive type
-                {
-                    writer.WriteUInt32((uint)this._Unknown8.Length);
-                    writer.WriteBytes(this._Unknown8);
-                }
-
-                writer.PopFrameLength();
             }
-
-            writer.PopFrameLength();
+            writer.WriteUInt32((uint)this._Vehicles.Count);
+            foreach (var vehicle in this._Vehicles)
+            {
+                vehicle.Write(writer);
+            }
         }
     }
 }

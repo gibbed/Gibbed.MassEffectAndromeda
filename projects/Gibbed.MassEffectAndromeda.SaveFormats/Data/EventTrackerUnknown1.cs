@@ -20,12 +20,13 @@
  *    distribution.
  */
 
-using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class EventTrackerUnknown1
     {
         #region Fields
@@ -42,23 +43,27 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public uint Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("unknown2")]
         public uint Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
+        [JsonProperty("unknown3")]
         public List<EventTrackerUnknown2> Unknown3
         {
             get { return this._Unknown3; }
         }
 
+        [JsonProperty("unknown4")]
         public List<EventTrackerUnknown2> Unknown4
         {
             get { return this._Unknown4; }

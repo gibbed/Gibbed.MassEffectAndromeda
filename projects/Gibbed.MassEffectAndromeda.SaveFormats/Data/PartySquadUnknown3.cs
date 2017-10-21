@@ -20,67 +20,97 @@
  *    distribution.
  */
 
+using System;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class ProgressionUnknown3
+    [JsonObject(MemberSerialization.OptIn)]
+    public class PartySquadUnknown3
     {
         #region Fields
         private uint _Unknown1;
-        private uint _Unknown2;
-        private uint _Unknown3;
-        private uint _Unknown4;
+        private Transform _Unknown2;
+        private bool _Unknown3;
+        private Guid _Unknown4;
+        private Guid _Unknown5;
+        private Guid _Unknown6;
         #endregion
 
         #region Properties
+        [JsonProperty("unknown1")]
         public uint Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
-        public uint Unknown2
+        [JsonProperty("unknown2")]
+        public Transform Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
-        public uint Unknown3
+        [JsonProperty("unknown3")]
+        public bool Unknown3
         {
             get { return this._Unknown3; }
             set { this._Unknown3 = value; }
         }
 
-        public uint Unknown4
+        [JsonProperty("unknown4")]
+        public Guid Unknown4
         {
             get { return this._Unknown4; }
             set { this._Unknown4 = value; }
         }
+
+        [JsonProperty("unknown5")]
+        public Guid Unknown5
+        {
+            get { return this._Unknown5; }
+            set { this._Unknown5 = value; }
+        }
+
+        [JsonProperty("unknown6")]
+        public Guid Unknown6
+        {
+            get { return this._Unknown6; }
+            set { this._Unknown6 = value; }
+        }
         #endregion
 
-        internal void Read(IBitReader reader)
+        internal void Read(IBitReader reader, uint version)
         {
-            reader.PushFrameLength(24);
+            reader.PushFrameLength(20);
             this._Unknown1 = reader.ReadUInt32();
-            if (this._Unknown1 != 0)
+            this._Unknown2 = reader.ReadTransform();
+            if (version >= 5)
             {
-                this._Unknown2 = reader.ReadUInt32();
-                this._Unknown3 = reader.ReadUInt32();
-                this._Unknown4 = reader.ReadUInt32();
+                this._Unknown3 = reader.ReadBoolean();
+                if (this._Unknown3 == true)
+                {
+                    this._Unknown4 = reader.ReadGuid();
+                    this._Unknown5 = reader.ReadGuid();
+                    this._Unknown6 = reader.ReadGuid();
+                }
             }
             reader.PopFrameLength();
         }
 
         internal void Write(IBitWriter writer)
         {
-            writer.PushFrameLength(24);
+            writer.PushFrameLength(20);
             writer.WriteUInt32(this._Unknown1);
-            if (this._Unknown1 != 0)
+            writer.WriteTransform(this._Unknown2);
+            writer.WriteBoolean(this._Unknown3);
+            if (this._Unknown3 == true)
             {
-                writer.WriteUInt32(this._Unknown2);
-                writer.WriteUInt32(this._Unknown3);
-                writer.WriteUInt32(this._Unknown4);
+                writer.WriteGuid(this._Unknown4);
+                writer.WriteGuid(this._Unknown5);
+                writer.WriteGuid(this._Unknown6);
             }
             writer.PopFrameLength();
         }

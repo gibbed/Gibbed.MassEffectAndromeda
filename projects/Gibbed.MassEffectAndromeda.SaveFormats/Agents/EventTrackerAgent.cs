@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class EventTrackerAgent : Agent
     {
@@ -41,23 +43,27 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public EventTrackerAgent()
+            : base(3)
         {
             this._Unknown2 = new Data.EventTrackerUnknown0();
             this._Unknown3 = new Data.EventTrackerUnknown1();
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public bool Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("unknown2")]
         public Data.EventTrackerUnknown0 Unknown2
         {
             get { return this._Unknown2; }
         }
 
+        [JsonProperty("unknown3")]
         public Data.EventTrackerUnknown1 Unknown3
         {
             get { return this._Unknown3; }
@@ -67,7 +73,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         internal override void Read2(IBitReader reader)
         {
             base.Read2(reader);
-            if (this.Version >= 3)
+            if (this.ReadVersion >= 3)
             {
                 this._Unknown1 = reader.ReadBoolean();
                 if (this._Unknown1 == true)
@@ -81,14 +87,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         internal override void Write2(IBitWriter writer)
         {
             base.Write2(writer);
-            if (this.Version >= 3)
+            writer.WriteBoolean(this._Unknown1);
+            if (this._Unknown1 == true)
             {
-                writer.WriteBoolean(this._Unknown1);
-                if (this._Unknown1 == true)
-                {
-                    this._Unknown2.Write(writer);
-                    this._Unknown3.Write(writer);
-                }
+                this._Unknown2.Write(writer);
+                this._Unknown3.Write(writer);
             }
         }
     }

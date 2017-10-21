@@ -22,9 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class ActivePlayTimerAgent : Agent
     {
@@ -41,17 +43,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public ActivePlayTimerAgent()
+            : base(1)
         {
             this._Unknown2 = new List<KeyValuePair<uint, uint>>();
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public ushort Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("unknown2")]
         public List<KeyValuePair<uint, uint>> Unknown2
         {
             get { return this._Unknown2; }

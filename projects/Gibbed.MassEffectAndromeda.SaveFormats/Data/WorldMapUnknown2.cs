@@ -22,19 +22,37 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class WorldMapUnknown2
     {
+        #region Fields
         private readonly byte[] _Unknown1;
         private readonly List<WorldMapUnknown3> _Unknown2;
+        #endregion
 
         public WorldMapUnknown2()
         {
             this._Unknown1 = new byte[16];
             this._Unknown2 = new List<WorldMapUnknown3>();
         }
+
+        #region Properties
+        [JsonProperty("unknown1")]
+        public byte[] Unknown1
+        {
+            get { return this._Unknown1; }
+        }
+
+        [JsonProperty("unknown2")]
+        public List<WorldMapUnknown3> Unknown2
+        {
+            get { return this._Unknown2; }
+        }
+        #endregion
 
         internal void Read(IBitReader reader)
         {

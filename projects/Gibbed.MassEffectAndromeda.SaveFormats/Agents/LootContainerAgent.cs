@@ -22,10 +22,12 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
     // ServerLootContainerEntity
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class LootContainerAgent : Agent
     {
@@ -42,17 +44,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public LootContainerAgent()
+            : base(3)
         {
             this._LootContainers = new List<Data.LootContainer>();
             this._Unknown1 = new List<KeyValuePair<uint, uint>>();
         }
 
         #region Properties
+        [JsonProperty("loot_containers")]
         public List<Data.LootContainer> LootContainers
         {
             get { return this._LootContainers; }
         }
 
+        [JsonProperty("unknown1")]
         public List<KeyValuePair<uint, uint>> Unknown1
         {
             get { return this._Unknown1; }

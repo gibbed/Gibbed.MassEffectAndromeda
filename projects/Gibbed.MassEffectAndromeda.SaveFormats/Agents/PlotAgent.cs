@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class PlotAgent : Agent
     {
@@ -39,11 +41,13 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public PlotAgent()
+            : base(1)
         {
             this._Plot = new Data.Plot();
         }
 
         #region Properties
+        [JsonProperty("plot")]
         public Data.Plot Plot
         {
             get { return this._Plot; }

@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class PartyMemberVehicleData
     {
         #region Fields
@@ -33,31 +35,52 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 
         public PartyMemberVehicleData()
         {
-            this._Healths = new PartyMemberVehicleHealthData[5]; // TODO(gibbed): figure out where 5 comes from
+            // TODO(gibbed): figure out where 5 comes from
+            this._Healths = new[]
+            {
+                new PartyMemberVehicleHealthData(),
+                new PartyMemberVehicleHealthData(),
+                new PartyMemberVehicleHealthData(),
+                new PartyMemberVehicleHealthData(),
+                new PartyMemberVehicleHealthData(),
+            };
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public uint Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("healths")]
         public PartyMemberVehicleHealthData[] Healths
         {
             get { return this._Healths; }
         }
         #endregion
 
-        public void Read(IBitReader reader, int version)
+        public void Read(IBitReader reader)
         {
             reader.PushFrameLength(24);
             this._Unknown1 = reader.ReadUInt32();
             for (int i = 0; i < 5; i++)
             {
-                this._Healths[i].Read(reader, version);
+                this._Healths[i].Read(reader);
             }
             reader.PopFrameLength();
+        }
+
+        public void Write(IBitWriter writer)
+        {
+            writer.PushFrameLength(24);
+            writer.WriteUInt32(this._Unknown1);
+            for (int i = 0; i < 5; i++)
+            {
+                this._Healths[i].Write(writer);
+            }
+            writer.PopFrameLength();
         }
     }
 }

@@ -21,10 +21,12 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
     // ServerCodexListManagerEntity
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class CodexListManagerAgent : Agent
     {
@@ -36,18 +38,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Fields
-        private readonly Data.CodexListUnknown0 _Unknown1;
+        private readonly Data.CodexListUnknown0 _Unknown;
         #endregion
 
         public CodexListManagerAgent()
+            : base(1)
         {
-            this._Unknown1 = new Data.CodexListUnknown0();
+            this._Unknown = new Data.CodexListUnknown0();
         }
 
         #region Properties
-        public Data.CodexListUnknown0 Unknown1
+        [JsonProperty("unknown")]
+        public Data.CodexListUnknown0 Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
         }
         #endregion
 
@@ -57,7 +61,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             var unknown1Length = reader.PushFrameLength(24);
             if (unknown1Length > 0)
             {
-                this._Unknown1.Read(reader);
+                this._Unknown.Read(reader);
             }
             reader.PopFrameLength();
         }
@@ -66,7 +70,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Write4(writer);
             writer.PushFrameLength(24);
-            this._Unknown1.Write(writer);
+            this._Unknown.Write(writer);
             writer.PopFrameLength();
         }
     }

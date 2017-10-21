@@ -22,10 +22,12 @@
 
 using System;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
     // GalaxyDataManager
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class GalaxyDataManagerAgent : Agent
     {
@@ -44,29 +46,34 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         #endregion
 
         public GalaxyDataManagerAgent()
+            : base(2)
         {
             this._Unknown3 = new Data.GalaxyDataUnknown0();
             this._Unknown4 = new Data.GalaxyDataUnknown0();
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public Guid Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("unknown2")]
         public Guid Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
+        [JsonProperty("unknown3")]
         public Data.GalaxyDataUnknown0 Unknown3
         {
             get { return this._Unknown3; }
         }
 
+        [JsonProperty("unknown4")]
         public Data.GalaxyDataUnknown0 Unknown4
         {
             get { return this._Unknown4; }
@@ -79,7 +86,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 
             reader.PushFrameLength(24);
 
-            if (this.Version >= 2)
+            if (this.ReadVersion >= 2)
             {
                 reader.PushFrameLength(24);
                 this._Unknown1 = reader.ReadGuid();
@@ -87,8 +94,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
                 reader.PopFrameLength();
             }
 
-            this._Unknown3.Read(reader, this.Version);
-            this._Unknown4.Read(reader, this.Version);
+            this._Unknown3.Read(reader, this.ReadVersion);
+            this._Unknown4.Read(reader, this.ReadVersion);
 
             reader.PopFrameLength();
         }
@@ -98,18 +105,12 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             base.Write2(writer);
 
             writer.PushFrameLength(24);
-
-            if (this.Version >= 2)
-            {
                 writer.PushFrameLength(24);
                 writer.WriteGuid(this._Unknown1);
                 writer.WriteGuid(this._Unknown2);
                 writer.PopFrameLength();
-            }
-
-            this._Unknown3.Write(writer, this.Version);
-            this._Unknown4.Write(writer, this.Version);
-
+            this._Unknown3.Write(writer);
+            this._Unknown4.Write(writer);
             writer.PopFrameLength();
         }
     }

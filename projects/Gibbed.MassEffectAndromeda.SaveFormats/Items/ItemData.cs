@@ -21,13 +21,14 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
 {
     public class ItemData
     {
         #region Fields
-        private uint _Unknown0;
+        private uint _Unknown1;
         private string _PartitionName;
 
         private int _Quantity;
@@ -36,30 +37,35 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
         #endregion
 
         #region Properties
-        public uint Unknown0
+        [JsonProperty("unknown1")]
+        public uint Unknown1
         {
-            get { return this._Unknown0; }
-            set { this._Unknown0 = value; }
+            get { return this._Unknown1; }
+            set { this._Unknown1 = value; }
         }
 
+        [JsonProperty("partition_name")]
         public string PartitionName
         {
             get { return this._PartitionName; }
             set { this._PartitionName = value; }
         }
 
+        [JsonProperty("quantity")]
         public int Quantity
         {
             get { return this._Quantity; }
             set { this._Quantity = value; }
         }
 
+        [JsonProperty("unknown2")]
         public bool Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
+        [JsonProperty("unknown3")]
         public int Unknown3
         {
             get { return this._Unknown3; }

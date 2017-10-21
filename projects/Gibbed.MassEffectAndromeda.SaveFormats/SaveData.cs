@@ -25,37 +25,38 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
     public class SaveData : BaseSaveData, INotifyPropertyChanged
     {
         #region Fields
-        private ulong _Timestamp;
-        private string _LevelName;
+        private DateTime _Timestamp;
+        private string _SaveFileName;
         private uint _UserBuildInfo;
-        private string _Unknown1;
-        private uint _Unknown2;
+        private string _LevelName;
+        private uint _Unknown1;
         private readonly List<string> _PreloadedBundleNames;
         private readonly Dictionary<string, string> _LayerInclusion;
         private readonly List<Data.BundleHeapInfo> _BundleHeaps;
-        private readonly List<Data.SaveDataUnknown0> _Unknown3;
-        private Guid _Unknown4;
-        private ushort _Unknown6;
-        private ushort _Unknown7;
-        private bool _Unknown8;
-        private string _Unknown10;
-        private string _Unknown11;
-        private string _Unknown12;
-        private uint _Unknown13;
-        private Guid _Unknown14;
-        private uint _Unknown15;
-        private readonly List<uint> _Unknown17;
-        private readonly List<uint> _Unknown21;
+        private readonly List<Data.SaveDataUnknown0> _Unknown2;
+        private Guid _LevelHash;
+        private ushort _Unknown3;
+        private ushort _Unknown4;
+        private bool _Unknown5;
+        private string _Unknown6;
+        private string _Unknown7;
+        private string _SaveName;
+        private uint _Unknown8;
+        private Guid _Unknown9;
+        private uint _Unknown10;
+        private readonly List<uint> _Unknown11;
+        private readonly List<uint> _Unknown12;
         private readonly Dictionary<byte, Agent> _Agents;
         private readonly List<IComponentContainerAgent> _ComponentContainerAgents;
         private readonly List<Entities.RawEntity> _Entities;
-        private ushort _Unknown22;
+        private ushort _Unknown13;
         #endregion
 
         public string Name
@@ -68,16 +69,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             this._PreloadedBundleNames = new List<string>();
             this._LayerInclusion = new Dictionary<string, string>();
             this._BundleHeaps = new List<Data.BundleHeapInfo>();
-            this._Unknown3 = new List<Data.SaveDataUnknown0>();
-            this._Unknown17 = new List<uint>();
-            this._Unknown21 = new List<uint>();
+            this._Unknown2 = new List<Data.SaveDataUnknown0>();
+            this._Unknown11 = new List<uint>();
+            this._Unknown12 = new List<uint>();
             this._Agents = new Dictionary<byte, Agent>();
             this._ComponentContainerAgents = new List<IComponentContainerAgent>();
             this._Entities = new List<Entities.RawEntity>();
         }
 
         #region Properties
-        public ulong Timestamp
+        [JsonProperty("timestamp")]
+        public DateTime Timestamp
         {
             get { return this._Timestamp; }
             set
@@ -87,16 +89,18 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public string LevelName
+        [JsonProperty("save_file_name")]
+        public string SaveFileName
         {
-            get { return this._LevelName; }
+            get { return this._SaveFileName; }
             set
             {
-                this._LevelName = value;
-                this.NotifyPropertyChanged("LevelName");
+                this._SaveFileName = value;
+                this.NotifyPropertyChanged("SaveFileName");
             }
         }
 
+        [JsonProperty("user_build_info")]
         public uint UserBuildInfo
         {
             get { return this._UserBuildInfo; }
@@ -107,7 +111,19 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public string Unknown1
+        [JsonProperty("level_name")]
+        public string LevelName
+        {
+            get { return this._LevelName; }
+            set
+            {
+                this._LevelName = value;
+                this.NotifyPropertyChanged("LevelName");
+            }
+        }
+
+        [JsonProperty("unknown1")]
+        public uint Unknown1
         {
             get { return this._Unknown1; }
             set
@@ -117,37 +133,54 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public uint Unknown2
-        {
-            get { return this._Unknown2; }
-            set
-            {
-                this._Unknown2 = value;
-                this.NotifyPropertyChanged("Unknown2");
-            }
-        }
-
+        [JsonProperty("preloaded_bundle_names")]
         public List<string> PreloadedBundleNames
         {
             get { return this._PreloadedBundleNames; }
         }
 
+        [JsonProperty("layer_inclusion")]
         public Dictionary<string, string> LayerInclusion
         {
             get { return this._LayerInclusion; }
         }
 
+        [JsonProperty("bundle_heaps")]
         public List<Data.BundleHeapInfo> BundleHeaps
         {
             get { return this._BundleHeaps; }
         }
 
-        public List<Data.SaveDataUnknown0> Unknown3
+        [JsonProperty("unknown2")]
+        public List<Data.SaveDataUnknown0> Unknown2
         {
-            get { return this._Unknown3; }
+            get { return this._Unknown2; }
         }
 
-        public Guid Unknown4
+        [JsonProperty("level_hash")]
+        public Guid LevelHash
+        {
+            get { return this._LevelHash; }
+            set
+            {
+                this._LevelHash = value;
+                this.NotifyPropertyChanged("LevelHash");
+            }
+        }
+
+        [JsonProperty("unknown3")]
+        public ushort Unknown3
+        {
+            get { return this._Unknown3; }
+            set
+            {
+                this._Unknown3 = value;
+                this.NotifyPropertyChanged("Unknown3");
+            }
+        }
+
+        [JsonProperty("unknown4")]
+        public ushort Unknown4
         {
             get { return this._Unknown4; }
             set
@@ -157,7 +190,19 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public ushort Unknown6
+        [JsonProperty("unknown5")]
+        public bool Unknown5
+        {
+            get { return this._Unknown5; }
+            set
+            {
+                this._Unknown5 = value;
+                this.NotifyPropertyChanged("Unknown5");
+            }
+        }
+
+        [JsonProperty("unknown6")]
+        public string Unknown6
         {
             get { return this._Unknown6; }
             set
@@ -167,7 +212,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public ushort Unknown7
+        [JsonProperty("unknown7")]
+        public string Unknown7
         {
             get { return this._Unknown7; }
             set
@@ -177,7 +223,19 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public bool Unknown8
+        [JsonProperty("save_name")]
+        public string SaveName
+        {
+            get { return this._SaveName; }
+            set
+            {
+                this._SaveName = value;
+                this.NotifyPropertyChanged("SaveName");
+            }
+        }
+
+        [JsonProperty("unknown8")]
+        public uint Unknown8
         {
             get { return this._Unknown8; }
             set
@@ -187,7 +245,19 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public string Unknown10
+        [JsonProperty("unknown9")]
+        public Guid Unknown9
+        {
+            get { return this._Unknown9; }
+            set
+            {
+                this._Unknown9 = value;
+                this.NotifyPropertyChanged("Unknown9");
+            }
+        }
+
+        [JsonProperty("unknown10")]
+        public uint Unknown10
         {
             get { return this._Unknown10; }
             set
@@ -197,27 +267,38 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        public string Unknown11
+        [JsonProperty("unknown11")]
+        public List<uint> Unknown11
         {
             get { return this._Unknown11; }
-            set
-            {
-                this._Unknown11 = value;
-                this.NotifyPropertyChanged("Unknown11");
-            }
         }
 
-        public string Unknown12
+        [JsonProperty("unknown12")]
+        public List<uint> Unknown12
         {
             get { return this._Unknown12; }
-            set
-            {
-                this._Unknown12 = value;
-                this.NotifyPropertyChanged("Unknown12");
-            }
         }
 
-        public uint Unknown13
+        [JsonProperty("agents")]
+        public Dictionary<byte, Agent> Agents
+        {
+            get { return this._Agents; }
+        }
+
+        [JsonProperty("component_container_agents")]
+        public List<IComponentContainerAgent> ComponentContainerAgents
+        {
+            get { return this._ComponentContainerAgents; }
+        }
+
+        [JsonProperty("entities")]
+        public List<Entities.RawEntity> Entities
+        {
+            get { return this._Entities; }
+        }
+
+        [JsonProperty("unknown13")]
+        public ushort Unknown13
         {
             get { return this._Unknown13; }
             set
@@ -226,69 +307,31 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 this.NotifyPropertyChanged("Unknown13");
             }
         }
-
-        public Guid Unknown14
-        {
-            get { return this._Unknown14; }
-            set
-            {
-                this._Unknown14 = value;
-                this.NotifyPropertyChanged("Unknown14");
-            }
-        }
-
-        public uint Unknown15
-        {
-            get { return this._Unknown15; }
-            set
-            {
-                this._Unknown15 = value;
-                this.NotifyPropertyChanged("Unknown15");
-            }
-        }
-
-        public List<uint> Unknown17
-        {
-            get { return this._Unknown17; }
-        }
-
-        public List<uint> Unknown21
-        {
-            get { return this._Unknown21; }
-        }
-
-        public Dictionary<byte, Agent> Agents
-        {
-            get { return this._Agents; }
-        }
-
-        public List<IComponentContainerAgent> ComponentContainerAgents
-        {
-            get { return this._ComponentContainerAgents; }
-        }
-
-        public List<Entities.RawEntity> Entities
-        {
-            get { return this._Entities; }
-        }
-
-        public ushort Unknown22
-        {
-            get { return this._Unknown22; }
-            set
-            {
-                this._Unknown22 = value;
-                this.NotifyPropertyChanged("Unknown22");
-            }
-        }
         #endregion
 
-        internal override void Read(IBitReader reader)
+        private static DateTime ImportTimestamp(ulong timestamp)
+        {
+            timestamp -= 210866803200ul; // unix epoch
+            timestamp *= 10000000ul; // to ticks
+            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            dateTime += new TimeSpan((long)timestamp);
+            return dateTime.ToLocalTime();
+        }
+
+        private static ulong ExportTimestamp(DateTime dateTime)
+        {
+            var span = dateTime.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var timestamp = (ulong)(span.Ticks / 10000000);
+            timestamp += 210866803200ul;
+            return timestamp;
+        }
+
+        public override void Read(IBitReader reader)
         {
             base.Read(reader);
 
-            this._Timestamp = reader.ReadUInt64();
-            this._LevelName = reader.ReadString();
+            this._Timestamp = ImportTimestamp(reader.ReadUInt64());
+            this._SaveFileName = reader.ReadString();
             var gameVersion = reader.ReadUInt16();
             var saveVersion = reader.ReadUInt16();
             var unknown1 = reader.ReadUInt16(); // 10
@@ -310,8 +353,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 throw new SaveFormatException("unsupported save data header data");
             }
 
-            this._Unknown1 = reader.ReadString();
-            this._Unknown2 = reader.ReadUInt32();
+            this._LevelName = reader.ReadString();
+            this._Unknown1 = reader.ReadUInt32();
             reader.ReadStringList(this._PreloadedBundleNames);
             reader.ReadStringDictionary(this._LayerInclusion);
 
@@ -321,15 +364,15 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             {
                 reader.PushFrameLength(24);
                 var bundleHeap = new Data.BundleHeapInfo();
-                bundleHeap.Unknown0 = reader.ReadString();
-                bundleHeap.Unknown1 = reader.ReadUInt32();
+                bundleHeap.Unknown1 = reader.ReadString();
                 bundleHeap.Unknown2 = reader.ReadUInt32();
-                bundleHeap.Type = (Data.BundleHeapType)reader.ReadUInt8();
                 bundleHeap.Unknown3 = reader.ReadUInt32();
-                bundleHeap.Unknown4 = reader.ReadBoolean();
-                bundleHeap.Unknown5 = reader.ReadUInt8();
+                bundleHeap.Type = (Data.BundleHeapType)reader.ReadUInt8();
+                bundleHeap.Unknown4 = reader.ReadUInt32();
+                bundleHeap.Unknown5 = reader.ReadBoolean();
                 bundleHeap.Unknown6 = reader.ReadUInt8();
-                bundleHeap.Unknown7 = reader.ReadUInt32();
+                bundleHeap.Unknown7 = reader.ReadUInt8();
+                bundleHeap.Unknown8 = reader.ReadUInt32();
                 if (saveVersion < 17)
                 {
                     reader.SkipBoolean();
@@ -339,19 +382,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
 
             var unknown3Count = reader.ReadUInt16(12);
-            this._Unknown3.Clear();
+            this._Unknown2.Clear();
             for (int i = 0; i < unknown3Count; i++)
             {
                 reader.PushFrameLength(24);
-                Data.SaveDataUnknown0 instance;
-                instance.Unknown0 = reader.ReadUInt16();
+                var instance = new Data.SaveDataUnknown0();
                 instance.Unknown1 = reader.ReadUInt16();
-                instance.Unknown2 = reader.ReadUInt8();
-                this._Unknown3.Add(instance);
+                instance.Unknown2 = reader.ReadUInt16();
+                instance.Unknown3 = reader.ReadUInt8();
+                this._Unknown2.Add(instance);
                 reader.PopFrameLength();
             }
 
-            this._Unknown4 = reader.ReadGuid();
+            // not actually a Guid, but we will borrow it for sake of simplicity
+            this._LevelHash = reader.ReadGuid();
 
             var unknown5 = reader.ReadUInt32(20);
             if (unknown5 != 0)
@@ -360,9 +404,9 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
             reader.SkipBits((int)unknown5); // TODO(gibbed): position move
 
-            this._Unknown6 = reader.ReadUInt16();
-            this._Unknown7 = this._Unknown6 >= 5 ? reader.ReadUInt16() : (ushort)0;
-            this._Unknown8 = reader.ReadBoolean();
+            this._Unknown3 = reader.ReadUInt16();
+            this._Unknown4 = this._Unknown3 >= 5 ? reader.ReadUInt16() : (ushort)0;
+            this._Unknown5 = reader.ReadBoolean();
 
             reader.PushFramePosition(26);
 
@@ -376,14 +420,14 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
 
             reader.PushFrameLength(saveVersion >= 18 ? 24 : 6);
             reader.PushFrameLength(24);
-            this._Unknown10 = reader.ReadString();
-            this._Unknown11 = reader.ReadString();
-            this._Unknown12 = reader.ReadString();
+            this._Unknown6 = reader.ReadString();
+            this._Unknown7 = reader.ReadString();
+            this._SaveName = reader.ReadString();
             reader.PopFrameLength();
 
-            this._Unknown13 = reader.ReadUInt32();
-            this._Unknown14 = reader.ReadGuid();
-            this._Unknown15 = reader.ReadUInt32();
+            this._Unknown8 = reader.ReadUInt32();
+            this._Unknown9 = reader.ReadGuid();
+            this._Unknown10 = reader.ReadUInt32();
             reader.PopFrameLength();
 
             var unknown16 = reader.ReadUInt32(26);
@@ -455,10 +499,10 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
 
             var unknown17Count = reader.ReadUInt16();
-            this._Unknown17.Clear();
+            this._Unknown11.Clear();
             for (int i = 0; i < unknown17Count; i++)
             {
-                this._Unknown17.Add(reader.ReadUInt32());
+                this._Unknown11.Add(reader.ReadUInt32());
             }
 
             var unknown18Count = reader.ReadUInt16();
@@ -477,10 +521,10 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
 
             var unknown21Count = reader.ReadUInt16();
-            this._Unknown21.Clear();
+            this._Unknown12.Clear();
             for (int i = 0; i < unknown21Count; i++)
             {
-                this._Unknown21[i] = reader.ReadUInt32();
+                this._Unknown12[i] = reader.ReadUInt32();
             }
 
             reader.PopFrameLength();
@@ -512,8 +556,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
 
             reader.PushFrameLength(32);
             this._ComponentContainerAgents.Clear();
-            this._Unknown22 = reader.ReadUInt16();
-            if (this._Unknown22 == 1)
+            this._Unknown13 = reader.ReadUInt16();
+            if (this._Unknown13 == 1)
             {
                 var componentCount = reader.ReadUInt16();
                 for (int i = 0; i < componentCount; i++)
@@ -529,9 +573,9 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
             reader.PopFrameLength();
 
-            ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 0, (r, t) => t.Read1(r, this._Unknown7));
+            ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 0, (r, t) => t.Read1(r, this._Unknown4));
             ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 1, (r, t) => t.Read2(r));
-            ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 2, (r, t) => t.Read3(r, this._Unknown7));
+            ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 2, (r, t) => t.Read3(r, this._Unknown4));
             ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 3, (r, t) => t.Read4(r));
             ReadAgentData(reader, this._Agents, agentDataOffsetLookup, 4, (r, t) => t.Read5(r));
 
@@ -597,19 +641,19 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        internal override void Write(IBitWriter writer)
+        public override void Write(IBitWriter writer)
         {
             base.Write(writer);
 
-            writer.WriteUInt64(this._Timestamp);
-            writer.WriteString(this._LevelName);
+            writer.WriteUInt64(ExportTimestamp(this._Timestamp));
+            writer.WriteString(this._SaveFileName);
             writer.WriteUInt16(3); // gameVersion
             writer.WriteUInt16(22); // saveVersion
             writer.WriteUInt16(10); // ??
             writer.WriteUInt16(0); // ??
             writer.WriteUInt32(this._UserBuildInfo);
-            writer.WriteString(this._Unknown1);
-            writer.WriteUInt32(this._Unknown2);
+            writer.WriteString(this._LevelName);
+            writer.WriteUInt32(this._Unknown1);
             writer.WriteStringList(this._PreloadedBundleNames);
             writer.WriteStringDictionary(this._LayerInclusion);
 
@@ -617,38 +661,38 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             foreach (var instance in this._BundleHeaps)
             {
                 writer.PushFrameLength(24);
-                writer.WriteString(instance.Unknown0);
-                writer.WriteUInt32(instance.Unknown1);
+                writer.WriteString(instance.Unknown1);
                 writer.WriteUInt32(instance.Unknown2);
-                writer.WriteUInt8((byte)instance.Type);
                 writer.WriteUInt32(instance.Unknown3);
-                writer.WriteBoolean(instance.Unknown4);
-                writer.WriteUInt8(instance.Unknown5);
+                writer.WriteUInt8((byte)instance.Type);
+                writer.WriteUInt32(instance.Unknown4);
+                writer.WriteBoolean(instance.Unknown5);
                 writer.WriteUInt8(instance.Unknown6);
-                writer.WriteUInt32(instance.Unknown7);
+                writer.WriteUInt8(instance.Unknown7);
+                writer.WriteUInt32(instance.Unknown8);
                 writer.PopFrameLength();
             }
 
-            writer.WriteUInt16((ushort)this._Unknown3.Count, 12);
-            foreach (var instance in this._Unknown3)
+            writer.WriteUInt16((ushort)this._Unknown2.Count, 12);
+            foreach (var instance in this._Unknown2)
             {
                 writer.PushFrameLength(24);
-                writer.WriteUInt16(instance.Unknown0);
                 writer.WriteUInt16(instance.Unknown1);
-                writer.WriteUInt8(instance.Unknown2);
+                writer.WriteUInt16(instance.Unknown2);
+                writer.WriteUInt8(instance.Unknown3);
                 writer.PopFrameLength();
             }
 
-            writer.WriteGuid(this._Unknown4);
+            writer.WriteGuid(this._LevelHash);
 
             writer.WriteUInt32(0, 20); // unknown5
 
-            writer.WriteUInt16(this._Unknown6);
-            if (this._Unknown6 >= 5)
+            writer.WriteUInt16(this._Unknown3);
+            if (this._Unknown3 >= 5)
             {
-                writer.WriteUInt16(this._Unknown7);
+                writer.WriteUInt16(this._Unknown4);
             }
-            writer.WriteBoolean(this._Unknown8);
+            writer.WriteBoolean(this._Unknown5);
 
             writer.PushFramePosition(26);
 
@@ -686,21 +730,21 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             var unknown9 = writer.Position;
             writer.PushFrameLength(24);
             writer.PushFrameLength(24);
-            writer.WriteString(this._Unknown10);
-            writer.WriteString(this._Unknown11);
-            writer.WriteString(this._Unknown12);
+            writer.WriteString(this._Unknown6);
+            writer.WriteString(this._Unknown7);
+            writer.WriteString(this._SaveName);
             writer.PopFrameLength();
-            writer.WriteUInt32(this._Unknown13);
-            writer.WriteGuid(this._Unknown14);
-            writer.WriteUInt32(this._Unknown15);
+            writer.WriteUInt32(this._Unknown8);
+            writer.WriteGuid(this._Unknown9);
+            writer.WriteUInt32(this._Unknown10);
             writer.PopFrameLength();
             writer.WriteUInt32((uint)unknown9, 26);
 
             var agentDataOffsetLookup = new Dictionary<byte, uint[]>();
             writer.PushFrameLength(32);
-            WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 0, (w, t) => t.Write1(w, this._Unknown7));
+            WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 0, (w, t) => t.Write1(w, this._Unknown4));
             WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 1, (w, t) => t.Write2(w));
-            WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 2, (w, t) => t.Write3(w, this._Unknown7));
+            WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 2, (w, t) => t.Write3(w, this._Unknown4));
             WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 3, (w, t) => t.Write4(w));
             WriteAgentData(writer, this._Agents, agentDataOffsetLookup, 4, (w, t) => t.Write5(w));
             writer.PopFrameLength();
@@ -736,16 +780,16 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 }
             }
 
-            writer.WriteUInt16((ushort)this._Unknown17.Count);
-            foreach (var unknown17 in this._Unknown17)
+            writer.WriteUInt16((ushort)this._Unknown11.Count);
+            foreach (var unknown17 in this._Unknown11)
             {
                 writer.WriteUInt32(unknown17);
             }
 
             writer.WriteUInt16(0); // unknown18
 
-            writer.WriteUInt16((ushort)this._Unknown21.Count);
-            foreach (var unknown21 in this._Unknown21)
+            writer.WriteUInt16((ushort)this._Unknown12.Count);
+            foreach (var unknown21 in this._Unknown12)
             {
                 writer.WriteUInt32(unknown21);
             }
@@ -778,8 +822,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             writer.Position = componentDataPosition;
 
             writer.PushFrameLength(32);
-            writer.WriteUInt16(this._Unknown22);
-            if (this._Unknown22 == 1)
+            writer.WriteUInt16(this._Unknown13);
+            if (this._Unknown13 == 1)
             {
                 writer.WriteUInt16((ushort)this._ComponentContainerAgents.Count);
                 foreach (var component in this._ComponentContainerAgents)
@@ -868,6 +912,18 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                     writer.PopFrameLength();
                 }
             }
+        }
+
+        public T GetAgent<T>()
+            where T: Agent
+        {
+            return this._Agents.Values.OfType<T>().FirstOrDefault();
+        }
+
+        public T GetComponentContainerAgent<T>()
+            where T: IComponentContainerAgent
+        {
+            return this._ComponentContainerAgents.OfType<T>().FirstOrDefault();
         }
 
         #region INotifyPropertyChanged Members

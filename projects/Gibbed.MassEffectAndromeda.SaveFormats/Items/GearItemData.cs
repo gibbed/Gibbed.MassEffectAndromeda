@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
 {
@@ -42,22 +43,26 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
         }
 
         #region Properties
+        [JsonProperty("unknown4")]
         public bool Unknown4
         {
             get { return this._Unknown4; }
             set { this._Unknown4 = value; }
         }
 
+        [JsonProperty("mods")]
         public List<KeyValuePair<uint, ItemData>> Mods
         {
             get { return this._Mods; }
         }
 
+        [JsonProperty("augmentation_item_hashes")]
         public List<uint> AugmentationItemHashes
         {
             get { return this._AugmentationItemHashes; }
         }
 
+        [JsonProperty("custom_name")]
         public string CustomName
         {
             get { return this._CustomName; }

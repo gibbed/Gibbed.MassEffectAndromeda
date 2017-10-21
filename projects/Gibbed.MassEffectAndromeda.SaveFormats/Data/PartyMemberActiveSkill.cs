@@ -20,13 +20,23 @@
  *    distribution.
  */
 
+using Newtonsoft.Json;
+
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public struct PartyMemberActiveSkill
     {
-        public int LineHash;
-        public int LineRank;
-        public int GroupHash;
-        public int GroupTypeId;
+        [JsonProperty("line_hash")]
+        public int LineHash { get; set; }
+
+        [JsonProperty("line_rank")]
+        public int LineRank { get; set; }
+
+        [JsonProperty("group_hash")]
+        public int GroupHash { get; set; }
+
+        [JsonProperty("group_type_id")]
+        public int GroupTypeId { get; set; }
     }
 }

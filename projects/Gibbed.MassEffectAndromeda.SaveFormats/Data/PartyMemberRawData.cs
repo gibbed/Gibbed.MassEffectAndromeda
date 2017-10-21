@@ -22,10 +22,12 @@
 
 using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class PartyProgressionData : INotifyPropertyChanged
+    [JsonObject(MemberSerialization.OptIn)]
+    public class PartyMemberRawData : INotifyPropertyChanged
     {
         #region Fields
         private byte[] _DataBytes;
@@ -34,6 +36,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         #endregion
 
         #region Properties
+        [JsonProperty("data_bytes")]
         public byte[] DataBytes
         {
             get { return this._DataBytes; }
@@ -44,6 +47,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
         }
 
+        [JsonProperty("unknown1")]
         public bool Unknown1
         {
             get { return this._Unknown1; }
@@ -54,6 +58,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
         }
 
+        [JsonProperty("unknown2")]
         public bool Unknown2
         {
             get { return this._Unknown2; }
@@ -73,26 +78,15 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             this._Unknown1 = version >= 6 && reader.ReadBoolean();
             this._Unknown2 = version >= 6 && reader.ReadBoolean();
             reader.PopFrameLength();
-
-            /*
-            if (progressionByteLength > 0)
-            {
-                var test = new FileFormats.BitReader(progressionBytes);
-                new PartyMemberUnknown(i).Read(test);
-            }
-            */
         }
 
-        internal void Write(IBitWriter writer, uint version)
+        internal void Write(IBitWriter writer)
         {
             writer.PushFrameLength(24);
             writer.WriteUInt32((uint)this._DataBytes.Length);
             writer.WriteBytes(this._DataBytes);
-            if (version >= 6)
-            {
-                writer.WriteBoolean(this._Unknown1);
-                writer.WriteBoolean(this._Unknown2);
-            }
+            writer.WriteBoolean(this._Unknown1);
+            writer.WriteBoolean(this._Unknown2);
             writer.PopFrameLength();
         }
 

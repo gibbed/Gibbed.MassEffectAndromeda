@@ -23,9 +23,11 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class GalaxyDataUnknown0
     {
         #region Fields
@@ -40,11 +42,13 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public List<KeyValuePair<Guid, uint>> Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public List<KeyValuePair<Guid, uint>> Unknown2
         {
             get { return this._Unknown2; }
@@ -59,11 +63,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             reader.PopFrameLength();
         }
 
-        internal void Write(IBitWriter writer, ushort version)
+        internal void Write(IBitWriter writer)
         {
             writer.PushFrameLength(24);
-            WriteList(writer, this._Unknown1, version);
-            WriteList(writer, this._Unknown2, version);
+            WriteList(writer, this._Unknown1);
+            WriteList(writer, this._Unknown2);
             writer.PopFrameLength();
         }
 
@@ -87,21 +91,18 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
         }
 
-        private static void WriteList(IBitWriter writer, List<KeyValuePair<Guid, uint>> list, ushort version)
+        private static void WriteList(IBitWriter writer, List<KeyValuePair<Guid, uint>> list)
         {
             if (list == null)
             {
                 throw new ArgumentNullException("list");
             }
 
-            if (version >= 1)
+            writer.WriteUInt32((uint)list.Count);
+            foreach (var kv in list)
             {
-                writer.WriteUInt32((uint)list.Count);
-                foreach (var kv in list)
-                {
-                    writer.WriteGuid(kv.Key);
-                    writer.WriteUInt32(kv.Value);
-                }
+                writer.WriteGuid(kv.Key);
+                writer.WriteUInt32(kv.Value);
             }
         }
     }

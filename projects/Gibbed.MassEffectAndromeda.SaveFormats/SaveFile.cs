@@ -23,6 +23,7 @@
 using System.IO;
 using Gibbed.IO;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 using Hashing = Gibbed.Frostbite3.Common.Hashing;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
@@ -45,17 +46,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
         }
 
         #region Properties
+        [JsonProperty("endian")]
         public Endian Endian
         {
             get { return this._Endian; }
             set { this._Endian = value; }
         }
 
+        [JsonProperty("meta_header")]
         public SaveMetaHeader MetaHeader
         {
             get { return this._MetaHeader; }
         }
 
+        [JsonProperty("data")]
         public SaveData Data
         {
             get { return this._Data; }

@@ -22,46 +22,61 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class ProgressionUnknown0
+    [JsonObject(MemberSerialization.OptIn)]
+    public class SkillLine
     {
         #region Fields
-        private readonly List<ProgressionUnknown1> _Unknown1;
+        private int _Unknown;
+        private readonly List<int> _SkillRanks;
         #endregion
 
-        public ProgressionUnknown0()
+        public SkillLine()
         {
-            this._Unknown1 = new List<ProgressionUnknown1>();
+            this._SkillRanks = new List<int>();
         }
 
         #region Properties
-        public List<ProgressionUnknown1> Unknown1
+        [JsonProperty("unknown")]
+        public int Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
+            set { this._Unknown = value; }
+        }
+
+        [JsonProperty("skill_ranks")]
+        public List<int> SkillRanks
+        {
+            get { return this._SkillRanks; }
         }
         #endregion
 
         internal void Read(IBitReader reader)
         {
-            this._Unknown1.Clear();
-            var unknown1Count = reader.ReadUInt16();
-            for (int i = 0; i < unknown1Count; i++)
+            reader.PushFrameLength(24);
+            this._Unknown = reader.ReadInt32();
+            var skillRankCount = reader.ReadUInt16();
+            this._SkillRanks.Clear();
+            for (int k = 0; k < skillRankCount; k++)
             {
-                var unknown1 = new ProgressionUnknown1();
-                unknown1.Read(reader);
-                this._Unknown1.Add(unknown1);
+                this._SkillRanks.Add(reader.ReadInt32());
             }
+            reader.PopFrameLength();
         }
 
         internal void Write(IBitWriter writer)
         {
-            writer.WriteUInt16((ushort)this._Unknown1.Count);
-            foreach (var unknown1 in this._Unknown1)
+            writer.PushFrameLength(24);
+            writer.WriteInt32(this._Unknown);
+            writer.WriteUInt16((ushort)this._SkillRanks.Count);
+            foreach (var skillRank in this._SkillRanks)
             {
-                unknown1.Write(writer);
+                writer.WriteInt32(skillRank);
             }
+            writer.PopFrameLength();
         }
     }
 }

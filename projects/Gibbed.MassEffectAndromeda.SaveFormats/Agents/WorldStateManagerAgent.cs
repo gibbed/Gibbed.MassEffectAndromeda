@@ -22,9 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class WorldStateManagerAgent : Agent
     {
@@ -36,18 +38,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Fields
-        private readonly List<KeyValuePair<string, string>> _Unknown1;
+        private readonly List<KeyValuePair<string, string>> _Unknown;
         #endregion
 
         public WorldStateManagerAgent()
+            : base(1)
         {
-            this._Unknown1 = new List<KeyValuePair<string, string>>();
+            this._Unknown = new List<KeyValuePair<string, string>>();
         }
 
         #region Properties
-        public List<KeyValuePair<string, string>> Unknown1
+        [JsonProperty("unknown")]
+        public List<KeyValuePair<string, string>> Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
         }
         #endregion
 
@@ -55,7 +59,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Read1(reader, arg1);
             reader.PushFrameLength(24);
-            this._Unknown1.Clear();
+            this._Unknown.Clear();
             var unknown1Count = reader.ReadUInt16();
             for (int i = 0; i < unknown1Count; i++)
             {
@@ -63,7 +67,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
                 var unknown1Key = reader.ReadString();
                 var unknown1Value = reader.ReadString();
                 reader.PopFrameLength();
-                this._Unknown1.Add(new KeyValuePair<string, string>(unknown1Key, unknown1Value));
+                this._Unknown.Add(new KeyValuePair<string, string>(unknown1Key, unknown1Value));
             }
             reader.PopFrameLength();
         }
@@ -72,8 +76,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Write1(writer, arg1);
             writer.PushFrameLength(24);
-            writer.WriteUInt16((ushort)this._Unknown1.Count);
-            foreach (var kv in this._Unknown1)
+            writer.WriteUInt16((ushort)this._Unknown.Count);
+            foreach (var kv in this._Unknown)
             {
                 writer.PushFrameLength(24);
                 writer.WriteString(kv.Key);

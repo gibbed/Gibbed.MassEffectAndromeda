@@ -22,9 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class VendorInventoryAgent : Agent
     {
@@ -36,18 +38,20 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Fields
-        private readonly List<KeyValuePair<uint, byte[]>> _Unknown1;
+        private readonly List<KeyValuePair<uint, byte[]>> _Unknown;
         #endregion
 
         public VendorInventoryAgent()
+            : base(2)
         {
-            this._Unknown1 = new List<KeyValuePair<uint, byte[]>>();
+            this._Unknown = new List<KeyValuePair<uint, byte[]>>();
         }
 
         #region Properties
-        public List<KeyValuePair<uint, byte[]>> Unknown1
+        [JsonProperty("unknown")]
+        public List<KeyValuePair<uint, byte[]>> Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
         }
         #endregion
 
@@ -55,7 +59,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Read4(reader);
             var unknown1Count = reader.ReadUInt16();
-            this._Unknown1.Clear();
+            this._Unknown.Clear();
             for (int i = 0; i < unknown1Count; i++)
             {
                 reader.PushFrameLength(24);
@@ -63,15 +67,15 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
                 var unknown1ValueLength = reader.ReadUInt32();
                 var unknown1Value = reader.ReadBytes((int)unknown1ValueLength);
                 reader.PopFrameLength();
-                this._Unknown1.Add(new KeyValuePair<uint, byte[]>(unknown1Key, unknown1Value));
+                this._Unknown.Add(new KeyValuePair<uint, byte[]>(unknown1Key, unknown1Value));
             }
         }
 
         internal override void Write4(IBitWriter writer)
         {
             base.Write4(writer);
-            writer.WriteUInt16((ushort)this._Unknown1.Count);
-            foreach (var kv in this._Unknown1)
+            writer.WriteUInt16((ushort)this._Unknown.Count);
+            foreach (var kv in this._Unknown)
             {
                 writer.PushFrameLength(24);
                 writer.WriteUInt32(kv.Key);

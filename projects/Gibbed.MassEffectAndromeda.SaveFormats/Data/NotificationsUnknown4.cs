@@ -22,20 +22,43 @@
 
 using System;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class NotificationsUnknown4
     {
+        #region Fields
+        private uint _Unknown1;
+        private uint _Unknown2;
+        #endregion
+
+        #region Properties
+        [JsonProperty("unknown1")]
+        public uint Unknown1
+        {
+            get { return this._Unknown1; }
+            set { this._Unknown1 = value; }
+        }
+
+        [JsonProperty("unknown2")]
+        public uint Unknown2
+        {
+            get { return this._Unknown2; }
+            set { this._Unknown2 = value; }
+        }
+        #endregion
+
         internal void Read(IBitReader reader, ushort version)
         {
             reader.PushFrameLength(24);
-            var unknown30 = reader.ReadUInt32();
-            var unknown31 = reader.ReadUInt32();
+            this._Unknown1 = reader.ReadUInt32();
+            this._Unknown2 = reader.ReadUInt32();
             reader.PopFrameLength();
         }
 
-        internal void Write(IBitWriter writer, ushort version)
+        internal void Write(IBitWriter writer)
         {
             throw new NotImplementedException();
         }

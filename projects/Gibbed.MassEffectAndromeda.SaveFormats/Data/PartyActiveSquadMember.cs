@@ -20,69 +20,84 @@
  *    distribution.
  */
 
+using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
-namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
+namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
     [JsonObject(MemberSerialization.OptIn)]
-    [CustomizedParameter(_ComponentName)]
-    public class CustomizedHairParameter : CustomizedParameter
+    public class PartyActiveSquadMember : INotifyPropertyChanged
     {
-        private const string _ComponentName = "CustomizedHairDesc";
-
-        public override string ComponentName
-        {
-            get { return _ComponentName; }
-        }
-
         #region Fields
-        private readonly byte[] _Unknown1;
+        private uint _Unknown1;
         private uint _Unknown2;
         private uint _Unknown3;
         #endregion
 
-        public CustomizedHairParameter()
-        {
-            this._Unknown1 = new byte[16];
-        }
-
         #region Properties
         [JsonProperty("unknown1")]
-        public byte[] Unknown1
+        public uint Unknown1
         {
             get { return this._Unknown1; }
+            set
+            {
+                this._Unknown1 = value;
+                this.NotifyPropertyChanged("Unknown1");
+            }
         }
 
         [JsonProperty("unknown2")]
         public uint Unknown2
         {
             get { return this._Unknown2; }
-            set { this._Unknown2 = value; }
+            set
+            {
+                this._Unknown2 = value;
+                this.NotifyPropertyChanged("Unknown2");
+            }
         }
 
         [JsonProperty("unknown3")]
         public uint Unknown3
         {
             get { return this._Unknown3; }
-            set { this._Unknown3 = value; }
+            set
+            {
+                this._Unknown3 = value;
+                this.NotifyPropertyChanged("Unknown3");
+            }
         }
         #endregion
 
-        public override void Read(IBitReader reader, ushort version)
+        internal void Read(IBitReader reader)
         {
-            base.Read(reader, version);
-            reader.ReadBytes(this._Unknown1);
+            reader.PushFrameLength(24);
+            this._Unknown1 = reader.ReadUInt32();
             this._Unknown2 = reader.ReadUInt32();
             this._Unknown3 = reader.ReadUInt32();
+            reader.PopFrameLength();
         }
 
-        public override void Write(IBitWriter writer, ushort version)
+        internal void Write(IBitWriter writer)
         {
-            base.Write(writer, version);
-            writer.WriteBytes(this._Unknown1);
+            writer.PushFrameLength(24);
+            writer.WriteUInt32(this._Unknown1);
             writer.WriteUInt32(this._Unknown2);
             writer.WriteUInt32(this._Unknown3);
+            writer.PopFrameLength();
         }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

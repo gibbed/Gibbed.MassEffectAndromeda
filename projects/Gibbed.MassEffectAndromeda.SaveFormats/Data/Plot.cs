@@ -24,16 +24,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Plot
     {
+        #region Fields
         private readonly Dictionary<Guid, bool> _Bools;
         private readonly Dictionary<Guid, int> _Ints;
         private readonly Dictionary<Guid, float> _Floats;
         private readonly Dictionary<Guid, Transform> _Transforms;
         private readonly Dictionary<uint, Guid> _Unknown;
+        #endregion
 
         public Plot()
         {
@@ -43,6 +47,38 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             this._Transforms = new Dictionary<Guid, Transform>();
             this._Unknown = new Dictionary<uint, Guid>();
         }
+
+        #region Properties
+        [JsonProperty("bools")]
+        public Dictionary<Guid, bool> Bools
+        {
+            get { return this._Bools; }
+        }
+
+        [JsonProperty("ints")]
+        public Dictionary<Guid, int> Ints
+        {
+            get { return this._Ints; }
+        }
+
+        [JsonProperty("floats")]
+        public Dictionary<Guid, float> Floats
+        {
+            get { return this._Floats; }
+        }
+
+        [JsonProperty("transforms")]
+        public Dictionary<Guid, Transform> Transforms
+        {
+            get { return this._Transforms; }
+        }
+
+        [JsonProperty("unknown")]
+        public Dictionary<uint, Guid> Unknown
+        {
+            get { return this._Unknown; }
+        }
+        #endregion
 
         internal void Read(IBitReader reader)
         {

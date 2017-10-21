@@ -23,36 +23,39 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class DestructionUnknown1
     {
         #region Fields
-        private readonly List<DestructionUnknown2> _Unknown1;
+        private readonly List<DestructionUnknown2> _Unknown;
         #endregion
 
         public DestructionUnknown1()
         {
-            this._Unknown1 = new List<DestructionUnknown2>();
+            this._Unknown = new List<DestructionUnknown2>();
         }
 
         #region Properties
-        public List<DestructionUnknown2> Unknown1
+        [JsonProperty("unknown")]
+        public List<DestructionUnknown2> Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
         }
         #endregion
 
         internal void Read(IBitReader reader)
         {
-            this._Unknown1.Clear();
+            this._Unknown.Clear();
             var unknown1Count = reader.ReadUInt16();
             for (int i = 0; i < unknown1Count; i++)
             {
                 var unknown1 = new DestructionUnknown2();
                 unknown1.Read(reader);
-                this._Unknown1.Add(unknown1);
+                this._Unknown.Add(unknown1);
             }
         }
 

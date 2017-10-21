@@ -21,9 +21,11 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class CustomizedVector4ShaderParameter : CustomizedShader
     {
         #region Fields
@@ -31,6 +33,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         #endregion
 
         #region Properties
+        [JsonProperty("value")]
         public Vector4 Value
         {
             get { return this._Value; }

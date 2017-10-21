@@ -22,9 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class NotificationsUnknown0
     {
         #region Fields
@@ -43,21 +45,25 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public List<NotificationsUnknown1> Unknown1
         {
             get { return this._Unknown1; }
         }
 
+        [JsonProperty("unknown2")]
         public List<NotificationsUnknown2> Unknown2
         {
             get { return this._Unknown2; }
         }
 
+        [JsonProperty("unknown3")]
         public List<NotificationsUnknown3> Unknown3
         {
             get { return this._Unknown3; }
         }
 
+        [JsonProperty("unknown4")]
         public List<NotificationsUnknown4> Unknown4
         {
             get { return this._Unknown4; }
@@ -106,30 +112,27 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
         }
 
-        internal void Write(IBitWriter writer, ushort version)
+        internal void Write(IBitWriter writer)
         {
-            if (version >= 1)
+            writer.WriteUInt16((ushort)this._Unknown1.Count);
+            foreach (var unknown1 in this._Unknown1)
             {
-                writer.WriteUInt16((ushort)this._Unknown1.Count);
-                foreach (var unknown1 in this._Unknown1)
-                {
-                    unknown1.Write(writer, version);
-                }
-                writer.WriteUInt16((ushort)this._Unknown2.Count);
-                foreach (var unknown2 in this._Unknown2)
-                {
-                    unknown2.Write(writer, version);
-                }
-                writer.WriteUInt16((ushort)this._Unknown3.Count);
-                foreach (var unknown3 in this._Unknown3)
-                {
-                    unknown3.Write(writer, version);
-                }
-                writer.WriteUInt16((ushort)this._Unknown4.Count);
-                foreach (var unknown4 in this._Unknown4)
-                {
-                    unknown4.Write(writer, version);
-                }
+                unknown1.Write(writer);
+            }
+            writer.WriteUInt16((ushort)this._Unknown2.Count);
+            foreach (var unknown2 in this._Unknown2)
+            {
+                unknown2.Write(writer);
+            }
+            writer.WriteUInt16((ushort)this._Unknown3.Count);
+            foreach (var unknown3 in this._Unknown3)
+            {
+                unknown3.Write(writer);
+            }
+            writer.WriteUInt16((ushort)this._Unknown4.Count);
+            foreach (var unknown4 in this._Unknown4)
+            {
+                unknown4.Write(writer);
             }
         }
     }

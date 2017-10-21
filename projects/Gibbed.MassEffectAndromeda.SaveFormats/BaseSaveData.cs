@@ -28,7 +28,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
     {
         public const ulong Signature = 0x0A45564153004246; // 'FB\0SAVE\n'
 
-        internal virtual void Read(IBitReader reader)
+        public virtual void Read(IBitReader reader)
         {
             var magic = reader.ReadUInt64();
             if (magic != Signature)
@@ -43,7 +43,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
             }
         }
 
-        internal virtual void Write(IBitWriter writer)
+        public virtual void Write(IBitWriter writer)
         {
             writer.WriteUInt64(Signature);
             writer.WriteBoolean(false);

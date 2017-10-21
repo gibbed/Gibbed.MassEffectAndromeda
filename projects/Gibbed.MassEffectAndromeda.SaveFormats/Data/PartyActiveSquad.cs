@@ -20,78 +20,63 @@
  *    distribution.
  */
 
+using System.Collections.Generic;
+using Gibbed.MassEffectAndromeda.FileFormats;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Gibbed.MassEffectAndromeda.SaveFormats.Entities
+namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class RawEntity : INotifyPropertyChanged
+    public class PartyActiveSquad : INotifyPropertyChanged
     {
         #region Fields
-        private uint _Id;
-        private int _Data0Length;
-        private byte[] _Data0Bytes;
-        private int _Data1Length;
-        private byte[] _Data1Bytes;
+        private readonly List<PartyActiveSquadMember> _Members;
         #endregion
+
+        public PartyActiveSquad()
+        {
+            this._Members = new List<PartyActiveSquadMember>();
+        }
 
         #region Properties
-        [JsonProperty("id")]
-        public uint Id
+        [JsonProperty("members")]
+        public List<PartyActiveSquadMember> Members
         {
-            get { return this._Id; }
-            set
-            {
-                this._Id = value;
-                this.NotifyPropertyChanged("Id");
-            }
-        }
-
-        [JsonProperty("data_0_length")]
-        public int Data0Length
-        {
-            get { return this._Data0Length; }
-            set
-            {
-                this._Data0Length = value;
-                this.NotifyPropertyChanged("Data0Length");
-            }
-        }
-
-        [JsonProperty("data_0_bytes")]
-        public byte[] Data0Bytes
-        {
-            get { return this._Data0Bytes; }
-            set
-            {
-                this._Data0Bytes = value;
-                this.NotifyPropertyChanged("Data0Bytes");
-            }
-        }
-
-        [JsonProperty("data_1_length")]
-        public int Data1Length
-        {
-            get { return this._Data1Length; }
-            set
-            {
-                this._Data1Length = value;
-                this.NotifyPropertyChanged("Data1Length");
-            }
-        }
-
-        [JsonProperty("data_1_bytes")]
-        public byte[] Data1Bytes
-        {
-            get { return this._Data1Bytes; }
-            set
-            {
-                this._Data1Bytes = value;
-                this.NotifyPropertyChanged("Data1Bytes");
-            }
+            get { return this._Members; }
         }
         #endregion
+
+        internal void Read(IBitReader reader)
+        {
+            var version = reader.ReadUInt32();
+            if (version > 4)
+            {
+                throw new SaveFormatException("unsupported version");
+            }
+
+            this._Members.Clear();
+            if (version >= 2)
+            {
+                var memberCount = reader.ReadUInt16();
+                for (int i = 0; i < memberCount; i++)
+                {
+                    var member = new PartyActiveSquadMember();
+                    member.Read(reader);
+                    this._Members.Add(member);
+                }
+            }
+        }
+
+        internal void Write(IBitWriter writer)
+        {
+            writer.WriteUInt32(4);
+            writer.WriteUInt16((ushort)this._Members.Count);
+            foreach (var member in this._Members)
+            {
+                member.Write(writer);
+            }
+        }
 
         #region INotifyPropertyChanged Members
         public event PropertyChangedEventHandler PropertyChanged;

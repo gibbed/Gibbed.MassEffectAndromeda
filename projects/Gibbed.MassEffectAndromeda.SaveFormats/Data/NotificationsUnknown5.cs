@@ -22,9 +22,11 @@
 
 using System;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class NotificationsUnknown5
     {
         internal void Read(IBitReader reader, ushort version)

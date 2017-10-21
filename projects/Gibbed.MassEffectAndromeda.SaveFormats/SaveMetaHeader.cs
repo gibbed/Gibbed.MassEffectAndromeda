@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Gibbed.IO;
+using Newtonsoft.Json;
 using DJB = Gibbed.Frostbite3.Common.Hashing.DJB;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
@@ -50,6 +51,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
         }
 
         #region Properties
+        [JsonProperty("values")]
         public List<KeyValuePair<uint, string>> Values
         {
             get { return this._Values; }

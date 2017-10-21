@@ -22,9 +22,11 @@
 
 using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 {
+    [JsonObject(MemberSerialization.OptIn)]
     [Agent(_AgentName)]
     public class PartyManagerAgent : Agent, INotifyPropertyChanged
     {
@@ -37,19 +39,21 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 
         #region Fields
         private uint _Unknown1;
-        private uint _Unknown2;
-        private bool _Unknown3;
-        private readonly Data.PartyUnknown0 _Unknown4;
-        private readonly Data.PartyUnknown2 _Unknown5;
+        private uint _NextItemId;
+        private bool _HasActiveSquad;
+        private readonly Data.PartyActiveSquad _ActiveSquad;
+        private readonly Data.PartySquad _Squad;
         #endregion
 
         public PartyManagerAgent()
+            : base(4)
         {
-            this._Unknown4 = new Data.PartyUnknown0();
-            this._Unknown5 = new Data.PartyUnknown2();
+            this._ActiveSquad = new Data.PartyActiveSquad();
+            this._Squad = new Data.PartySquad();
         }
 
         #region Properties
+        [JsonProperty("unknown1")]
         public uint Unknown1
         {
             get { return this._Unknown1; }
@@ -60,34 +64,38 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             }
         }
 
-        public uint Unknown2
+        [JsonProperty("next_item_id")]
+        public uint NextItemId
         {
-            get { return this._Unknown2; }
+            get { return this._NextItemId; }
             set
             {
-                this._Unknown2 = value;
-                this.NotifyPropertyChanged("Unknown2");
+                this._NextItemId = value;
+                this.NotifyPropertyChanged("NextItemId");
             }
         }
 
-        public bool Unknown3
+        [JsonProperty("has_active_squad")]
+        public bool HasActiveSquad
         {
-            get { return this._Unknown3; }
+            get { return this._HasActiveSquad; }
             set
             {
-                this._Unknown3 = value;
-                this.NotifyPropertyChanged("Unknown3");
+                this._HasActiveSquad = value;
+                this.NotifyPropertyChanged("HasActiveSquad");
             }
         }
 
-        public Data.PartyUnknown0 Unknown4
+        [JsonProperty("active_squad")]
+        public Data.PartyActiveSquad ActiveSquad
         {
-            get { return this._Unknown4; }
+            get { return this._ActiveSquad; }
         }
 
-        public Data.PartyUnknown2 Unknown5
+        [JsonProperty("squad")]
+        public Data.PartySquad Squad
         {
-            get { return this._Unknown5; }
+            get { return this._Squad; }
         }
         #endregion
 
@@ -117,12 +125,12 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             reader.PushFrameLength(24);
             if (arg1 >= 2)
             {
-                this._Unknown2 = reader.ReadUInt32();
+                this._NextItemId = reader.ReadUInt32();
             }
-            this._Unknown3 = arg1 < 3 || reader.ReadBoolean();
-            if (this._Unknown3 == true)
+            this._HasActiveSquad = arg1 < 3 || reader.ReadBoolean();
+            if (this._HasActiveSquad == true)
             {
-                this._Unknown4.Read(reader);
+                this._ActiveSquad.Read(reader);
             }
             reader.PopFrameLength();
         }
@@ -133,15 +141,15 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             writer.PushFrameLength(24);
             if (arg1 >= 2)
             {
-                writer.WriteUInt32(this._Unknown2);
+                writer.WriteUInt32(this._NextItemId);
             }
             if (arg1 >= 3)
             {
-                writer.WriteBoolean(this._Unknown3);
+                writer.WriteBoolean(this._HasActiveSquad);
             }
-            if (arg1 < 3 || this._Unknown3 == true)
+            if (arg1 < 3 || this._HasActiveSquad == true)
             {
-                this._Unknown4.Write(writer);
+                this._ActiveSquad.Write(writer);
             }
             writer.PopFrameLength();
         }
@@ -152,7 +160,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             var length = reader.PushFrameLength(24);
             if (length > 0)
             {
-                this._Unknown5.Read(reader);
+                this._Squad.Read(reader);
             }
             reader.PopFrameLength();
         }
@@ -161,7 +169,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         {
             base.Write4(writer);
             writer.PushFrameLength(24);
-            this._Unknown5.Write(writer);
+            this._Squad.Write(writer);
             writer.PopFrameLength();
         }
 

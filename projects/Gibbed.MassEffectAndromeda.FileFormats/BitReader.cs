@@ -654,7 +654,7 @@ namespace Gibbed.MassEffectAndromeda.FileFormats
 
         public Vector3 ReadVector3()
         {
-            Vector3 instance;
+            var instance = new Vector3();
             instance.X = this.ReadFloat32();
             instance.Y = this.ReadFloat32();
             instance.Z = this.ReadFloat32();
@@ -663,7 +663,7 @@ namespace Gibbed.MassEffectAndromeda.FileFormats
 
         public Vector4 ReadVector4()
         {
-            Vector4 instance;
+            var instance = new Vector4();
             instance.X = this.ReadFloat32();
             instance.Y = this.ReadFloat32();
             instance.Z = this.ReadFloat32();
@@ -673,7 +673,7 @@ namespace Gibbed.MassEffectAndromeda.FileFormats
 
         public Transform ReadTransform()
         {
-            Transform instance;
+            var instance = new Transform();
             instance.Right = this.ReadVector3();
             instance.Up = this.ReadVector3();
             instance.Forward = this.ReadVector3();

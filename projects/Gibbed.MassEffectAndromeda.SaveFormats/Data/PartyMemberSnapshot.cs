@@ -23,24 +23,85 @@
 using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
-    public class PartyProgressionSnapshot
+    [JsonObject(MemberSerialization.OptIn)]
+    public class PartyMemberSnapshot
     {
+        #region Fields
         private int _Level;
         private int _SkillPointCount;
-        private int _LowestPuchasableSkillCost;
+        private int _LowestPurchasableSkillCost;
         private int _SkillPointPerLevel;
         private int _CharacterId;
         private int _MaximumShields;
         private int _MaximumHealth;
-        private List<PartyMemberActiveSkill> _ActiveSkills;
+        private readonly List<PartyMemberActiveSkill> _ActiveSkills;
+        #endregion
 
-        public PartyProgressionSnapshot()
+        public PartyMemberSnapshot()
         {
             this._ActiveSkills = new List<PartyMemberActiveSkill>();
         }
+
+        #region Properties
+        [JsonProperty("level")]
+        public int Level
+        {
+            get { return this._Level; }
+            set { this._Level = value; }
+        }
+
+        [JsonProperty("skill_point_count")]
+        public int SkillPointCount
+        {
+            get { return this._SkillPointCount; }
+            set { this._SkillPointCount = value; }
+        }
+
+        [JsonProperty("lowest_purchasable_skill_cost")]
+        public int LowestPurchasableSkillCost
+        {
+            get { return this._LowestPurchasableSkillCost; }
+            set { this._LowestPurchasableSkillCost = value; }
+        }
+
+        [JsonProperty("skill_point_per_level")]
+        public int SkillPointPerLevel
+        {
+            get { return this._SkillPointPerLevel; }
+            set { this._SkillPointPerLevel = value; }
+        }
+
+        [JsonProperty("character_id")]
+        public int CharacterId
+        {
+            get { return this._CharacterId; }
+            set { this._CharacterId = value; }
+        }
+
+        [JsonProperty("maximum_shields")]
+        public int MaximumShields
+        {
+            get { return this._MaximumShields; }
+            set { this._MaximumShields = value; }
+        }
+
+        [JsonProperty("maximum_health")]
+        public int MaximumHealth
+        {
+            get { return this._MaximumHealth; }
+            set { this._MaximumHealth = value; }
+        }
+
+        [JsonProperty("active_skills")]
+        public List<PartyMemberActiveSkill> ActiveSkills
+        {
+            get { return this._ActiveSkills; }
+        }
+        #endregion
 
         internal void Read(IBitReader reader, uint version)
         {
@@ -50,7 +111,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
                 reader.PushFrameLength(24);
                 this._Level = reader.ReadInt32();
                 this._SkillPointCount = reader.ReadInt32();
-                this._LowestPuchasableSkillCost = reader.ReadInt32();
+                this._LowestPurchasableSkillCost = reader.ReadInt32();
                 this._SkillPointPerLevel = reader.ReadInt32();
                 this._CharacterId = reader.ReadInt32();
                 this._MaximumShields = reader.ReadInt32();
@@ -59,7 +120,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
                 for (int i = 0; i < activeSkillCount; i++)
                 {
                     reader.PushFrameLength(24);
-                    PartyMemberActiveSkill activeSkill;
+                    var activeSkill = new PartyMemberActiveSkill();
                     activeSkill.LineHash = reader.ReadInt32();
                     activeSkill.LineRank = reader.ReadInt32();
                     activeSkill.GroupHash = reader.ReadInt32();
@@ -77,36 +138,27 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
         }
 
-        internal void Write(IBitWriter writer, uint version)
+        internal void Write(IBitWriter writer)
         {
-            if (version >= 11)
+            writer.PushFrameLength(24);
+            writer.WriteInt32(this._Level);
+            writer.WriteInt32(this._SkillPointCount);
+            writer.WriteInt32(this._LowestPurchasableSkillCost);
+            writer.WriteInt32(this._SkillPointPerLevel);
+            writer.WriteInt32(this._CharacterId);
+            writer.WriteInt32(this._MaximumShields);
+            writer.WriteInt32(this._MaximumHealth);
+            writer.WriteUInt16((ushort)this._ActiveSkills.Count);
+            foreach (var activeSkill in this._ActiveSkills)
             {
                 writer.PushFrameLength(24);
-                writer.WriteInt32(this._Level);
-                writer.WriteInt32(this._SkillPointCount);
-                writer.WriteInt32(this._LowestPuchasableSkillCost);
-                writer.WriteInt32(this._SkillPointPerLevel);
-                writer.WriteInt32(this._CharacterId);
-                writer.WriteInt32(this._MaximumShields);
-                writer.WriteInt32(this._MaximumHealth);
-                writer.WriteUInt16((ushort)this._ActiveSkills.Count);
-                foreach (var activeSkill in this._ActiveSkills)
-                {
-                    writer.PushFrameLength(24);
-                    writer.WriteInt32(activeSkill.LineHash);
-                    writer.WriteInt32(activeSkill.LineRank);
-                    writer.WriteInt32(activeSkill.GroupHash);
-                    writer.WriteInt32(activeSkill.GroupTypeId);
-                    writer.PopFrameLength();
-                }
+                writer.WriteInt32(activeSkill.LineHash);
+                writer.WriteInt32(activeSkill.LineRank);
+                writer.WriteInt32(activeSkill.GroupHash);
+                writer.WriteInt32(activeSkill.GroupTypeId);
                 writer.PopFrameLength();
             }
-            else
-            {
-                writer.PushFrameLength(24);
-                throw new NotImplementedException();
-                writer.PopFrameLength();
-            }
+            writer.PopFrameLength();
         }
     }
 }

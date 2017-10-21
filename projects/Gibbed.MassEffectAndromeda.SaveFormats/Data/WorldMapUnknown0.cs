@@ -20,16 +20,33 @@
  *    distribution.
  */
 
-using System;
 using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class WorldMapUnknown0
     {
+        #region Fields
         private readonly byte[] _Unknown1;
         private readonly List<WorldMapUnknown1> _Unknown2;
+        #endregion
+
+        #region Properties
+        [JsonProperty("unknown1")]
+        public byte[] Unknown1
+        {
+            get { return this._Unknown1; }
+        }
+
+        [JsonProperty("unknown2")]
+        public List<WorldMapUnknown1> Unknown2
+        {
+            get { return this._Unknown2; }
+        }
+        #endregion
 
         public WorldMapUnknown0()
         {

@@ -12,6 +12,8 @@
     <AssemblyName>Gibbed.MassEffectAndromeda.SaveFormats</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -44,6 +50,7 @@
     <Compile Include="BitWriterHelpers.cs" />
     <Compile Include="Components\CraftingProgressionComponent.cs" />
     <Compile Include="Components\EquipmentComponent.cs" />
+    <Compile Include="Components\UnknownComponent.cs" />
     <Compile Include="Data\CodexListUnknown0.cs" />
     <Compile Include="Data\CodexListUnknown1.cs" />
     <Compile Include="Data\DestructionUnknown0.cs" />
@@ -56,10 +63,10 @@
     <Compile Include="Data\PartyMemberVehicleData.cs" />
     <Compile Include="Data\PartyMemberVehicleHealthData.cs" />
     <Compile Include="Components\InventoryComponent.cs" />
-    <Compile Include="Data\PartyMemberUnknown.cs" />
+    <Compile Include="Data\PartyMember.cs" />
     <Compile Include="Data\PartyMemberActiveSkill.cs" />
-    <Compile Include="Data\PartyUnknown3.cs" />
-    <Compile Include="Data\PartyProgressionSnapshot.cs" />
+    <Compile Include="Data\PartySquadUnknown3.cs" />
+    <Compile Include="Data\PartyMemberSnapshot.cs" />
     <Compile Include="BaseSaveData.cs" />
     <Compile Include="Components\ProgressionComponent.cs" />
     <Compile Include="Components\SoldierHealthComponent.cs" />
@@ -78,15 +85,16 @@
     <Compile Include="Data\NotificationsUnknown3.cs" />
     <Compile Include="Data\NotificationsUnknown4.cs" />
     <Compile Include="Data\NotificationsUnknown5.cs" />
-    <Compile Include="Data\PartyUnknown0.cs" />
-    <Compile Include="Data\PartyUnknown1.cs" />
-    <Compile Include="Data\PartyUnknown2.cs" />
-    <Compile Include="Data\PartyProgressionData.cs" />
+    <Compile Include="Data\PartyActiveSquad.cs" />
+    <Compile Include="Data\PartyActiveSquadMember.cs" />
+    <Compile Include="Data\PartySquad.cs" />
+    <Compile Include="Data\PartyMemberRawData.cs" />
     <Compile Include="Data\Plot.cs" />
-    <Compile Include="Data\ProgressionUnknown0.cs" />
-    <Compile Include="Data\ProgressionUnknown1.cs" />
-    <Compile Include="Data\ProgressionUnknown2.cs" />
-    <Compile Include="Data\ProgressionUnknown3.cs" />
+    <Compile Include="Data\Profile.cs" />
+    <Compile Include="Data\SkillGroup.cs" />
+    <Compile Include="Data\SkillLine.cs" />
+    <Compile Include="Data\Preset.cs" />
+    <Compile Include="Data\PresetPower.cs" />
     <Compile Include="Data\SaveDataUnknown0.cs" />
     <Compile Include="Data\WorldMapUnknown2.cs" />
     <Compile Include="Data\WorldMapUnknown0.cs" />
@@ -166,8 +174,17 @@
       <Name>Gibbed.MassEffectAndromeda.GameInfo</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -21,99 +21,109 @@
  */
 
 using Gibbed.MassEffectAndromeda.FileFormats;
+using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 {
     // ServerMESoldierHealthComponent
+    [JsonObject(MemberSerialization.OptIn)]
     public class SoldierHealthComponent
     {
         #region Fields
-        private uint _Unknown1;
+        private float _Health;
         private bool _Unknown2;
         private bool _Unknown3;
-        private uint _Unknown4;
+        private float _Shields;
         private uint _Unknown5;
         private uint _Unknown6;
         private uint _Unknown7;
-        private uint _Unknown8;
+        private float _Unknown8;
         private uint _Unknown9;
         private uint _Unknown10;
         private uint _Unknown11;
-        private uint _Unknown12;
+        private float _Unknown12;
         #endregion
 
-        public SoldierHealthComponent()
-        {
-        }
-
         #region Properties
-        public uint Unknown1
+        [JsonProperty("health")]
+        public float Health
         {
-            get { return this._Unknown1; }
-            set { this._Unknown1 = value; }
+            get { return this._Health; }
+            set { this._Health = value; }
         }
 
+        [JsonProperty("unknown2")]
         public bool Unknown2
         {
             get { return this._Unknown2; }
             set { this._Unknown2 = value; }
         }
 
+        [JsonProperty("unknown3")]
         public bool Unknown3
         {
             get { return this._Unknown3; }
             set { this._Unknown3 = value; }
         }
 
-        public uint Unknown4
+        [JsonProperty("shields")]
+        public float Shields
         {
-            get { return this._Unknown4; }
-            set { this._Unknown4 = value; }
+            get { return this._Shields; }
+            set { this._Shields = value; }
         }
 
+        [JsonProperty("unknown5")]
         public uint Unknown5
         {
             get { return this._Unknown5; }
             set { this._Unknown5 = value; }
         }
 
+        [JsonProperty("unknown6")]
         public uint Unknown6
         {
             get { return this._Unknown6; }
             set { this._Unknown6 = value; }
         }
 
+        [JsonProperty("unknown7")]
         public uint Unknown7
         {
             get { return this._Unknown7; }
             set { this._Unknown7 = value; }
         }
 
-        public uint Unknown8
+        [JsonProperty("unknown8")]
+        public float Unknown8
         {
             get { return this._Unknown8; }
             set { this._Unknown8 = value; }
         }
 
+        [JsonProperty("unknown9")]
         public uint Unknown9
         {
             get { return this._Unknown9; }
             set { this._Unknown9 = value; }
         }
 
+        [JsonProperty("unknown10")]
         public uint Unknown10
         {
             get { return this._Unknown10; }
             set { this._Unknown10 = value; }
         }
 
+        [JsonProperty("unknown11")]
         public uint Unknown11
         {
             get { return this._Unknown11; }
             set { this._Unknown11 = value; }
         }
 
-        public uint Unknown12
+        [JsonProperty("unknown12")]
+        public float Unknown12
         {
             get { return this._Unknown12; }
             set { this._Unknown12 = value; }
@@ -122,18 +132,34 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
 
         public void Read(IBitReader reader, int version)
         {
-            this._Unknown1 = reader.ReadUInt32();
+            this._Health = reader.ReadFloat32();
             this._Unknown2 = reader.ReadBoolean();
             this._Unknown3 = reader.ReadBoolean();
-            this._Unknown4 = reader.ReadUInt32();
+            this._Shields = reader.ReadFloat32();
             this._Unknown5 = reader.ReadUInt32();
             this._Unknown6 = reader.ReadUInt32();
             this._Unknown7 = reader.ReadUInt32();
-            this._Unknown8 = reader.ReadUInt32();
+            this._Unknown8 = reader.ReadFloat32();
             this._Unknown9 = reader.ReadUInt32();
             this._Unknown10 = reader.ReadUInt32();
             this._Unknown11 = reader.ReadUInt32();
-            this._Unknown12 = reader.ReadUInt32();
+            this._Unknown12 = reader.ReadFloat32();
+        }
+
+        public void Write(IBitWriter writer)
+        {
+            writer.WriteFloat32(this._Health);
+            writer.WriteBoolean(this._Unknown2);
+            writer.WriteBoolean(this._Unknown3);
+            writer.WriteFloat32(this._Shields);
+            writer.WriteUInt32(this._Unknown5);
+            writer.WriteUInt32(this._Unknown6);
+            writer.WriteUInt32(this._Unknown7);
+            writer.WriteFloat32(this._Unknown8);
+            writer.WriteUInt32(this._Unknown9);
+            writer.WriteUInt32(this._Unknown10);
+            writer.WriteUInt32(this._Unknown11);
+            writer.WriteFloat32(this._Unknown12);
         }
     }
 }
