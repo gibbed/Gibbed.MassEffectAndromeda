@@ -151,6 +151,8 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Squad
                     data.Inventory.Items.Clear();
                 }
 
+                data.Inventory.Items.AddRange(this._Inventory.RawItems);
+
                 foreach (var viewModel in this._Inventory.Items)
                 {
                     var bitWriter = new BitWriter(0x1000);
