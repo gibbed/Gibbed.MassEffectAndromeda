@@ -101,7 +101,7 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Core
                 }
 
                 var rawData = agent.Squad.MemberRawData[i];
-                if (rawData.DataBytes == null)
+                if (rawData.DataBytes == null || rawData.DataBytes.Length == 0)
                 {
                     continue;
                 }

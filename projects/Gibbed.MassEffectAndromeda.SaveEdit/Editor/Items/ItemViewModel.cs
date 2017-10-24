@@ -16,11 +16,6 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Items
             this._Item = item;
         }
 
-        private static string GetDisplayGroup(GameInfo.ItemType type)
-        {
-            return ItemTypeDisplayNames.Get(type) ?? "#" + type;
-        }
-
         #region Properties
         public GameInfo.ItemDefinition Definition
         {
@@ -48,96 +43,19 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Items
             }
         }
 
-        public string DisplayName
+        public virtual string DisplayName
         {
-            get
-            {
-                var name = string.IsNullOrEmpty(this._Item.Definition.Name)
-                               ? this._Item.PartitionName
-                               : this._Item.Definition.Name;
-
-                if (this.UsesTier == true)
-                {
-                    var tier = this._Item.Definition.Tier;
-                    if (tier >= 0)
-                    {
-                        switch (tier)
-                        {
-                            case 0:
-                            {
-                                name += " I";
-                                break;
-                            }
-
-                            case 1:
-                            {
-                                name += " II";
-                                break;
-                            }
-
-                            case 2:
-                            {
-                                name += " III";
-                                break;
-                            }
-
-                            case 3:
-                            {
-                                name += " IV";
-                                break;
-                            }
-
-                            case 4:
-                            {
-                                name += " V";
-                                break;
-                            }
-
-                            case 5:
-                            {
-                                name += " VI";
-                                break;
-                            }
-
-                            case 6:
-                            {
-                                name += " VII";
-                                break;
-                            }
-
-                            case 7:
-                            {
-                                name += " VIII";
-                                break;
-                            }
-
-                            case 8:
-                            {
-                                name += " IX";
-                                break;
-                            }
-
-                            case 9:
-                            {
-                                name += " X";
-                                break;
-                            }
-
-                            default:
-                            {
-                                name += " #" + tier;
-                                break;
-                            }
-                        }
-                    }
-                }
-                return name;
-            }
+            get { return this.GetDisplayName(); }
         }
 
         public string DisplayGroup
         {
             get { return GetDisplayGroup(this.Definition.Type); }
+        }
+
+        public int DisplayGroupOrder
+        {
+            get { return GetDisplayGroupOrder(this.Definition.Type); }
         }
 
         public uint Unknown1
@@ -185,5 +103,99 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Items
             }
         }
         #endregion
+
+        private static string GetDisplayGroup(GameInfo.ItemType type)
+        {
+            return type.GetDisplayName() ?? "#" + type;
+        }
+
+        private int GetDisplayGroupOrder(GameInfo.ItemType type)
+        {
+            return type.GetDisplayOrder();
+        }
+
+        private string GetDisplayName()
+        {
+            var name = string.IsNullOrEmpty(this._Item.Definition.Name)
+                           ? this._Item.PartitionName
+                           : this._Item.Definition.Name;
+
+            if (this.UsesTier == true)
+            {
+                var tier = this._Item.Definition.Tier;
+                if (tier >= 0)
+                {
+                    switch (tier)
+                    {
+                        case 0:
+                        {
+                            name += " I";
+                            break;
+                        }
+
+                        case 1:
+                        {
+                            name += " II";
+                            break;
+                        }
+
+                        case 2:
+                        {
+                            name += " III";
+                            break;
+                        }
+
+                        case 3:
+                        {
+                            name += " IV";
+                            break;
+                        }
+
+                        case 4:
+                        {
+                            name += " V";
+                            break;
+                        }
+
+                        case 5:
+                        {
+                            name += " VI";
+                            break;
+                        }
+
+                        case 6:
+                        {
+                            name += " VII";
+                            break;
+                        }
+
+                        case 7:
+                        {
+                            name += " VIII";
+                            break;
+                        }
+
+                        case 8:
+                        {
+                            name += " IX";
+                            break;
+                        }
+
+                        case 9:
+                        {
+                            name += " X";
+                            break;
+                        }
+
+                        default:
+                        {
+                            name += " #" + tier;
+                            break;
+                        }
+                    }
+                }
+            }
+            return name;
+        }
     }
 }

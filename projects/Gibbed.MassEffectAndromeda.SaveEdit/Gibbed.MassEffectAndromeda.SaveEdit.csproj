@@ -185,7 +185,8 @@
     <Compile Include="Helpers\EnumToBooleanConverter.cs" />
     <Compile Include="Helpers\HyperlinkExtensions.cs" />
     <Compile Include="Helpers\InputBindingTrigger.cs" />
-    <Compile Include="Helpers\ItemTypeDisplayNames.cs" />
+    <Compile Include="Helpers\ItemTypeHelpers.cs" />
+    <Compile Include="Helpers\ItemTypeOrder.cs" />
     <Compile Include="Helpers\MyFileFilterCollection.cs" />
     <Compile Include="Helpers\MyMessageBox.cs" />
     <Compile Include="Helpers\ShortcutParser.cs" />

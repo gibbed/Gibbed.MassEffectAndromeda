@@ -38,6 +38,16 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Items
         }
 
         #region Properties
+        public override string DisplayName
+        {
+            get
+            {
+                return string.IsNullOrEmpty(this.CustomName) == false
+                           ? this.CustomName + " (" + base.DisplayName + ")"
+                           : base.DisplayName;
+            }
+        }
+
         public bool Unknown4
         {
             get { return this._Item.Unknown4; }
@@ -65,6 +75,7 @@ namespace Gibbed.MassEffectAndromeda.SaveEdit.Items
             {
                 this._Item.CustomName = value;
                 this.NotifyOfPropertyChange(() => this.CustomName);
+                this.NotifyOfPropertyChange(() => this.DisplayName);
             }
         }
         #endregion

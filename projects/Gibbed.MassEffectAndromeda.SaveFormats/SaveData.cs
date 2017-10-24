@@ -521,11 +521,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
                 throw new NotImplementedException();
             }
 
-            var unknown21Count = reader.ReadUInt16();
+            var unknown12Count = reader.ReadUInt16();
             this._Unknown12.Clear();
-            for (int i = 0; i < unknown21Count; i++)
+            for (int i = 0; i < unknown12Count; i++)
             {
-                this._Unknown12[i] = reader.ReadUInt32();
+                this._Unknown12.Add(reader.ReadUInt32());
             }
 
             reader.PopFrameLength();
