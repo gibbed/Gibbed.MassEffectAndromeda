@@ -39,9 +39,9 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         }
 
         #region Fields
-        private readonly byte[] _Unknown1;
-        private readonly byte[] _Unknown2;
-        private readonly List<Unknown3Data> _Unknown3;
+        private Guid _Unknown1;
+        private Guid _Unknown2;
+        private readonly List<SliderData> _SliderValues;
         private uint _HeadTextureId;
         private byte _Unknown4;
         private readonly List<uint> _Unknown5;
@@ -51,20 +51,18 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         #endregion
 
         [JsonObject(MemberSerialization.OptIn)]
-        public struct Unknown3Data
+        public struct SliderData
         {
-            [JsonProperty("unknown1")]
-            public Guid Unknown1 { get; set; }
+            [JsonProperty("guid")]
+            public Guid Guid { get; set; }
 
-            [JsonProperty("unknown2")]
-            public uint Unknown2 { get; set; }
+            [JsonProperty("value")]
+            public float Value { get; set; }
         }
 
         public CustomizedHeadMorphParameter()
         {
-            this._Unknown1 = new byte[16];
-            this._Unknown2 = new byte[16];
-            this._Unknown3 = new List<Unknown3Data>();
+            this._SliderValues = new List<SliderData>();
             this._Unknown5 = new List<uint>();
             this._Unknown6 = new List<uint>();
             this._Unknown7 = new List<Vector3>();
@@ -73,21 +71,23 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
 
         #region Properties
         [JsonProperty("unknown1")]
-        public byte[] Unknown1
+        public Guid Unknown1
         {
             get { return this._Unknown1; }
+            set { this._Unknown1 = value; }
         }
 
         [JsonProperty("unknown2")]
-        public byte[] Unknown2
+        public Guid Unknown2
         {
             get { return this._Unknown2; }
+            set { this._Unknown2 = value; }
         }
 
-        [JsonProperty("unknown3")]
-        public List<Unknown3Data> Unknown3
+        [JsonProperty("slider_values")]
+        public List<SliderData> SliderValues
         {
-            get { return this._Unknown3; }
+            get { return this._SliderValues; }
         }
 
         [JsonProperty("head_texture_id")]
@@ -133,27 +133,27 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         {
             base.Read(reader, version);
 
-            reader.ReadBytes(this._Unknown1);
-            reader.ReadBytes(this._Unknown2);
+            this._Unknown1 = reader.ReadGuid();
+            this._Unknown2 = reader.ReadGuid();
 
-            var unknown3Count = reader.ReadUInt32();
-            var unknown3Guids = new Guid[unknown3Count];
-            for (uint i = 0; i < unknown3Count; i++)
+            var sliderCount = reader.ReadUInt32();
+            var sliderGuids = new Guid[sliderCount];
+            for (uint i = 0; i < sliderCount; i++)
             {
-                unknown3Guids[i] = reader.ReadGuid();
+                sliderGuids[i] = reader.ReadGuid();
             }
-            var unknown3Values = new uint[unknown3Count];
-            for (uint i = 0; i < unknown3Count; i++)
+            var sliderValues = new float[sliderCount];
+            for (uint i = 0; i < sliderCount; i++)
             {
-                unknown3Values[i] = reader.ReadUInt32();
+                sliderValues[i] = reader.ReadFloat32();
             }
-            this._Unknown3.Clear();
-            for (uint i = 0; i < unknown3Count; i++)
+            this._SliderValues.Clear();
+            for (uint i = 0; i < sliderCount; i++)
             {
-                var instance = new Unknown3Data();
-                instance.Unknown1 = unknown3Guids[i];
-                instance.Unknown2 = unknown3Values[i];
-                this._Unknown3.Add(instance);
+                var instance = new SliderData();
+                instance.Guid = sliderGuids[i];
+                instance.Value = sliderValues[i];
+                this._SliderValues.Add(instance);
             }
 
             this._Unknown4 = reader.ReadUInt8();
@@ -192,17 +192,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         {
             base.Write(writer, version);
 
-            writer.WriteBytes(this._Unknown1);
-            writer.WriteBytes(this._Unknown2);
+            writer.WriteGuid(this._Unknown1);
+            writer.WriteGuid(this._Unknown2);
 
-            writer.WriteUInt32((uint)this._Unknown3.Count);
-            foreach (var instance in this._Unknown3)
+            writer.WriteUInt32((uint)this._SliderValues.Count);
+            foreach (var instance in this._SliderValues)
             {
-                writer.WriteGuid(instance.Unknown1);
+                writer.WriteGuid(instance.Guid);
             }
-            foreach (var instance in this._Unknown3)
+            foreach (var instance in this._SliderValues)
             {
-                writer.WriteUInt32(instance.Unknown2);
+                writer.WriteFloat32(instance.Value);
             }
             
             writer.WriteUInt8(this._Unknown4);

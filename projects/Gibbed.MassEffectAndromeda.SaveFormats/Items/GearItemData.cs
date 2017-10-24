@@ -47,7 +47,11 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
         public bool Unknown4
         {
             get { return this._Unknown4; }
-            set { this._Unknown4 = value; }
+            set
+            {
+                this._Unknown4 = value;
+                this.NotifyPropertyChanged("Unknown4");
+            }
         }
 
         [JsonProperty("mods")]
@@ -66,11 +70,15 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
         public string CustomName
         {
             get { return this._CustomName; }
-            set { this._CustomName = value; }
+            set
+            {
+                this._CustomName = value;
+                this.NotifyPropertyChanged("CustomName");
+            }
         }
         #endregion
 
-        public override void Read(IBitReader reader, int version)
+        public override void Read(IBitReader reader, ushort version)
         {
             this._Unknown4 = reader.ReadBoolean();
 
@@ -83,7 +91,9 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
                     var modId = reader.ReadUInt32();
                     if (modId != 0)
                     {
+                        reader.PushFrameLength(24);
                         var modItem = Components.InventoryComponent.ReadItemData(reader, version);
+                        reader.PopFrameLength();
                         this._Mods.Add(new KeyValuePair<uint, ItemData>(modId, modItem));
                     }
                 }
@@ -104,7 +114,60 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
             }
 
             this._CustomName = reader.ReadString();
+
             base.Read(reader, version);
+        }
+
+        public override void Write(IBitWriter writer)
+        {
+            writer.WriteBoolean(this._Unknown4);
+
+            writer.WriteUInt16((ushort)Math.Min(5, this._Mods.Count));
+            foreach (var kv in this._Mods)
+            {
+                writer.PushFrameLength(24);
+                writer.WriteUInt32(kv.Key);
+                if (kv.Key != 0)
+                {
+                    writer.PushFrameLength(24);
+                    Components.InventoryComponent.WriteItemData(writer, kv.Value);
+                    writer.PopFrameLength();
+                }
+                writer.PopFrameLength();
+            }
+
+            writer.WriteUInt16((ushort)this._AugmentationItemHashes.Count);
+            foreach (var augmentationItemHash in this._AugmentationItemHashes)
+            {
+                writer.PushFrameLength(24);
+                writer.WriteUInt32(augmentationItemHash);
+                writer.PopFrameLength();
+            }
+
+            writer.WriteString(this._CustomName);
+
+            base.Write(writer);
+        }
+
+        public override object Clone()
+        {
+            var instance = new GearItemData()
+            {
+                Unknown1 = this.Unknown1,
+                PartitionName = this.PartitionName,
+                Definition = this.Definition,
+                Quantity = this.Quantity,
+                IsNew = this.IsNew,
+                Rarity = this.Rarity,
+                Unknown4 = this.Unknown4,
+                CustomName = this.CustomName,
+            };
+            foreach (var kv in this._Mods)
+            {
+                instance.Mods.Add(new KeyValuePair<uint, ItemData>(kv.Key, (ItemData)kv.Value.Clone()));
+            }
+            instance.AugmentationItemHashes.AddRange(this.AugmentationItemHashes);
+            return instance;
         }
     }
 }

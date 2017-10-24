@@ -22,13 +22,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class PartyMemberSnapshot
+    public class PartyMemberSnapshot : INotifyPropertyChanged
     {
         #region Fields
         private int _Level;
@@ -51,49 +52,77 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         public int Level
         {
             get { return this._Level; }
-            set { this._Level = value; }
+            set
+            {
+                this._Level = value;
+                this.NotifyPropertyChanged("Level");
+            }
         }
 
         [JsonProperty("skill_point_count")]
         public int SkillPointCount
         {
             get { return this._SkillPointCount; }
-            set { this._SkillPointCount = value; }
+            set
+            {
+                this._SkillPointCount = value;
+                this.NotifyPropertyChanged("SkillPointCount");
+            }
         }
 
         [JsonProperty("lowest_purchasable_skill_cost")]
         public int LowestPurchasableSkillCost
         {
             get { return this._LowestPurchasableSkillCost; }
-            set { this._LowestPurchasableSkillCost = value; }
+            set
+            {
+                this._LowestPurchasableSkillCost = value;
+                this.NotifyPropertyChanged("LowestPurchasableSkillCost");
+            }
         }
 
         [JsonProperty("skill_point_per_level")]
         public int SkillPointPerLevel
         {
             get { return this._SkillPointPerLevel; }
-            set { this._SkillPointPerLevel = value; }
+            set
+            {
+                this._SkillPointPerLevel = value;
+                this.NotifyPropertyChanged("SkillPointPerLevel");
+            }
         }
 
         [JsonProperty("character_id")]
         public int CharacterId
         {
             get { return this._CharacterId; }
-            set { this._CharacterId = value; }
+            set
+            {
+                this._CharacterId = value;
+                this.NotifyPropertyChanged("CharacterId");
+            }
         }
 
         [JsonProperty("maximum_shields")]
         public int MaximumShields
         {
             get { return this._MaximumShields; }
-            set { this._MaximumShields = value; }
+            set
+            {
+                this._MaximumShields = value;
+                this.NotifyPropertyChanged("MaximumShields");
+            }
         }
 
         [JsonProperty("maximum_health")]
         public int MaximumHealth
         {
             get { return this._MaximumHealth; }
-            set { this._MaximumHealth = value; }
+            set
+            {
+                this._MaximumHealth = value;
+                this.NotifyPropertyChanged("MaximumHealth");
+            }
         }
 
         [JsonProperty("active_skills")]
@@ -160,5 +189,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
             writer.PopFrameLength();
         }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

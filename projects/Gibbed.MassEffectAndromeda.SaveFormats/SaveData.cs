@@ -29,6 +29,7 @@ using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class SaveData : BaseSaveData, INotifyPropertyChanged
     {
         #region Fields

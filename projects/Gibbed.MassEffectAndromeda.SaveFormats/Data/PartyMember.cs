@@ -20,13 +20,14 @@
  *    distribution.
  */
 
+using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class PartyMember : BaseSaveData
+    public class PartyMember : BaseSaveData, INotifyPropertyChanged
     {
         #region Fields
         private readonly bool _ExcludePresets;
@@ -60,42 +61,66 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         public Components.UnknownComponent Unknown
         {
             get { return this._Unknown; }
-            set { this._Unknown = value; }
+            set
+            {
+                this._Unknown = value;
+                this.NotifyPropertyChanged("Unknown");
+            }
         }
 
         [JsonProperty("inventory")]
         public Components.InventoryComponent Inventory
         {
             get { return this._Inventory; }
-            set { this._Inventory = value; }
+            set
+            {
+                this._Inventory = value;
+                this.NotifyPropertyChanged("Inventory");
+            }
         }
 
         [JsonProperty("equipment")]
         public Components.EquipmentComponent Equipment
         {
             get { return this._Equipment; }
-            set { this._Equipment = value; }
+            set
+            {
+                this._Equipment = value;
+                this.NotifyPropertyChanged("Equipment");
+            }
         }
 
         [JsonProperty("progression")]
         public Components.ProgressionComponent Progression
         {
             get { return this._Progression; }
-            set { this._Progression = value; }
+            set
+            {
+                this._Progression = value;
+                this.NotifyPropertyChanged("Progression");
+            }
         }
 
         [JsonProperty("crafting_progression")]
         public Components.CraftingProgressionComponent CraftingProgression
         {
             get { return this._CraftingProgression; }
-            set { this._CraftingProgression = value; }
+            set
+            {
+                this._CraftingProgression = value;
+                this.NotifyPropertyChanged("CraftingProgression");
+            }
         }
 
         [JsonProperty("soldier_health")]
         public Components.SoldierHealthComponent SoldierHealth
         {
             get { return this._SoldierHealth; }
-            set { this._SoldierHealth = value; }
+            set
+            {
+                this._SoldierHealth = value;
+                this.NotifyPropertyChanged("SoldierHealth");
+            }
         }
         #endregion
 
@@ -253,5 +278,17 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
             }
             writer.PopFrameLength();
         }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
     }
 }

@@ -27,6 +27,7 @@ using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class ComponentContainerAgent<TType, TAttribute> : IComponentContainerAgent
         where TType : class, IComponent
         where TAttribute : Attribute, IGameTypeAttribute
@@ -42,6 +43,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
         {
         }
 
+        [JsonObject(MemberSerialization.OptIn)]
         public class ComponentContainer
         {
             #region Fields

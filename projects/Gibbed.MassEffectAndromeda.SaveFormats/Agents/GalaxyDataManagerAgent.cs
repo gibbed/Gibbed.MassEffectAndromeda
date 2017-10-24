@@ -39,8 +39,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Fields
-        private Guid _Unknown1;
-        private Guid _Unknown2;
+        private Guid _CurrentSystem;
+        private Guid _CurrentDestination;
         private readonly Data.GalaxyDataUnknown0 _Unknown3;
         private readonly Data.GalaxyDataUnknown0 _Unknown4;
         #endregion
@@ -53,18 +53,18 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
         }
 
         #region Properties
-        [JsonProperty("unknown1")]
-        public Guid Unknown1
+        [JsonProperty("current_system")]
+        public Guid CurrentSystem
         {
-            get { return this._Unknown1; }
-            set { this._Unknown1 = value; }
+            get { return this._CurrentSystem; }
+            set { this._CurrentSystem = value; }
         }
 
-        [JsonProperty("unknown2")]
-        public Guid Unknown2
+        [JsonProperty("current_destination")]
+        public Guid CurrentDestination
         {
-            get { return this._Unknown2; }
-            set { this._Unknown2 = value; }
+            get { return this._CurrentDestination; }
+            set { this._CurrentDestination = value; }
         }
 
         [JsonProperty("unknown3")]
@@ -89,8 +89,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
             if (this.ReadVersion >= 2)
             {
                 reader.PushFrameLength(24);
-                this._Unknown1 = reader.ReadGuid();
-                this._Unknown2 = reader.ReadGuid();
+                this._CurrentSystem = reader.ReadGuid();
+                this._CurrentDestination = reader.ReadGuid();
                 reader.PopFrameLength();
             }
 
@@ -106,8 +106,8 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Agents
 
             writer.PushFrameLength(24);
                 writer.PushFrameLength(24);
-                writer.WriteGuid(this._Unknown1);
-                writer.WriteGuid(this._Unknown2);
+                writer.WriteGuid(this._CurrentSystem);
+                writer.WriteGuid(this._CurrentDestination);
                 writer.PopFrameLength();
             this._Unknown3.Write(writer);
             this._Unknown4.Write(writer);

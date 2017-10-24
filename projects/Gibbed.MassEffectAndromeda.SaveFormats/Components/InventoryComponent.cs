@@ -37,6 +37,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
     {
         #region Fields
         private readonly List<RawItemData> _Items;
+        private ushort _ReadVersion;
         #endregion
 
         public InventoryComponent()
@@ -50,10 +51,16 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
         {
             get { return this._Items; }
         }
+
+        public ushort ReadVersion
+        {
+            get { return this._ReadVersion; }
+        }
         #endregion
 
         public void Read(IBitReader reader, ushort version)
         {
+            this._ReadVersion = version;
             var count = reader.ReadUInt16();
             for (int i = 0; i < count; i++)
             {
@@ -87,7 +94,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
             public byte[] DataBytes;
         }
 
-        public static ItemData ReadItemData(IBitReader reader, int version)
+        public static ItemData ReadItemData(IBitReader reader, ushort version)
         {
             if (version < 6)
             {
@@ -101,14 +108,22 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Components
             partitionName = partitionName.ToLowerInvariant();
             if (InfoManager.Items.TryGetValue(partitionName, out itemDefinition) == false)
             {
-                return null;
+                throw new NotSupportedException();
             }
 
             var itemData = ItemDataFactory.Create(itemDefinition.Type);
             itemData.Unknown1 = unknown1;
             itemData.PartitionName = partitionName;
+            itemData.Definition = itemDefinition;
             itemData.Read(reader, version);
             return itemData;
+        }
+
+        public static void WriteItemData(IBitWriter writer, ItemData itemData)
+        {
+            writer.WriteUInt32(itemData.Unknown1);
+            writer.WriteString(itemData.PartitionName);
+            itemData.Write(writer);
         }
     }
 }

@@ -108,6 +108,7 @@
     <Compile Include="Items\GearItemData.cs" />
     <Compile Include="Items\ItemData.cs" />
     <Compile Include="Items\ItemDataFactory.cs" />
+    <Compile Include="Items\ItemRarity.cs" />
     <Compile Include="Items\PowerItemData.cs" />
     <Compile Include="Items\RangedWeaponItemData.cs" />
     <Compile Include="Agent.cs" />

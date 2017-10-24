@@ -30,7 +30,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
     public class EventTrackerUnknown1
     {
         #region Fields
-        private uint _Unknown1;
+        private float _Unknown1;
         private uint _Unknown2;
         private readonly List<EventTrackerUnknown2> _Unknown3;
         private readonly List<EventTrackerUnknown2> _Unknown4;
@@ -44,7 +44,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 
         #region Properties
         [JsonProperty("unknown1")]
-        public uint Unknown1
+        public float Unknown1
         {
             get { return this._Unknown1; }
             set { this._Unknown1 = value; }
@@ -73,7 +73,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         internal void Read(IBitReader reader)
         {
             reader.PushFrameLength(24);
-            this._Unknown1 = reader.ReadUInt32();
+            this._Unknown1 = reader.ReadFloat32();
             this._Unknown2 = reader.ReadUInt32();
             this._Unknown3.Clear();
             var unknown3Count = reader.ReadUInt16();
@@ -97,7 +97,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         internal void Write(IBitWriter writer)
         {
             writer.PushFrameLength(24);
-            writer.WriteUInt32(this._Unknown1);
+            writer.WriteFloat32(this._Unknown1);
             writer.WriteUInt32(this._Unknown2);
             writer.WriteUInt16((ushort)this._Unknown3.Count);
             foreach (var unknown3 in this._Unknown3)

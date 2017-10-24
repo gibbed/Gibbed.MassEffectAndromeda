@@ -20,6 +20,7 @@
  *    distribution.
  */
 
+using System;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
@@ -37,52 +38,48 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.CustomizedParameters
         }
 
         #region Fields
-        private readonly byte[] _Unknown1;
-        private uint _Unknown2;
-        private uint _Unknown3;
+        private Guid _Unknown;
+        private uint _HeadId;
+        private uint _HairstyleIndex;
         #endregion
 
-        public CustomizedHairParameter()
-        {
-            this._Unknown1 = new byte[16];
-        }
-
         #region Properties
-        [JsonProperty("unknown1")]
-        public byte[] Unknown1
+        [JsonProperty("unknown")]
+        public Guid Unknown
         {
-            get { return this._Unknown1; }
+            get { return this._Unknown; }
+            set { this._Unknown = value; }
         }
 
-        [JsonProperty("unknown2")]
-        public uint Unknown2
+        [JsonProperty("head_id")]
+        public uint HeadId
         {
-            get { return this._Unknown2; }
-            set { this._Unknown2 = value; }
+            get { return this._HeadId; }
+            set { this._HeadId = value; }
         }
 
-        [JsonProperty("unknown3")]
-        public uint Unknown3
+        [JsonProperty("hairstyle_index")]
+        public uint HairstyleIndex
         {
-            get { return this._Unknown3; }
-            set { this._Unknown3 = value; }
+            get { return this._HairstyleIndex; }
+            set { this._HairstyleIndex = value; }
         }
         #endregion
 
         public override void Read(IBitReader reader, ushort version)
         {
             base.Read(reader, version);
-            reader.ReadBytes(this._Unknown1);
-            this._Unknown2 = reader.ReadUInt32();
-            this._Unknown3 = reader.ReadUInt32();
+            this._Unknown = reader.ReadGuid();
+            this._HeadId = reader.ReadUInt32();
+            this._HairstyleIndex = reader.ReadUInt32();
         }
 
         public override void Write(IBitWriter writer, ushort version)
         {
             base.Write(writer, version);
-            writer.WriteBytes(this._Unknown1);
-            writer.WriteUInt32(this._Unknown2);
-            writer.WriteUInt32(this._Unknown3);
+            writer.WriteGuid(this._Unknown);
+            writer.WriteUInt32(this._HeadId);
+            writer.WriteUInt32(this._HairstyleIndex);
         }
     }
 }

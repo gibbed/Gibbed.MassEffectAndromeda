@@ -20,20 +20,23 @@
  *    distribution.
  */
 
+using System;
+using System.ComponentModel;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
 {
-    public class ItemData
+    public class ItemData : INotifyPropertyChanged, ICloneable
     {
         #region Fields
         private uint _Unknown1;
         private string _PartitionName;
+        private GameInfo.ItemDefinition _Definition;
 
         private int _Quantity;
-        private bool _Unknown2;
-        private int _Unknown3;
+        private bool _IsNew;
+        private int _Rarity;
         #endregion
 
         #region Properties
@@ -41,48 +44,110 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Items
         public uint Unknown1
         {
             get { return this._Unknown1; }
-            set { this._Unknown1 = value; }
+            set
+            {
+                this._Unknown1 = value;
+                this.NotifyPropertyChanged("Unknown1");
+            }
         }
 
         [JsonProperty("partition_name")]
         public string PartitionName
         {
             get { return this._PartitionName; }
-            set { this._PartitionName = value; }
+            set
+            {
+                this._PartitionName = value;
+                this.NotifyPropertyChanged("PartitionName");
+            }
+        }
+
+        public GameInfo.ItemDefinition Definition
+        {
+            get { return this._Definition; }
+            internal set
+            {
+                this._Definition = value;
+                this.NotifyPropertyChanged("Definition");
+            }
         }
 
         [JsonProperty("quantity")]
         public int Quantity
         {
             get { return this._Quantity; }
-            set { this._Quantity = value; }
+            set
+            {
+                this._Quantity = value;
+                this.NotifyPropertyChanged("Quantity");
+            }
         }
 
-        [JsonProperty("unknown2")]
-        public bool Unknown2
+        [JsonProperty("is_new")]
+        public bool IsNew
         {
-            get { return this._Unknown2; }
-            set { this._Unknown2 = value; }
+            get { return this._IsNew; }
+            set
+            {
+                this._IsNew = value;
+                this.NotifyPropertyChanged("IsNew");
+            }
         }
 
-        [JsonProperty("unknown3")]
-        public int Unknown3
+        [JsonProperty("rarity")]
+        public int Rarity
         {
-            get { return this._Unknown3; }
-            set { this._Unknown3 = value; }
+            get { return this._Rarity; }
+            set
+            {
+                this._Rarity = value;
+                this.NotifyPropertyChanged("Rarity");
+            }
         }
         #endregion
 
-        public virtual void Read(IBitReader reader, int version)
+        public virtual void Read(IBitReader reader, ushort version)
         {
             this._Quantity = reader.ReadInt32();
-            this._Unknown2 = reader.ReadBoolean();
-            this._Unknown3 = reader.ReadInt32();
+            this._IsNew = reader.ReadBoolean();
+            this._Rarity = reader.ReadInt32();
+        }
+
+        public virtual void Write(IBitWriter writer)
+        {
+            writer.WriteInt32(this._Quantity);
+            writer.WriteBoolean(this._IsNew);
+            writer.WriteInt32(this._Rarity);
         }
 
         public override string ToString()
         {
             return this._PartitionName ?? base.ToString();
+        }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
+
+        public virtual object Clone()
+        {
+            return new ItemData()
+            {
+                Unknown1 = this.Unknown1,
+                PartitionName = this.PartitionName,
+                Definition = this.Definition,
+                Quantity = this.Quantity,
+                IsNew = this.IsNew,
+                Rarity = this.Rarity,
+            };
         }
     }
 }

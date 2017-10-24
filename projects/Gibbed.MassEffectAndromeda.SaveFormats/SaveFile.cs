@@ -24,10 +24,12 @@ using System.IO;
 using Gibbed.IO;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Hashing = Gibbed.Frostbite3.Common.Hashing;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class SaveFile
     {
         public const ulong Signature = 0x534B4E5548434246; // 'FBCHUNKS'
@@ -47,6 +49,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats
 
         #region Properties
         [JsonProperty("endian")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public Endian Endian
         {
             get { return this._Endian; }

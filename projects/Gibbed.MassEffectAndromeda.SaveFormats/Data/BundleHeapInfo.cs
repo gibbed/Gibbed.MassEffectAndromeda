@@ -21,6 +21,7 @@
  */
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 {
@@ -37,6 +38,7 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         public uint Unknown3 { get; set; }
 
         [JsonProperty("type")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public BundleHeapType Type { get; set; }
 
         [JsonProperty("unknown4")]
