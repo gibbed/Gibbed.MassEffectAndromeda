@@ -20,17 +20,31 @@
  *    distribution.
  */
 
-namespace Gibbed.MassEffectAndromeda.GameInfo
-{
-    public static class InfoManager
-    {
-        public static InfoDictionary<ItemDefinition> Items { get; private set; }
-        public static InfoDictionary<PartyMemberDefinition> PartyMembers { get; private set; }
+using System.ComponentModel;
+using Newtonsoft.Json;
 
-        static InfoManager()
+namespace Gibbed.MassEffectAndromeda.GameInfo.Raw
+{
+    [JsonObject(MemberSerialization.OptIn)]
+    internal class PartyMemberDefinition
+    {
+        public PartyMemberDefinition()
         {
-            Items = Loaders.ItemDefinitionLoader.Load();
-            PartyMembers = Loaders.PartyMemberDefinitionLoader.Load();
+            this.Name = null;
+            this.ExcludeProfiles = false;
+            this.ExcludePresets = false;
         }
+
+        [JsonProperty(PropertyName = "name", Required = Required.Default)]
+        [DefaultValue(null)]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "exclude_profiles", Required = Required.Default)]
+        [DefaultValue(false)]
+        public bool ExcludeProfiles { get; set; }
+
+        [JsonProperty(PropertyName = "exclude_presets", Required = Required.Default)]
+        [DefaultValue(false)]
+        public bool ExcludePresets { get; set; }
     }
 }

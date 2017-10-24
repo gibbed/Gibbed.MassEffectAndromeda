@@ -24,6 +24,7 @@ namespace Gibbed.MassEffectAndromeda.GameInfo
 {
     public enum ItemType
     {
+        Invalid = -1,
         Power,
         RangedWeapon,
         MeleeWeapon,
@@ -40,7 +41,5 @@ namespace Gibbed.MassEffectAndromeda.GameInfo
         Plot,
         CasualOutfit,
         PassiveSkill,
-        Count,
-        Invalid,
     }
 }

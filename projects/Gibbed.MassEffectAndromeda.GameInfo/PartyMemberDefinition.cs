@@ -22,15 +22,10 @@
 
 namespace Gibbed.MassEffectAndromeda.GameInfo
 {
-    public static class InfoManager
+    public sealed class PartyMemberDefinition
     {
-        public static InfoDictionary<ItemDefinition> Items { get; private set; }
-        public static InfoDictionary<PartyMemberDefinition> PartyMembers { get; private set; }
-
-        static InfoManager()
-        {
-            Items = Loaders.ItemDefinitionLoader.Load();
-            PartyMembers = Loaders.PartyMemberDefinitionLoader.Load();
-        }
+        public string Name { get; internal set; }
+        public bool ExcludeProfiles { get; internal set; }
+        public bool ExcludePresets { get; internal set; }
     }
 }

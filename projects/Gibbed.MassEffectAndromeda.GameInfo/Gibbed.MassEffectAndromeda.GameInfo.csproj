@@ -53,12 +53,16 @@
     <Compile Include="ItemDefinition.cs" />
     <Compile Include="Loaders\ItemDefinitionLoader.cs" />
     <Compile Include="Loaders\LoaderHelper.cs" />
+    <Compile Include="Loaders\PartyMemberDefinitionLoader.cs" />
     <Compile Include="Loaders\TypeNameSerializationBinder.cs" />
+    <Compile Include="PartyMemberDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Raw\ItemDefinition.cs" />
+    <Compile Include="Raw\PartyMemberDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="Resources\PartyMembers.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Items.json" />

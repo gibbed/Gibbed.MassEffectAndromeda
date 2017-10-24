@@ -1,0 +1,42 @@
+﻿{
+  "0": {
+    "name": "Ryder",
+    "exclude_profiles": false,
+    "exclude_presets": false
+  },
+  "1": {
+    "name": "Cora",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  },
+  "2": {
+    "name": "Jaal",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  },
+  "4": {
+    "name": "Vetra",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  },
+  "5": {
+    "name": "Drack",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  },
+  "6": {
+    "name": "Peebee",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  },
+  "7": {
+    "name": "Liam",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  },
+  "8": {
+    "name": "Salen Varn",
+    "exclude_profiles": true,
+    "exclude_presets": true
+  }
+}
