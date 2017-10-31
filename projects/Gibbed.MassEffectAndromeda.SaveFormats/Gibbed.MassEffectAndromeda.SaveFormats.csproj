@@ -60,6 +60,8 @@
     <Compile Include="Data\DestructionUnknown4.cs" />
     <Compile Include="Data\DestructionUnknown5.cs" />
     <Compile Include="Data\JournalUnknown0.cs" />
+    <Compile Include="Data\NotificationsUnknown6.cs" />
+    <Compile Include="Data\NotificationsType.cs" />
     <Compile Include="Data\PartyMemberVehicleData.cs" />
     <Compile Include="Data\PartyMemberVehicleHealthData.cs" />
     <Compile Include="Components\InventoryComponent.cs" />

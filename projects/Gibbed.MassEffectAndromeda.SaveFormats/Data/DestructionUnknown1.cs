@@ -50,18 +50,22 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
         internal void Read(IBitReader reader)
         {
             this._Unknown.Clear();
-            var unknown1Count = reader.ReadUInt16();
-            for (int i = 0; i < unknown1Count; i++)
+            var unknownCount = reader.ReadUInt16();
+            for (int i = 0; i < unknownCount; i++)
             {
-                var unknown1 = new DestructionUnknown2();
-                unknown1.Read(reader);
-                this._Unknown.Add(unknown1);
+                var unknown = new DestructionUnknown2();
+                unknown.Read(reader);
+                this._Unknown.Add(unknown);
             }
         }
 
         internal void Write(IBitWriter writer)
         {
-            throw new NotImplementedException();
+            writer.WriteUInt16((ushort)this._Unknown.Count);
+            foreach (var unknown in this._Unknown)
+            {
+                unknown.Write(writer);
+            }
         }
     }
 }

@@ -82,7 +82,12 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 
         internal void Write(IBitWriter writer)
         {
-            throw new NotImplementedException();
+            writer.PushFrameLength(24);
+            writer.WriteBytes(this._Unknown1);
+            writer.WriteUInt8(this._Unknown2);
+            writer.WriteUInt8(this._Unknown3);
+            writer.WriteFunkyValue(this._Unknown4);
+            writer.PopFrameLength();
         }
     }
 }

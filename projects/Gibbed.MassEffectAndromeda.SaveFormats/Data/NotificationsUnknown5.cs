@@ -21,6 +21,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Gibbed.MassEffectAndromeda.FileFormats;
 using Newtonsoft.Json;
 
@@ -29,53 +30,102 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
     [JsonObject(MemberSerialization.OptIn)]
     public class NotificationsUnknown5
     {
+        #region Fields
+        private readonly List<NotificationsUnknown6> _Unknown;
+        #endregion
+
+        public NotificationsUnknown5()
+        {
+            this._Unknown = new List<NotificationsUnknown6>();
+        }
+
+        #region Properties
+        [JsonProperty("unknown")]
+        public List<NotificationsUnknown6> Unknown
+        {
+            get { return this._Unknown; }
+        }
+        #endregion
+
         internal void Read(IBitReader reader, ushort version)
         {
+            this._Unknown.Clear();
             if (version < 2)
             {
-                var unknown0 = reader.ReadUInt32();
-                for (int i = 0; i < unknown0; i++)
+                var unknownCount = reader.ReadUInt32();
+                var types = new NotificationsType[unknownCount];
+                for (uint i = 0; i < unknownCount; i++)
                 {
-                    var unknown1 = reader.ReadUInt32();
+                    types[i] = (NotificationsType)reader.ReadUInt32();
                 }
-                for (int i = 0; i < unknown0; i++)
+                for (uint i = 0; i < unknownCount; i++)
                 {
-                    var unknown2 = reader.ReadUInt8();
+                    var unknown = new NotificationsUnknown6();
+                    unknown.Type = types[i];
+                    unknown.Unknown1 = reader.ReadUInt8();
+                    unknown.Unknown2 = null;
+                    this._Unknown.Add(unknown);
                 }
             }
             else if (version < 3)
             {
-                var unknown3 = reader.ReadUInt32();
-                for (int i = 0; i < unknown3; i++)
+                var unknownCount = reader.ReadUInt32();
+                for (uint i = 0; i < unknownCount; i++)
                 {
-                    var unknown4 = reader.ReadUInt32();
-                    if (unknown4 == 2)
+                    var unknown = new NotificationsUnknown6();
+                    unknown.Type = (NotificationsType)reader.ReadUInt32();
+                    switch (unknown.Type)
                     {
-                        var unknown5 = reader.ReadString();
+                        case NotificationsType.Unknown0:
+                        case NotificationsType.Unknown1:
+                        {
+                            unknown.Unknown1 = reader.ReadUInt32();
+                            break;
+                        }
+
+                        case NotificationsType.Unknown2:
+                        {
+                            unknown.Unknown2 = reader.ReadString();
+                            break;
+                        }
+
+                        default:
+                        {
+                            throw new FormatException();
+                        }
                     }
-                    else
-                    {
-                        var unknown6 = reader.ReadUInt32();
-                    }
+                    this._Unknown.Add(unknown);
                 }
             }
             else
             {
-                var unknown7 = reader.ReadUInt16();
-                for (int i = 0; i < unknown7; i++)
+                var unknownCount = reader.ReadUInt16();
+                for (uint i = 0; i < unknownCount; i++)
                 {
                     reader.PushFrameLength(24);
-
-                    var unknown10 = reader.ReadUInt32();
-                    if (unknown10 == 2)
+                    var unknown = new NotificationsUnknown6();
+                    unknown.Type = (NotificationsType)reader.ReadUInt32();
+                    switch (unknown.Type)
                     {
-                        var unknown11 = reader.ReadString();
-                    }
-                    else
-                    {
-                        var unknown12 = reader.ReadUInt32();
-                    }
+                        case NotificationsType.Unknown0:
+                        case NotificationsType.Unknown1:
+                        {
+                            unknown.Unknown1 = reader.ReadUInt32();
+                            break;
+                        }
 
+                        case NotificationsType.Unknown2:
+                        {
+                            unknown.Unknown2 = reader.ReadString();
+                            break;
+                        }
+
+                        default:
+                        {
+                            throw new FormatException();
+                        }
+                    }
+                    this._Unknown.Add(unknown);
                     reader.PopFrameLength();
                 }
             }
@@ -83,7 +133,33 @@ namespace Gibbed.MassEffectAndromeda.SaveFormats.Data
 
         internal void Write(IBitWriter writer)
         {
-            throw new NotImplementedException();
+            writer.WriteUInt16((ushort)this._Unknown.Count);
+            foreach (var unknown in this._Unknown)
+            {
+                writer.PushFrameLength(24);
+                writer.WriteUInt32((uint)unknown.Type);
+                switch (unknown.Type)
+                {
+                    case NotificationsType.Unknown0:
+                    case NotificationsType.Unknown1:
+                    {
+                        writer.WriteUInt32(unknown.Unknown1);
+                        break;
+                    }
+
+                    case NotificationsType.Unknown2:
+                    {
+                        writer.WriteString(unknown.Unknown2);
+                        break;
+                    }
+
+                    default:
+                    {
+                        throw new FormatException();
+                    }
+                }
+                writer.PopFrameLength();
+            }
         }
     }
 }
